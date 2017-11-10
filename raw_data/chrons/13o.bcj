@@ -1,0 +1,57 @@
+>                               Pacific: Resolution - Austral
+-24.603 221.863 0560-044.c2.Er
+>				Pacific: Marquesas - Galapagos (propagator)
+#-07.129 230.851 0380-001.c1b.Vr
+-07.123 230.862 0380-001.Ed
+-06.522 230.835 0560-038.Ed
+>				Pacific: Marquesas - Galapagos (propagator)
+-06.576 231.825 0380-001.c1
+-06.005 231.707 0560-038.Ed
+>                               Pacific: Marquesas - Galapagos
+-05.060 231.267 0480-271.Vd
+>				Pacific: Galapagos - Clipperton
+-00.156 229.841 0550-047.c2.Ed
+-00.151 229.844 0480-084.c3
+-00.068 229.930 0560-033.c2.Ed
++00.078 229.651 0560-033.c2.Vr
++02.563 228.947 dsdp09gc
++02.661 228.960 0480-268.Ed
++02.873 229.050 0550-055.Vd
++03.432 228.675 0560-029.c3.Er
++05.014 228.109 0560-029.c2.Vr
++05.118 227.828 0550-045.c1b.Vr
+>				Pacific: Clipperton - Clarion
++12.952 231.409 0480-069.Vd
+>				Pacific: Clarion - Molokai
++18.986 234.875 trip01ar.c1
++20.031 234.711 78123008
++20.458 234.639 0480-182.c2.E
++20.460 234.598 0480-182.c2.V
++20.807 234.422 74010908
++21.235 234.450 pol7101
++21.496 234.437 c1011
+>
++24.736 232.654 0480-249.E
++24.736 232.654 0480-249.V
++25.137 232.437 78123008
+>                               Pacific: Molokai - Murray
++30.313 230.163 0480-046
+>                               Pacific: Murray - xxx
++33.729 232.513 indp16wt
+>				Pac: Mendocino - Surveyor
++43.944 215.206 0480-109.c1.Ed
++40.722 215.234 si343417.c4
+>				Nazca: Mocha - Challenger
+-35.259 285.224 0480-042.Ed
+>				Nazca: Nazca - Mendana
+-17.107 278.270 0560-013.Ed
+-15.128 277.145 0380-003.c1.Ed
+-13.632 276.556 0480-195.Ed
+-12.621 276.272 0480-294.Ed
+>				Antarctic: FZ X - FZ IX?
+-66.518 211.007 elt42
+>				Antarctic: Udintsev - Tharp
+-58.185 239.900 elt21
+>				Antarctic: Heezen - Tula
+-58.082 255.903 elt23.c2
+>

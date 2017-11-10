@@ -1,0 +1,15 @@
+
+pscoast -JX9d/7d -R0/360/-90/90 -G220 -Dc -K > world.ps
+psxy world_fz.gmt   -JX -R -O -K -M -V -Wta >> world.ps
+psxy world_fr.gmt   -JX -R -O -K -M -V -Sf0.2/0.05 >> world.ps
+psxy world_mag.gmt  -JX -R -O -K -M -V -W1/0/0/0 >> world.ps
+psxy world_ma.gmt   -JX -R -O -K -M -V -W2/255/0/0 >> world.ps
+psxy world_trip.gmt -JX -R -O -K -M -V -W2/0/255/0 >> world.ps
+psxy world_scarp.gmt -JX -R -O -K -M -V -W2/0/0/255 >> world.ps
+psxy world_trough.gmt -JX -R -O -K -M -V -W2/255/0/255 >> world.ps
+##psxy world_feat.gmt -JX -R -O -K -M -V -St0.05 -G0 >> world.ps
+##psxy world_feat.gmt -JX -R -O    -M -V -W1/0/0/0 >> world.ps
+
+psxy -JX -R -O /dev/null >> world.ps
+
+gsl world.ps

@@ -1,0 +1,61 @@
+>                               Pacific: Resolution - Austral
+-24.719 223.739 0560-044.c2.Er
+>				Pacific: Marquesas - Galapagos (propagator)
+-05.668 233.442 0380-001.c1
+-04.875 233.385 0560-038.Ed
+-03.926 233.000 0480-271.Vd
+>				Pacific: Marquesas - Galapagos (propagator)
+-05.467 233.795 0380-001.c1
+-04.812 233.486 0560-038.Ed
+-03.762 233.264 0480-271.Vd
+>				Pacific: Galapagos - Clipperton
+-00.001 232.154 0480-084.c4
+-00.001 232.154 0550-047.c3
++02.391 231.577 scan09ar.f
++04.973 230.993 0480-268.Ed
++05.023 231.002 0550-055.Vd
++07.498 229.622 0550-045.c1.Vd
+>				Pacific: Clipperton - Clarion
++12.952 233.686 0480-069.Vd
+>				Pacific: Clarion - Molokai
+#+20.294 236.811 0480-182.c2.V 11y
+#+20.294 236.811 0480-182.c2.E 11y
++21.558 235.785 c2002.c1?
+>
++23.525 234.747 plds04mv
++24.788 234.631 hpyn05bd
++25.336 234.553 antp17mv
++25.400 234.534 78123001?
+>                               Pacific: Molokai - Murray
++29.999 233.105 0480-046
++30.123 233.066 0480-046
++30.257 233.018 0480-046
+>				Pacific: Mendocino - Surveyor
++41.667 217.138 pol7004
++41.928 217.159 nosidoe.c4
++41.981 217.155 nosidoe.c14
++42.175 217.165 nosidoe.c15
++42.298 217.138 nosidoe.c16
++42.500 217.104 nosidoe.c18
++42.651 217.147 nosidoe.c17
++42.818 217.210 nosidoe.c19
++42.999 217.218 nosidoe.c13
++43.064 217.613 0480-109.c1.Ed
++43.144 217.210 nosidoe.c20
+>                               Pacific: Sedna - Sila
++49.027 216.486 si343417.c5
+>				Nazca: Mocha - Challenger
+-35.950 283.423 0480-042.Ed
+>				Nazca: Nazca - Mendana
+-20.107 276.887 0380-003.c2.Hd
+-17.286 275.383 0480-294.Ed
+-17.234 275.425 0560-013.Ed
+-15.214 274.695 0380-003.c1.Hd
+-14.169 274.269 0480-195.Ed
+>				Antarctic: FZ X - FZ IX?
+-66.219 209.864 elt42
+>				Antarctic: FZ IX? - FZ 8.5
+-64.029 221.825 elt25.c2
+>				Antarctic: Heezen - Tula
+-58.023 253.920 elt23.c2
+>

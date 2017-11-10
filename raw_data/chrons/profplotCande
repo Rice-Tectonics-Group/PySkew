@@ -1,0 +1,104 @@
+#! /usr/bin/sh
+ 
+chrons=/home/ben/chrons
+strike=0
+portrait=n
+
+if [ $portrait = "y" ];
+then
+  par="-P"
+else
+  par=""
+fi
+
+#file=${1}
+#plot=`basename ${file} .R`.ps
+file="Galapagos - Clipperton"
+plot=gal-cli.ps
+
+gmtset GRID_CROSS_SIZE 0.05
+ 
+pscoast -Jm0.4 ${par} -R215/235/-8/8 -G125 -Bf1a2g2:."${file}":WeSn -K -X0.75i > ${plot}
+ 
+psxy $chrons/frazo.gmt  -Jm -R -: -K -O -M -Wta >> ${plot}
+psxy $chrons/features.gmt  -Jm -R -: -K -O -M -W1 >> ${plot}
+psxy $chrons/features.gmt  -Jm -R -: -K -O -M -Sc0.05 -G0 >> ${plot}
+
+for i in m0 m1 m2 m3 m4 m5 m6 m7 m8 m9
+do
+   psxy $chrons/${i}.gmt -Jm -R -: -K -O -M >> ${plot}
+done
+for i in 30 31 32 33 33r 34
+do
+   psxy $chrons/${i}.gmt -Jm -R -: -K -O -M >> ${plot}
+done
+for i in 20 21 22 23 24 25 26 27 28 29
+do
+   psxy $chrons/${i}.gmt -Jm -R -: -K -O -M >> ${plot}
+done
+for i in 10 11 12 13 15 16 17 18 19
+do
+   psxy $chrons/${i}.gmt -Jm -R -: -K -O -M >> ${plot}
+done
+for i in 5 5c 6 6a 7 8 9 
+do
+   psxy $chrons/${i}.gmt -Jm -R -: -K -O -M >> ${plot}
+done
+
+psxy $chrons/25r.kat.gmt -Jm -R -: -K -O -SA0.05 -G255/0/0 >> ${plot}
+psxy $chrons/18.kat.gmt -Jm -R -: -K -O -SS0.05 -G0/255/0 -W1 >> ${plot}
+psxy $chrons/13o.bcj    -Jm -R -: -K -O -M -SS0.05 -G255/0/0 >> ${plot}
+psxy $chrons/13y.bcj    -Jm -R -: -K -O -M -SD0.05 -G255/0/0 >> ${plot}
+psxy $chrons/15o.bcj    -Jm -R -: -K -O -M -ST0.05 -G255/128/0 >> ${plot}
+psxy $chrons/15y.bcj    -Jm -R -: -K -O -M -SI0.05 -G255/128/0 >> ${plot}
+psxy $chrons/16o.bcj    -Jm -R -: -K -O -M -SS0.05 -G0/255/0 >> ${plot}
+psxy $chrons/16y.bcj    -Jm -R -: -K -O -M -SD0.05 -G0/255/0 >> ${plot}
+psxy $chrons/17o.bcj    -Jm -R -: -K -O -M -ST0.05 -G0/0/255 >> ${plot}
+psxy $chrons/17y.bcj    -Jm -R -: -K -O -M -SI0.05 -G0/0/255 >> ${plot}
+psxy $chrons/18o.bcj    -Jm -R -: -K -O -M -SS0.05 -G255/0/255 >> ${plot}
+psxy $chrons/18y.bcj    -Jm -R -: -K -O -M -SD0.05 -G255/0/255 >> ${plot}
+psxy $chrons/19o.bcj    -Jm -R -: -K -O -M -ST0.05 -G255/0/0 >> ${plot}
+psxy $chrons/19y.bcj    -Jm -R -: -K -O -M -SI0.05 -G255/0/0 >> ${plot}
+psxy $chrons/20o.bcj    -Jm -R -: -K -O -M -SS0.05 -G255/128/0 >> ${plot}
+psxy $chrons/20y.bcj    -Jm -R -: -K -O -M -SD0.05 -G255/128/0 >> ${plot}
+psxy $chrons/21o.bcj    -Jm -R -: -K -O -M -ST0.05 -G0/255/0 >> ${plot}
+psxy $chrons/21y.bcj    -Jm -R -: -K -O -M -SI0.05 -G0/255/0 >> ${plot}
+psxy $chrons/22o.bcj    -Jm -R -: -K -O -M -SS0.05 -G0/0/255 >> ${plot}
+psxy $chrons/22y.bcj    -Jm -R -: -K -O -M -SD0.05 -G0/0/255 >> ${plot}
+
+for i in 5 6 7 8 9 10 11 12 13 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 33r 34
+do
+   gawk -v s=$i '{printf "%f %f 8 0 0 6 %s\n",$2,$1,s}' $chrons/${i}.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+done
+awk '{printf "%f %f 8 0 0 6 5C\n",$2,$1}' $chrons/5c.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+awk '{printf "%f %f 8 0 0 6 6A\n",$2,$1}' $chrons/6a.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+awk '{printf "%f %f 8 0 0 6 M0\n",$2,$1}' $chrons/m0.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+awk '{printf "%f %f 8 0 0 6 M1\n",$2,$1}' $chrons/m1.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+awk '{printf "%f %f 8 0 0 6 M2\n",$2,$1}' $chrons/m2.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+awk '{printf "%f %f 8 0 0 6 M3\n",$2,$1}' $chrons/m3.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+awk '{printf "%f %f 8 0 0 6 M4\n",$2,$1}' $chrons/m4.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+awk '{printf "%f %f 8 0 0 6 M5\n",$2,$1}' $chrons/m5.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+awk '{printf "%f %f 8 0 0 6 M6\n",$2,$1}' $chrons/m6.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+awk '{printf "%f %f 8 0 0 6 M7\n",$2,$1}' $chrons/m7.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+awk '{printf "%f %f 8 0 0 6 M8\n",$2,$1}' $chrons/m8.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+awk '{printf "%f %f 8 0 0 6 M9\n",$2,$1}' $chrons/m9.gmt | pstext -Jm -R -K -O -W255/255/255 -C0.005i/0.007i >> ${plot}
+
+#awk '{print $2,$3,$7}' ${file} | pswiggle  -Jm -R -:    -O -W2 -T5 -Z300 -D20 -I${strike} >> ${plot}
+psxy -Jm -R -O /dev/null >> ${plot}
+
+if [ $portrait = "y" ];
+then
+  gs ${plot}
+else
+  gsl ${plot}
+fi
+
+echo ""
+echo "Print (y/n)?"
+read print_query
+ 
+if test "$print_query" = "y"
+then
+   lpr -Phpdown ${plot}
+fi
+

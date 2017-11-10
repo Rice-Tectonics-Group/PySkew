@@ -9,12 +9,21 @@ Essentials_Problem_Datafiles
 */*/.#*
 .#*
 *.log
+*.bak
+*/*.bak
+*.zip
+*/*.zip
 
 Data_Storage_Directories
 
 SynthData/*
 spreading_zones/*
 new_isochron_picks/*
+raw_data/ship/*/
+raw_data/hi_alt/*/
+raw_data/hi_alt/*.bmp
+raw_data/hi_alt/.gmtcommands4
+raw_data/hi_alt/findreg
 Backups/*
 Backup/*
 backups/*
@@ -33,5 +42,6 @@ Chron_Directories
 *n/
 *_sr/
 
-Random_Files
+Random_Files_And_Directories
+0000_group_meetin_files/*
 todo.txt

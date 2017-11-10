@@ -1,5 +1,4 @@
 Essentials_Problem_Datafiles
-*.pyc
 
 *.pyc
 */*.pyc
@@ -15,6 +14,7 @@ Data_Storage_Directories
 
 SynthData/*
 spreading_zones/*
+new_isochron_picks/*
 Backups/*
 Backup/*
 backups/*
@@ -29,4 +29,9 @@ Results_File_Types
 
 Chron_Directories
 
-#*/
+*r/
+*n/
+*_sr/
+
+Random_Files
+todo.txt

@@ -1,0 +1,13 @@
+20,c	This sets what chron you're analysing and its color seperated by a comma
+17,green;18,pink;19,r;20,c;21,orange;22,purple;23,grey	comma seperates the chron from its color and simi-colons seperate the different chrons these are what will be plotted along side the main chron
+20r/results	This dictates the name of the directory for output plots
+20r/data	This dictates the name of the directory to seperate out data into for analysis
+20r/failed_data	This dictates the name of the directory in which data that was initially thought useful but then at some point failed to be relavent is seperated into for later deletion or analysis depending on its continued irrelavence or relavence
+-30,30	bounding lattitudes seperated by a comma in which to search for tracks crossing the chron of interest
+160,240	bounding longitudes seperated by a comma in which to search for tracks crossing the chron of interest, note it must be in 0-360 coordinates
+.5	Max distance a track can be from a chron before it is considered to have "intersected" that chron
+1	tolerance of the RDP algorithm which sets the furthest a point can be from a linear segment of data before it is considered part of that linear segment or a point in a new linear segment see https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm for more info
+10	the angle at which a track is said to have turned (degrees)
+1	Boolean to tell the program to plot or not, 1 means plot 0 don't plot
+east	heading to flip the data to point towards
+both	decides if you want to search ship and aeromag data or just one or the other. Possible values are ship, aero, or both.

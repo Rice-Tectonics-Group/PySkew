@@ -456,6 +456,8 @@ def plot_best_skewnesses(deskew_path, leave_plots_open=False, best_skews_subdir=
     deskew_df = filter_deskew_and_calc_aei(deskew_path)
     comp_types = deskew_df['track_type'].tolist()
 
+    if deskew_df.empty: return
+
     check_generate_synth(deskew_df['sz_name'].iloc[0],deskew_df['age_min'].iloc[0],deskew_df['age_max'].iloc[0],ship_or_aero='both')
 
     results_dir = os.path.join(deskew_df['results_dir'].iloc[0],best_skews_subdir)
@@ -498,7 +500,7 @@ def plot_skewness_by_spreading_zone(deskew_path,leave_plots_open=False,ridge_loc
         sz_deskew_df.sort_values(by="comp_name",inplace=True)
         sz_deskew_df.sort_values(by="inter_lat",ascending=False,inplace=True)
         sz_deskew_df.to_csv(tmp_deskew_path,sep='\t',index=False)
-        plot_best_skewnesses(tmp_deskew_path,leave_plots_open=leave_plots_open,ridge_loc_path=ridge_loc_path,best_skews_subdir="skewness_by_spreading_zones/%s"%str(sz))
+        plot_best_skewnesses(tmp_deskew_path,leave_plots_open=leave_plots_open,ridge_loc_path=ridge_loc_path,best_skews_subdir=os.path.join("skewness_by_spreading_zones","%s"%str(sz)))
 
     try: os.remove(tmp_deskew_path); os.remove("%s.dt.csv"%os.path.basename(tmp_deskew_path).split('.')[0])
     except OSError: print("trouble removing temporary deskew and dt.csv files used for this function, check the code")

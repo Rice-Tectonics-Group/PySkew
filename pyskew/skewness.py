@@ -150,7 +150,8 @@ def get_lon_lat_from_plot_pick(deskew_row,plot_pick,dist_e=.75):
     if found_dist:
         print("found lat lon of %s at a distance %.3f"%(drow["comp_name"],picked_distance))
     else:
-        print("couldn't find picked distance in datafile to calculate lat and lon for %s"%drow["comp_name"]); return (drow['inter_lon'],drow['inter_lat'],0)
+        print("couldn't find picked distance in datafile to calculate lat and lon for %s"%drow["comp_name"])
+        return (drow['inter_lon'],drow['inter_lat'],0)
 
     return picked_lon,picked_lat,picked_distance
 

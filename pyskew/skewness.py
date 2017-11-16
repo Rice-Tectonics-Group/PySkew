@@ -115,11 +115,11 @@ def correct_cande(cande_cor_path,deskew_path,spreading_rate_path=os.path.join("r
                 other_crow = cande_cor_df[cande_cor_df["comp_name"]==drow["comp_name"].replace('V','E')]
             else: print("Problem determining component direction for %s"%drow["comp_name"]); continue
             #check that the intersept distance correction between E and V are not more than 3 deg different
-            if abs(float(crow['correction'])-float(other_crow['correction']))>3:
+            if abs(float(crow['correction']) + float(other_crow['correction']))>3:
                 print("correction for %s is >3 km different from the other componenet's correction, and the average may be off"%(drow['comp_name']))
             correction = (float(crow['correction'])+float(other_crow['correction']))/2 - half_dis
         elif drow['track_type'] == 'ship':
-            correction = float(crow['correction']) - half_dis
+            correction = float(crow['correction']) + half_dis
         else:
             print("could not determine the track type for %s please check your deskew file, skipping"%drow["comp_name"]); continue
 

@@ -105,7 +105,7 @@ def correct_cande(cande_cor_path,deskew_path,spreading_rate_path=os.path.join("r
 
         half_age = (drow['age_max']-drow['age_min'])/2
         avg_age = (drow['age_max']+drow['age_min'])/2
-        half_dis = half_age*spreading_rate_func(avg_age,drow['sz_name'])
+        half_dis = -np.sign(float(crow['correction']))*half_age*spreading_rate_func(avg_age,drow['sz_name'])
 
         if drow['track_type'] == 'aero':
             #Find other component direction so we can average the shift between components
@@ -117,9 +117,9 @@ def correct_cande(cande_cor_path,deskew_path,spreading_rate_path=os.path.join("r
             #check that the intersept distance correction between E and V are not more than 3 deg different
             if abs(float(crow['correction'])-float(other_crow['correction']))>3:
                 print("correction for %s is >3 km different from the other componenet's correction, and the average may be off"%(drow['comp_name']))
-            correction = (float(crow['correction'])+float(other_crow['correction']))/2 + half_dis
+            correction = (float(crow['correction'])+float(other_crow['correction']))/2 - half_dis
         elif drow['track_type'] == 'ship':
-            correction = float(crow['correction']) + half_dis
+            correction = float(crow['correction']) - half_dis
         else:
             print("could not determine the track type for %s please check your deskew file, skipping"%drow["comp_name"]); continue
 

@@ -300,7 +300,7 @@ if __name__=="__main__":
         #Generates .gcp files or great circle pole files from gmt in order to find strike
         spreading_zone_files = seperate_chron_into_spreading_zones(chron_to_analyse)
         for spreading_zone_file in spreading_zone_files:
-            subprocess.check_call('fitcircle %s -L3 > %s'%(spreading_zone_file,spreading_zone_file[:-3]+'gcp'),shell=True)
+            subprocess.check_call('gmt fitcircle %s -L3 > %s'%(spreading_zone_file,spreading_zone_file[:-3]+'gcp'),shell=True)
 
         #Find and save all of the cuts of the tracks that intersect the chron in the region of interest so that the intersect can be used to generate strike and only the intersecting cuts will be used from now on
         tracks,cut_tracks_path = get_track_intersects(chron_to_analyse, cut_tracks, spreading_zone_files, data_directory=data_directory, bounding_lats=bounding_lats, bounding_lons=bounding_lons, e=e)

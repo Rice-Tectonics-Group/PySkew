@@ -105,7 +105,7 @@ def correct_cande(cande_cor_path,deskew_path,spreading_rate_path=os.path.join("r
 
         half_age = (drow['age_max']-drow['age_min'])/2
         avg_age = (drow['age_max']+drow['age_min'])/2
-        half_dis = -np.sign(float(crow['correction']))*half_age*spreading_rate_func(avg_age,drow['sz_name'])
+        half_dis = -np.sign(float(crow['correction']))*half_age*spreading_rate_func(drow['sz_name'],avg_age)
 
         if drow['track_type'] == 'aero':
             #Find other component direction so we can average the shift between components

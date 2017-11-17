@@ -102,6 +102,12 @@ def correct_cande(cande_cor_path,deskew_path,dist_e=.75):
         if drow['comp_name'].startswith('#'): continue #commented lines check
         if crow.empty: print("no correction found for component %s"%drow["comp_name"]); continue #no correction for this component check
 
+<<<<<<< HEAD
+=======
+        half_age = (drow['age_max']-drow['age_min'])/2
+        avg_age = (drow['age_max']+drow['age_min'])/2
+        half_dis = -np.sign(float(crow['correction']))*half_age*spreading_rate_func(drow['sz_name'],avg_age)
+
         if drow['track_type'] == 'aero':
             #Find other component direction so we can average the shift between components
             if 'E' in drow["comp_name"]:
@@ -110,7 +116,7 @@ def correct_cande(cande_cor_path,deskew_path,dist_e=.75):
                 other_crow = cande_cor_df[cande_cor_df["comp_name"]==drow["comp_name"].replace('V','E')]
             else: print("Problem determining component direction for %s"%drow["comp_name"]); continue
             #check that the intersept distance correction between E and V are not more than 3 deg different
-            if abs(float(crow['correction'])-float(other_crow['correction']))>3:
+            if abs(float(crow['correction']) + float(other_crow['correction']))>3:
                 print("correction for %s is >3 km different from the other componenet's correction, and the average may be off"%(drow['comp_name']))
             correction = (float(crow['correction'])+float(other_crow['correction']))/2
         elif drow['track_type'] == 'ship':

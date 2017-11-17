@@ -84,7 +84,7 @@ def phase_shift_data(mag_data,phase_shift):
     #   Truncate the head and the tail and return the data
     return NewMag[100:N1+100]
 
-def correct_cande(cande_cor_path,deskew_path,spreading_rate_path=os.path.join("raw_data","spreading_rate_model.txt"),dist_e=.75):
+def correct_cande(cande_cor_path,deskew_path,dist_e=.75):
     #backup the .deskew file
     if not os.path.isfile(deskew_path+'.ccbak'):
         print("backing up %s to %s"%(deskew_path,deskew_path+'.ccbak'))
@@ -93,7 +93,6 @@ def correct_cande(cande_cor_path,deskew_path,spreading_rate_path=os.path.join("r
     #read in the deskew and cande_cor file
     deskew_df = pd.read_csv(deskew_path,sep="\t")
     cande_cor_df = pd.read_csv(cande_cor_path,sep="\t")
-    spreading_rate_func,sz_list = generate_spreading_rate_model(spreading_rate_path)
 
     #copy the deskew df so I can change it and save the corrected latitudes and longitudes
     new_deskew_df = deskew_df.copy()
@@ -102,10 +101,6 @@ def correct_cande(cande_cor_path,deskew_path,spreading_rate_path=os.path.join("r
 
         if drow['comp_name'].startswith('#'): continue #commented lines check
         if crow.empty: print("no correction found for component %s"%drow["comp_name"]); continue #no correction for this component check
-
-        half_age = (drow['age_max']-drow['age_min'])/2
-        avg_age = (drow['age_max']+drow['age_min'])/2
-        half_dis = half_age*spreading_rate_func(avg_age,drow['sz_name'])
 
         if drow['track_type'] == 'aero':
             #Find other component direction so we can average the shift between components
@@ -117,9 +112,9 @@ def correct_cande(cande_cor_path,deskew_path,spreading_rate_path=os.path.join("r
             #check that the intersept distance correction between E and V are not more than 3 deg different
             if abs(float(crow['correction'])-float(other_crow['correction']))>3:
                 print("correction for %s is >3 km different from the other componenet's correction, and the average may be off"%(drow['comp_name']))
-            correction = (float(crow['correction'])+float(other_crow['correction']))/2 + half_dis
+            correction = (float(crow['correction'])+float(other_crow['correction']))/2
         elif drow['track_type'] == 'ship':
-            correction = float(crow['correction']) + half_dis
+            correction = float(crow['correction'])
         else:
             print("could not determine the track type for %s please check your deskew file, skipping"%drow["comp_name"]); continue
 
@@ -150,8 +145,7 @@ def get_lon_lat_from_plot_pick(deskew_row,plot_pick,dist_e=.75):
     if found_dist:
         print("found lat lon of %s at a distance %.3f"%(drow["comp_name"],picked_distance))
     else:
-        print("couldn't find picked distance in datafile to calculate lat and lon for %s"%drow["comp_name"])
-        return (drow['inter_lon'],drow['inter_lat'],0)
+        print("couldn't find picked distance in datafile to calculate lat and lon for %s"%drow["comp_name"]); return (drow['inter_lon'],drow['inter_lat'],0)
 
     return picked_lon,picked_lat,picked_distance
 
@@ -467,20 +461,34 @@ def create_spreading_rate_file(spreading_rate_picks_path, ages_path):
     spreading_rate_picks = pd.read_csv(spreading_rate_picks_path,sep='\t',header=0,index_col=0)
     ages_df = pd.read_csv(ages_path,sep='\t',header=0,index_col=0)
 
+    first_anom = ages_df.index[len(ages_df)-1]
+    
     sr_dict = {}
     for track in spreading_rate_picks.columns:
         sr_dict[track] = {}
         track_picks = spreading_rate_picks[spreading_rate_picks[track].notnull()][track]
         prev_anom = track_picks.index[0]
+        
+        # Find first anomaly in this spreading zone
+        if (ages_df.index.get_loc(prev_anom) < ages_df.index.get_loc(first_anom)): first_anom = prev_anom
+        
         for anom,pick in track_picks.iloc[1:].iteritems():
             width = track_picks[prev_anom] - pick
             duration = ages_df['base'][anom] - ages_df['base'][prev_anom]
             sr_dict[track][anom] = width/duration
             prev_anom = anom
     sr_df = pd.DataFrame(sr_dict, index=spreading_rate_picks.index[1:])
+    
+    # Save file with spreading rate estimates for individual tracks
+    #import pdb; pdb.set_trace()
+    if not os.path.isdir(os.path.join(os.path.dirname(spreading_rate_picks_path),'profile_sr')): os.makedirs(os.path.join(os.path.dirname(spreading_rate_picks_path),'profile_sr'))
+    track_path = os.path.join(os.path.dirname(spreading_rate_picks_path),'profile_sr',os.path.basename(spreading_rate_picks_path).split('.')[0] + '_profiles.sr')
+    sr_df.to_csv(track_path,sep='\t')
 
     stats_dict = {'mean':{},'median':{},'std':{},'n':{},'age_min':{},'age_max':{}}
-    prev_anom = ages_df.index[list(ages_df.index).index(sr_df.index[0])-1]
+    # The commented line below always starts the age domain at the youngest anomaly. This may not be accurate if picks don't go that far (e.g. CL-CL).
+    #prev_anom = ages_df.index[list(ages_df.index).index(sr_df.index[0])-1]
+    prev_anom = first_anom
     for anom,picks in sr_df.iterrows():
         pick_list = picks[picks.notnull()].tolist()
         if not pick_list: print("no data to average for %s, skipping"%anom); continue
@@ -498,7 +506,9 @@ def create_spreading_rate_file(spreading_rate_picks_path, ages_path):
     stats_df = stats_df[stats_df['mean'].notnull()]
 
     out_path = os.path.join(os.path.dirname(spreading_rate_picks_path),os.path.basename(spreading_rate_picks_path).split('.')[0] + '.sr')
-    stats_df.to_csv(out_path,sep='\t')
+    stats_df.to_csv(out_path,sep='\t')  
+    
+    return stats_df
 
 def get_lon_lat_from_plot_picks_and_deskew_file(deskew_path,spreading_rate_picks_path):
     deskew_df = pd.read_csv(deskew_path,sep='\t')
@@ -520,7 +530,6 @@ def get_lon_lat_from_plot_picks_and_deskew_file(deskew_path,spreading_rate_picks
                 if drow.empty: print('problem getting deskew data from spreading rate picks for %s, check track names for now skipping'%track); return pd.DataFrame(),0,0
                 drow = drow.iloc[0] #make sure it is the first value and that it is a series
                 iso_lon,iso_lat,iso_dist_on_track = get_lon_lat_from_plot_pick(drow,iso_dist)
-    #            print(anom, iso_dist, iso_dist_on_track, drow['inter_lat'], convert_to_0_360(drow['inter_lon']), iso_lat, iso_lon)
                 iso_dict[track][anom]['lon'] = iso_lon
                 iso_dict[track][anom]['lat'] = iso_lat
                 lons.append(iso_lon)
@@ -529,6 +538,20 @@ def get_lon_lat_from_plot_picks_and_deskew_file(deskew_path,spreading_rate_picks
     iso_df = pd.DataFrame(iso_dict)
     average_lat = sum(lats)/len(lats)
     average_lon = sum(lons)/len(lons)
+    
+    # Initialize empty dataframe to hold isochron picks
+    pick_df = pd.DataFrame(index=iso_df.columns, columns=['lon','lat'])
+    for anom in iso_df.index:
+        for track in iso_df.columns:
+            pick_df.loc[track] = iso_df[track][anom]
+        # Flip columns so latitude comes before longitude, because we aren't savages, Kevin
+        pick_df = pick_df.reindex(columns=['lat','lon'])
+        # Drop rows without data
+        pick_df = pick_df.dropna()
+        # Define path and filename
+        picks_path = os.path.join(os.path.dirname(spreading_rate_picks_path),os.path.basename(spreading_rate_picks_path).split('.')[0] + '_' + anom + '.txt')
+        #import pdb; pdb.set_trace()
+        pick_df.to_csv(picks_path,sep='\t')
 
     return iso_df,average_lon,average_lat
 

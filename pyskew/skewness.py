@@ -102,8 +102,6 @@ def correct_cande(cande_cor_path,deskew_path,dist_e=.75):
         if drow['comp_name'].startswith('#'): continue #commented lines check
         if crow.empty: print("no correction found for component %s"%drow["comp_name"]); continue #no correction for this component check
 
-<<<<<<< HEAD
-=======
         half_age = (drow['age_max']-drow['age_min'])/2
         avg_age = (drow['age_max']+drow['age_min'])/2
         half_dis = -np.sign(float(crow['correction']))*half_age*spreading_rate_func(drow['sz_name'],avg_age)

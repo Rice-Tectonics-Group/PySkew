@@ -191,9 +191,13 @@ if __name__=="__main__":
         sr_path = sys.argv[srri+1]
         median_or_mean = 'mean'
         title = ""
+        xmin = None; xmax = None
+        ymin = None; ymax = None
         if '-median' in sys.argv: median_or_mean='median'
         if '-title' in sys.argv: title=sys.argv[sys.argv.index('-title')+1]
-        plot_spreading_rate_results(sr_path,median_or_mean=median_or_mean,title=title,leave_plots_open=leave_plots_open)
+        if '-xlim' in sys.argv: xmin=float(sys.argv[sys.argv.index('-xlim')+1]); xmax=float(sys.argv[sys.argv.index('-xlim')+2]);
+        if '-ylim' in sys.argv: ymin=float(sys.argv[sys.argv.index('-ylim')+1]); ymax=float(sys.argv[sys.argv.index('-ylim')+2]);
+        plot_spreading_rate_results(sr_path,xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax,median_or_mean=median_or_mean,title=title,leave_plots_open=leave_plots_open)
         sys.exit()
 
     if '-srf' in sys.argv:

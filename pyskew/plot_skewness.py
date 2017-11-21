@@ -193,7 +193,6 @@ def plot_lunes(comps,gcm):
 
         # Draw great circle
         gcm.plot(gc_lon, gc_lat, color=(float(row["r"]),float(row["g"]),float(row["b"])),linestyle=linestyle,linewidth=linewidth,latlon=True)
-        gcm.scatter([gc_lon[0],gc_lon[-1]], [gc_lat[0],gc_lat[-1]], edgecolor='k', facecolor='none', latlon=True,zorder=10)
 
     comps["inter_lat"] = comps["inter_lat"].apply(float)
     tmp_comps = comps.sort_values(by="inter_lat",ascending=False)
@@ -356,11 +355,11 @@ def plot_deskew_file_skewnesses(row,leave_plots_open=False):
         ax.set_ylabel(r"$\theta$=%.1f"%float(phase_shift),rotation=0,fontsize=14)
         ax.yaxis.set_label_coords(1.05,.45)
         min_proj_dis, max_proj_dis = plot_skewness_data(row,phase_shift,ax,color='k',linestyle='-',picker=leave_plots_open)
-        ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
+#        ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
 
     plot_chron_span_on_axes(row['sz_name'],fig.get_axes())
 
-    ax0.set_xlim(min(max(min_proj_dis,min_syn_dis,-500),-500),max(min(max_proj_dis,max_syn_dis,500),500))
+    ax0.set_xlim(max(min_proj_dis,min_syn_dis,-1000),min(max_proj_dis,max_syn_dis,1000))
     fig.subplots_adjust(hspace=.0) #remove space between subplot axes
     fig.suptitle("%s - PhaseShift=%.1f - Step=%d"%(row['comp_name'],float(row['phase_shift']),int(row['step'])),fontsize=16)
     plot_scale_bars(ax)
@@ -485,8 +484,6 @@ def plot_best_skewnesses(deskew_path, leave_plots_open=False, best_skews_subdir=
     deskew_df = filter_deskew_and_calc_aei(deskew_path)
     comp_types = deskew_df['track_type'].tolist()
 
-    if deskew_df.empty: return
-
     check_generate_synth(deskew_df['sz_name'].iloc[0],deskew_df['age_min'].iloc[0],deskew_df['age_max'].iloc[0],ship_or_aero='both')
 
     results_dir = os.path.join(deskew_df['results_dir'].iloc[0],best_skews_subdir)
@@ -529,7 +526,7 @@ def plot_skewness_by_spreading_zone(deskew_path,leave_plots_open=False,ridge_loc
         sz_deskew_df.sort_values(by="comp_name",inplace=True)
         sz_deskew_df.sort_values(by="inter_lat",ascending=False,inplace=True)
         sz_deskew_df.to_csv(tmp_deskew_path,sep='\t',index=False)
-        plot_best_skewnesses(tmp_deskew_path,leave_plots_open=leave_plots_open,ridge_loc_path=ridge_loc_path,best_skews_subdir=os.path.join("skewness_by_spreading_zones","%s"%str(sz)))
+        plot_best_skewnesses(tmp_deskew_path,leave_plots_open=leave_plots_open,ridge_loc_path=ridge_loc_path,best_skews_subdir="skewness_by_spreading_zones/%s"%str(sz))
 
     try: os.remove(tmp_deskew_path); os.remove("%s.dt.csv"%os.path.basename(tmp_deskew_path).split('.')[0])
     except OSError: print("trouble removing temporary deskew and dt.csv files used for this function, check the code")
@@ -620,7 +617,7 @@ def plot_spreading_rate_picks(deskew_path,spreading_rate_picks_path,leave_plots_
     page_num += 1
     plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page_num, leave_plots_open=leave_plots_open)
 
-def plot_spreading_rate_results(sr_path,median_or_mean='mean',title="",leave_plots_open=False):
+def plot_spreading_rate_results(sr_path,xmin=None,xmax=None,ymin=None,ymax=None,median_or_mean='mean',title="",leave_plots_open=False):
     sr_df = pd.read_csv(sr_path,sep='\t',header=0,index_col=0)
 
     mean_median_values = [val for val in sr_df[median_or_mean].tolist() for _ in (0, 1)]
@@ -639,13 +636,23 @@ def plot_spreading_rate_results(sr_path,median_or_mean='mean',title="",leave_plo
     plt.plot(ages,mean_median_values,color='black',linewidth=3)
     plt.plot(ages,confidence_ub,color='black',linestyle='--',linewidth=1)
     plt.plot(ages,confidence_lb,color='black',linestyle='--',linewidth=1)
-
+    
+    # Fix x-axis limits if specified
+    if (xmin != None) and (xmax != None): plt.xlim( (xmin, xmax) )
+    if (ymin != None) and (ymax != None): plt.ylim( (ymin, ymax) )
+    
+    i = 0
     for mean_median,std,age,n in zip(sr_df[median_or_mean].tolist(),sr_df['std'].tolist(),nested_ages,sr_df['n'].tolist()):
+        #import pdb; pdb.set_trace()
+        anom = sr_df.index.where(sr_df['std'] == std)[i]
         ax.add_patch(Rectangle((age[0], mean_median - (2.0*std)/np.sqrt(n)), age[1]-age[0],  (4.0*std)/np.sqrt(n),color='grey',alpha=.5,zorder=0,linewidth=0))
-        ax.annotate('n=%d'%n,xy=(sum(age)/len(age),mean_median + (2.0*std)/np.sqrt(n)),va='bottom',ha='center',fontsize=8)
+        ax.annotate('%s'%anom,xy=(sum(age)/len(age),mean_median + (2.0*std)/np.sqrt(n)),va='bottom',ha='center',fontsize=8)
+        ax.annotate('n=%d'%n,xy=(sum(age)/len(age),mean_median - (2.0*std)/np.sqrt(n) - 1),va='top',ha='center',fontsize=8)
+        
+        i += 1
 
-    plt.xlabel("age (myr)")
-    plt.ylabel("spreading rate (km/myr)")
+    plt.xlabel("Age (Myr)")
+    plt.ylabel("Spreading Half Rate (km/Myr)")
     plt.title(title)
 
     if leave_plots_open:
@@ -660,9 +667,11 @@ def plot_isochron_picks(deskew_path,spreading_rate_picks_path,leave_plots_open=F
     if iso_df.empty: print("problem with input data, aborting"); return
     average_lon = convert_to_0_360(average_lon)
 
+    # Read data files
     deskew_df = pd.read_csv(deskew_path,sep='\t')
     results_dir = deskew_df['results_dir'].iloc[0]
 
+    # Initialize figure
     fig = plt.figure(figsize=(16,9), dpi=80)
 
     lon_spread,lat_spread = 20,15

@@ -89,6 +89,7 @@ def plot_pole(ellipse_path,m=None,color='cyan',marker='o',s=30,zorder=3,alpha=.5
         m.drawmeridians(np.arange(0,360,10),labels=[1,1,1,1])
 
     m.scatter(lon, lat, facecolor=color, edgecolor='black', marker=marker, s=s, latlon=True, zorder=zorder, label=label)
+    m.scatter(0, 90, facecolor='black', edgecolor='black', marker='+', s=s, latlon=True, zorder=1, label=label)
     ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=True, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
 
     return m,lon,lat,az,a,b
@@ -211,21 +212,33 @@ def plot_lunes(comps,gcm):
 #    by_label = OrderedDict(zip(labels, handles))
 #    legend = plt.legend(by_label.values(), by_label.keys(),loc=1)
 
-    sz_legend = plt.legend(handles=sz_handles,loc=1)
-    sz_frame = sz_legend.get_frame()
-    sz_frame.set_alpha(.7)
     track_type_legend = plt.legend(handles=track_type_handles,loc=2)
     tt_frame = track_type_legend.get_frame()
     tt_frame.set_alpha(.7)
+    sz_legend = plt.legend(handles=sz_handles,bbox_to_anchor=(.95, .91),bbox_transform=plt.gcf().transFigure, frameon=False)
+    sz_frame = sz_legend.get_frame()
+    sz_frame.set_alpha(.7)
 
-    plt.gca().add_artist(sz_legend)
+    plt.gca().add_artist(track_type_legend)
 
     return gcm
 
 def plot_chron_span_on_axes(sz,axes):
     # I know I made it save two files, but that was before I remembered it should be the same. :p
     try: dis_span = np.loadtxt(os.path.join('SynthData','dis_span_%s.txt'%sz),delimiter=',')
-    except (IOError,OSError) as e: raise IOError("No synthetic found for %s, please generate a new synthetic which contains a spreading rate model for this spreading zone"%sz)
+    except (IOError,OSError) as e:
+        try:
+
+            default_name = ''
+            if os.path.isfile(os.path.join('SynthData','dis_span_Default.txt')): default_name = 'Default'
+            elif os.path.isfile(os.path.join('SynthData','dis_span_default.txt')): default_name = 'default'
+            else: sz = 'default'; raise IOError
+
+            dis_span = np.loadtxt(os.path.join('SynthData','dis_span_%s.txt'%default_name),delimiter=',')
+
+        except (IOError,OSError) as e:
+            raise IOError("No synthetic found for %s, please generate a new synthetic which contains a spreading rate model for this spreading zone"%sz)
+
     for axis in axes:
         axis.axvspan(*dis_span, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
 
@@ -237,9 +250,25 @@ def plot_synthetic(sz,ship_or_aero,ax,**kwargs):
         elif ship_or_aero=='ship':
             dis_syn = np.loadtxt(os.path.join('SynthData','dis_syn_%s_ship.txt'%sz),delimiter=',')
             mag_syn = np.loadtxt(os.path.join('SynthData','mag_syn_%s_ship.txt'%sz),delimiter=',')
-        else: print("plot synthetic needs to know if you want the aeromag or shipmag synthetic was given %s not ship or aero"%ship_or_aero)
+        else: raise ValueError("plot synthetic needs to know if you want the aeromag or shipmag synthetic was given %s not ship or aero"%ship_or_aero)
     except (IOError,OSError) as e:
-        raise IOError("No synthetic found for %s, please generate a new synthetic which contains a spreading rate model for this spreading zone"%sz)
+        try:
+
+            default_name = ''
+            if os.path.isfile(os.path.join('SynthData','dis_span_Default.txt')): default_name = 'Default'
+            elif os.path.isfile(os.path.join('SynthData','dis_span_default.txt')): default_name = 'default'
+            else: sz = 'default'; raise IOError
+
+            if ship_or_aero=='aero':
+                dis_syn = np.loadtxt(os.path.join('SynthData','dis_syn_%s_aero.txt'%default_name),delimiter=',')
+                mag_syn = np.loadtxt(os.path.join('SynthData','mag_syn_%s_aero.txt'%default_name),delimiter=',')
+            elif ship_or_aero=='ship':
+                dis_syn = np.loadtxt(os.path.join('SynthData','dis_syn_%s_ship.txt'%default_name),delimiter=',')
+                mag_syn = np.loadtxt(os.path.join('SynthData','mag_syn_%s_ship.txt'%default_name),delimiter=',')
+            else: raise ValueError("plot synthetic needs to know if you want the aeromag or shipmag synthetic was given %s not ship or aero"%ship_or_aero)
+
+        except (IOError,OSError) as e:
+            raise IOError("No synthetic found for %s, please generate a new synthetic which contains a spreading rate model for this spreading zone"%sz)
 
     if 'plot_anom_spans' in kwargs and kwargs.pop('plot_anom_spans'):
         if not os.path.isfile(os.path.join('SynthData','anom_spans_%s.txt'%sz)):

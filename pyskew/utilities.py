@@ -71,6 +71,9 @@ def open_aeromag_file(aeromag_file):
         dfin = pd.DataFrame()
     return dfin
 
+def write_mag_file_df(df,path):
+    df.to_csv(path, sep=' ', header=False, index=False)
+
 def cmp_to_key(mycmp):
     'Convert a cmp= function into a key= function'
     class K(object):
@@ -89,7 +92,7 @@ def cmp_to_key(mycmp):
         def __ne__(self, other):
             return mycmp(self.obj, other.obj) != 0
     return K
-    
+
 def get_barckhausen_2013_chrons():
     ndf = open('raw_data/chrons/Barckhausen2013/GSFML.Barckhausen++_2013_MGR.picks.gmt','r')
 

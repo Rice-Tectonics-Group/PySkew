@@ -13,6 +13,8 @@ Essentials_Problem_Datafiles
 */*.bak
 *.zip
 */*.zip
+*.inp
+*/*.inp
 
 Data_Storage_Directories
 

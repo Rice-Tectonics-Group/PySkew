@@ -112,6 +112,19 @@ if __name__=="__main__":
         reduce_to_pole(deskew_path,pole_lon,pole_lat)
         sys.exit()
 
+    if '-odsk' in sys.argv:
+        odski = sys.argv.index('-odsk')
+        deskew_path = sys.argv[odski+1]
+        deskew_path2 = sys.argv[odski+2]
+        pole_name1 = 'pole 1'
+        pole_name2 = 'pole 2'
+        if '-pn' in sys.argv:
+            pni = sys.argv.index('-pn')
+            pole_name1 = sys.argv[pni+1]
+            pole_name2 = sys.argv[pni+2]
+        overlay_skewness_by_spreading_zone(deskew_path, deskew_path2, leave_plots_open=leave_plots_open, pole_name1=pole_name1, pole_name2=pole_name2)
+        sys.exit()
+
     if '-pbsz' in sys.argv:
         pbszi = sys.argv.index('-pbsz')
         deskew_path = sys.argv[pbszi+1]

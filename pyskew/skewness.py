@@ -84,7 +84,7 @@ def phase_shift_data(mag_data,phase_shift):
     #   Truncate the head and the tail and return the data
     return NewMag[100:N1+100]
 
-def correct_cande(cande_cor_path,deskew_path,dist_e=.75):
+def correct_cande(cande_cor_path,deskew_path,spreading_rate_path=os.path.join('raw_data','spreading_rate_model.txt'),dist_e=.75):
     #backup the .deskew file
     if not os.path.isfile(deskew_path+'.ccbak'):
         print("backing up %s to %s"%(deskew_path,deskew_path+'.ccbak'))
@@ -93,6 +93,7 @@ def correct_cande(cande_cor_path,deskew_path,dist_e=.75):
     #read in the deskew and cande_cor file
     deskew_df = pd.read_csv(deskew_path,sep="\t")
     cande_cor_df = pd.read_csv(cande_cor_path,sep="\t")
+    spreading_rate_func,sz_list = generate_spreading_rate_model(spreading_rate_path)
 
     #copy the deskew df so I can change it and save the corrected latitudes and longitudes
     new_deskew_df = deskew_df.copy()
@@ -116,9 +117,9 @@ def correct_cande(cande_cor_path,deskew_path,dist_e=.75):
             #check that the intersept distance correction between E and V are not more than 3 deg different
             if abs(float(crow['correction']) + float(other_crow['correction']))>3:
                 print("correction for %s is >3 km different from the other componenet's correction, and the average may be off"%(drow['comp_name']))
-            correction = (float(crow['correction'])+float(other_crow['correction']))/2
+            correction = (float(crow['correction'])+float(other_crow['correction']))/2 + half_dis
         elif drow['track_type'] == 'ship':
-            correction = float(crow['correction'])
+            correction = float(crow['correction']) + half_dis
         else:
             print("could not determine the track type for %s please check your deskew file, skipping"%drow["comp_name"]); continue
 
@@ -511,7 +512,7 @@ def create_spreading_rate_file(spreading_rate_picks_path, ages_path):
 
     out_path = os.path.join(os.path.dirname(spreading_rate_picks_path),os.path.basename(spreading_rate_picks_path).split('.')[0] + '.sr')
     stats_df.to_csv(out_path,sep='\t')  
-    
+
     return stats_df
 
 def get_lon_lat_from_plot_picks_and_deskew_file(deskew_path,spreading_rate_picks_path):

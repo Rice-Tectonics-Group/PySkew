@@ -506,16 +506,115 @@ def plot_best_skewnesses(deskew_path, leave_plots_open=False, best_skews_subdir=
     plotting_process = Process(target = plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func})
     plotting_process.start()
 
-#    if matlab:
-#        if leave_plots_open:
-#            subprocess.check_call('''matlab -nodesktop -r "addpath('bin/MatlabCode/','raw_data/'); plot_best_skewnesses('%s',%s,%s,'%s');"'''%(dt_path,age_min,age_max,results_dir),shell=True)
-#        else:
-#            subprocess.check_call('''matlab -nodesktop -nodisplay -r "addpath('bin/MatlabCode/','raw_data/'); plot_best_skewnesses('%s',%s,%s,'%s'); exit;"'''%(dt_path,age_min,age_max,results_dir),shell=True)
-#    else:
-#        if leave_plots_open:
-#            subprocess.check_call('''octave-cli --persist --eval "addpath('bin/MatlabCode/','raw_data/'); plot_best_skewnesses('%s',%s,%s,'%s');"'''%(dt_path,age_min,age_max,results_dir),shell=True)
-#        else:
-#            subprocess.check_call('''octave-cli --eval "addpath('bin/MatlabCode/','raw_data/'); plot_best_skewnesses('%s',%s,%s,'%s');"'''%(dt_path,age_min,age_max,results_dir),shell=True)
+def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2'):
+#    plt.rc('text', usetex=True)
+#    plt.rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+
+    fig = plt.figure(figsize=(16, 9), facecolor='white')
+
+    ax0 = fig.add_subplot(8,1,1)
+    remove_axis_lines_and_ticks(ax0)
+    ax0.set_ylabel("synthetic (%s)"%'ship',rotation=0,fontsize=14)
+    ax0.yaxis.set_label_coords(-.1,.45)
+    min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0],'ship',ax0, color='k', linestyle='-')
+    ylim = ax0.get_ylim()
+
+    for j,iterrow in enumerate(zip(rows1.iterrows(),rows2.iterrows())):
+        iterrow1,iterrow2 = iterrow
+        i,row1 = iterrow1
+        k,row2 = iterrow2
+        ax = fig.add_subplot(8,1,j+2, sharex=ax0)
+        ax.set_anchor('W')
+
+        remove_axis_lines_and_ticks(ax)
+
+        min_proj_dis, max_proj_dis = plot_skewness_data(row1,float(row1['phase_shift']),ax,color='k',linestyle='-',picker=True,alpha=.5)
+        min_proj_dis, max_proj_dis = plot_skewness_data(row2,float(row2['phase_shift']),ax,color='r',linestyle='-',picker=True,alpha=.5)
+
+        ax.annotate(r"%s"%row1['comp_name']+"\n"+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(row1['inter_lat']),convert_to_0_360(row1['inter_lon'])),xy=(-.15,.45),xycoords="axes fraction")
+        ax.set_ylabel(r"$\theta$=%.1f"%float(row1['phase_shift'])+"\n"+r"$e_a$=%.1f"%float(row1['aei'])+'\n'+r"$\theta_2$=%.1f"%float(row2['phase_shift'])+"\n"+r"$e_{a2}$=%.1f"%float(row2['aei'])+'\n-----------',rotation=0,fontsize=10)
+        ax.yaxis.set_label_coords(1.05,0.0)
+        ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
+
+    ax = fig.add_subplot(8,1,8, sharex=ax0)
+    ax.set_anchor('W')
+    remove_axis_lines_and_ticks(ax)
+    ax.set_ylabel("synthetic (%s)"%'aero',rotation=0,fontsize=14)
+    ax.yaxis.set_label_coords(-.1,.45)
+    min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0],'aero', ax, color='k', linestyle='-')
+    ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
+
+    plot_chron_span_on_axes(rows1['sz_name'].iloc[0],fig.get_axes())
+
+    ax0.set_xlim(-300,1200)
+    fig.subplots_adjust(hspace=.0) #remove space between subplot axes
+
+    if rows1.groupby(level=0).agg(lambda x: len(set(x)) == 1)['sz_name'].iloc[0]:
+        title = "%s : %.1f$^\circ$N to %.1f$^\circ$N"%(rows1['sz_name'].iloc[0],float(rows1['inter_lat'].iloc[0]),float(rows1['inter_lat'].iloc[-1]))
+    else:
+        title = "%.1f$^\circ$N to %.1f$^\circ$N"%(float(rows1['inter_lat'].iloc[0]),float(rows1['inter_lat'].iloc[-1]))
+    fig.suptitle(title,fontsize=16)
+    plot_scale_bars(ax)
+
+    poles_handles=[]
+    for pole_name,color,style in [[pole_name1,'k','-'],[pole_name2,'r','-']]:
+        poles_handle = mlines.Line2D([], [], color=color, linestyle=style, label=pole_name)
+        poles_handles.append(poles_handle)
+
+    plt.legend(handles=poles_handles,loc=3,bbox_to_anchor=(.0, .0),bbox_transform=plt.gcf().transFigure, frameon=False)
+
+    if leave_plots_open:
+        plt.show()
+    else:
+        out_file = os.path.join(results_dir,"page_%d.png"%page_num)
+        fig.savefig(out_file)
+        plt.close(fig)
+
+def overlay_best_skewnesses(deskew_path, deskew_path2, leave_plots_open=False, best_skews_subdir="best_skews", pole_name1='pole 1', pole_name2='pole 2'):
+#    dt_path,age_min,age_max,results_dir = create_matlab_datatable(deskew_path)
+
+    deskew_df = filter_deskew_and_calc_aei(deskew_path)
+    deskew_df2 = filter_deskew_and_calc_aei(deskew_path2)
+
+    check_generate_synth(deskew_df['sz_name'].iloc[0],deskew_df['age_min'].iloc[0],deskew_df['age_max'].iloc[0],ship_or_aero='both')
+
+    results_dir = os.path.join(deskew_df['results_dir'].iloc[0],best_skews_subdir)
+    check_dir(results_dir)
+
+    num_profiles_per_page = 6
+    prev_i,page_num = 0,0
+    for i in range(num_profiles_per_page,len(deskew_df.index),num_profiles_per_page):
+        rows = deskew_df.iloc[prev_i:i]
+        rows2 = deskew_df2.iloc[prev_i:i]
+        page_num = i/num_profiles_per_page
+        plotting_process = Process(target = overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2})
+        plotting_process.start()
+        prev_i = i
+    rows = deskew_df.iloc[prev_i:len(deskew_df.index)]
+    rows2 = deskew_df2.iloc[prev_i:len(deskew_df2.index)]
+    page_num += 1
+    plotting_process = Process(target = overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2})
+    plotting_process.start()
+
+def overlay_skewness_by_spreading_zone(deskew_path,deskew_path2,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2'):
+    deskew_df = pd.read_csv(deskew_path,sep='\t')
+    deskew_df2 = pd.read_csv(deskew_path2,sep='\t')
+
+    tmp_deskew_path = '.tmp_deskew_file'
+    tmp_deskew_path2 = '.tmp2_deskew_file'
+    for sz in deskew_df['sz_name'].drop_duplicates():
+        sz_deskew_df = deskew_df[deskew_df['sz_name']==sz].copy()
+        sz_deskew_df2 = deskew_df2[deskew_df2['sz_name']==sz].copy()
+        sz_deskew_df.sort_values(by="comp_name",inplace=True)
+        sz_deskew_df2.sort_values(by="comp_name",inplace=True)
+        sz_deskew_df.sort_values(by="inter_lat",ascending=False,inplace=True)
+        sz_deskew_df2.sort_values(by="inter_lat",ascending=False,inplace=True)
+        sz_deskew_df.to_csv(tmp_deskew_path,sep='\t',index=False)
+        sz_deskew_df2.to_csv(tmp_deskew_path2,sep='\t',index=False)
+        overlay_best_skewnesses(tmp_deskew_path,tmp_deskew_path2,leave_plots_open=leave_plots_open,best_skews_subdir="overlayed_skewness_by_spreading_zones/%s"%str(sz), pole_name1=pole_name1, pole_name2=pole_name2)
+
+    try: os.remove(tmp_deskew_path); os.remove(tmp_deskew_path2); os.remove("%s.dt.csv"%os.path.basename(tmp_deskew_path).split('.')[0])
+    except OSError: print("trouble removing temporary deskew and dt.csv files used for this function, check the code")
 
 def plot_skewness_by_spreading_zone(deskew_path,leave_plots_open=False,ridge_loc_path=None):
     deskew_df = pd.read_csv(deskew_path,sep='\t')

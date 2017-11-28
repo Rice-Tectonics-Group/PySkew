@@ -192,7 +192,8 @@ def plot_lunes(comps,gcm):
         gc_lat = [gcd["lat2"] for gcd in gc_points_and_azis]
 
         # Draw great circle
-        gcm.plot(gc_lon, gc_lat, color=(float(row["r"]),float(row["g"]),float(row["b"])),linestyle=linestyle,linewidth=linewidth,latlon=True)
+        gcm.scatter([gc_lon[0],gc_lon[-1]], [gc_lat[0],gc_lat[-1]], edgecolor='k', facecolor='none', latlon=True, zorder=10)
+        gcm.plot(gc_lon, gc_lat, color=(float(row["r"]),float(row["g"]),float(row["b"])), linestyle=linestyle, linewidth=linewidth, latlon=True)
 
     comps["inter_lat"] = comps["inter_lat"].apply(float)
     tmp_comps = comps.sort_values(by="inter_lat",ascending=False)

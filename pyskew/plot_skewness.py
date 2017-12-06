@@ -89,7 +89,7 @@ def plot_pole(ellipse_path,m=None,color='cyan',marker='o',s=30,zorder=3,alpha=.5
         m.drawmeridians(np.arange(0,360,10),labels=[1,1,1,1])
 
     m.scatter(lon, lat, facecolor=color, edgecolor='black', marker=marker, s=s, latlon=True, zorder=zorder, label=label)
-    m.scatter(0, 90, facecolor='black', edgecolor='black', marker='+', s=s, latlon=True, zorder=1, label=label)
+    m.scatter(0, 90, facecolor='black', edgecolor='black', marker='+', s=s, latlon=True, zorder=120)
     ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=True, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
 
     return m,lon,lat,az,a,b
@@ -412,18 +412,32 @@ def plot_skewnesses(deskew_path,leave_plots_open=False):
 
 def plot_ridge_loc(deskew_row,ridge_loc_func,ax,**kwargs):
     data_file_path = os.path.join(deskew_row["data_dir"],deskew_row["comp_name"])
-    data_df = pd.read_csv(data_file_path,names=["dist","dec_year","mag","lat","lon"],delim_whitespace=True)
+    data_df = open_mag_file(data_file_path)
     track_lon_lats = [[convert_to_0_360(lon),lat] for lon,lat in zip(data_df['lon'].tolist(),data_df['lat'].tolist())]
 
     ridge_lon,ridge_lat = ridge_loc_func(deskew_row['sz_name'],track_lon_lats)
 
     if ridge_lon==None or ridge_lat==None: print("ridge intercept values given are None"); return
 
-    ridge_dis = Geodesic.WGS84.Inverse(float(deskew_row['inter_lat']),convert_to_0_360(deskew_row['inter_lon']),ridge_lat,ridge_lon)['s12']/1000
+    ridge_dict = Geodesic.WGS84.Inverse(float(deskew_row['inter_lat']),convert_to_0_360(deskew_row['inter_lon']),ridge_lat,ridge_lon)
+    ridge_dis = (ridge_dict['s12']*np.sin(np.deg2rad(float(deskew_row['strike'])-ridge_dict['azi2'])))/1000
 
     ax.axvline(ridge_dis,**kwargs)
 
-def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,ridge_loc_func=None):
+def plot_fz_loc(deskew_row,fz_loc_path,ax,**kwargs):
+    fzdf = pd.read_csv(fz_loc_path,sep='\t',index_col=0)
+
+    try:
+        fz_inters = fzdf['inters'][deskew_row['comp_name']]
+        fz_inters = list(map(lambda x: list(map(lambda y: float(y.strip(" '")), x.strip(", ] ['").split(','))), fz_inters.split(']')[:-2]))
+    except KeyError: return
+
+    for fz_lon,fz_lat in fz_inters:
+        fzi_dict = Geodesic.WGS84.Inverse(float(deskew_row['inter_lat']),convert_to_0_360(deskew_row['inter_lon']),fz_lat,fz_lon)
+        fz_dis = (fzi_dict['s12']*np.sin(np.deg2rad(float(deskew_row['strike'])-fzi_dict['azi2'])))/1000
+        ax.axvline(fz_dis,**kwargs)
+
+def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,ridge_loc_func=None,fz_loc_path=None):
 #    plt.rc('text', usetex=True)
 #    plt.rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 
@@ -447,6 +461,8 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 
         if ridge_loc_func!=None:
             plot_ridge_loc(row,ridge_loc_func,ax,color='r',linestyle='-',alpha=1)
+        if fz_loc_path!=None:
+            plot_fz_loc(row,fz_loc_path,ax,color='g',linestyle='-',alpha=1)
 
         ax.annotate(r"%s"%row['comp_name']+"\n"+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(row['inter_lat']),convert_to_0_360(row['inter_lon'])),xy=(-.15,.45),xycoords="axes fraction")
         ax.set_ylabel(r"$\theta$=%.1f"%float(row['phase_shift'])+"\n"+r"$e_a$=%.1f"%float(row['aei']),rotation=0,fontsize=14)
@@ -479,7 +495,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
         fig.savefig(out_file)
         plt.close(fig)
 
-def plot_best_skewnesses(deskew_path, leave_plots_open=False, best_skews_subdir="best_skews", ridge_loc_path=None):
+def plot_best_skewnesses(deskew_path, leave_plots_open=False, best_skews_subdir="best_skews", ridge_loc_path=None, fz_loc_path=None):
 #    dt_path,age_min,age_max,results_dir = create_matlab_datatable(deskew_path)
 
     deskew_df = filter_deskew_and_calc_aei(deskew_path)
@@ -499,15 +515,15 @@ def plot_best_skewnesses(deskew_path, leave_plots_open=False, best_skews_subdir=
         rows = deskew_df.iloc[prev_i:i]
         page_num = i/num_profiles_per_page
 #        plot_best_skewness_page(rows, results_dir, page_num, leave_plots_open=leave_plots_open, ridge_loc_func=ridge_loc_func)
-        plotting_process = Process(target = plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func})
+        plotting_process = Process(target = plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func,'fz_loc_path':fz_loc_path})
         plotting_process.start()
         prev_i = i
     rows = deskew_df.iloc[prev_i:len(deskew_df.index)]
     page_num += 1
-    plotting_process = Process(target = plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func})
+    plotting_process = Process(target = plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func,'fz_loc_path':fz_loc_path})
     plotting_process.start()
 
-def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2'):
+def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None):
 #    plt.rc('text', usetex=True)
 #    plt.rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 
@@ -532,6 +548,9 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
         min_proj_dis, max_proj_dis = plot_skewness_data(row1,float(row1['phase_shift']),ax,color='k',linestyle='-',picker=True,alpha=.5)
         min_proj_dis, max_proj_dis = plot_skewness_data(row2,float(row2['phase_shift']),ax,color='r',linestyle='-',picker=True,alpha=.5)
 
+        if fz_loc_path!=None:
+            plot_fz_loc(row1,fz_loc_path,ax,color='g',linestyle='-',alpha=1)
+
         ax.annotate(r"%s"%row1['comp_name']+"\n"+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(row1['inter_lat']),convert_to_0_360(row1['inter_lon'])),xy=(-.15,.45),xycoords="axes fraction")
         ax.set_ylabel(r"$\theta$=%.1f"%float(row1['phase_shift'])+"\n"+r"$e_a$=%.1f"%float(row1['aei'])+'\n'+r"$\theta_2$=%.1f"%float(row2['phase_shift'])+"\n"+r"$e_{a2}$=%.1f"%float(row2['aei'])+'\n-----------',rotation=0,fontsize=10)
         ax.yaxis.set_label_coords(1.05,0.0)
@@ -547,7 +566,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
 
     plot_chron_span_on_axes(rows1['sz_name'].iloc[0],fig.get_axes())
 
-    ax0.set_xlim(-300,1200)
+    ax0.set_xlim(-600,900)
     fig.subplots_adjust(hspace=.0) #remove space between subplot axes
 
     if rows1.groupby(level=0).agg(lambda x: len(set(x)) == 1)['sz_name'].iloc[0]:
@@ -571,7 +590,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
         fig.savefig(out_file)
         plt.close(fig)
 
-def overlay_best_skewnesses(deskew_path, deskew_path2, leave_plots_open=False, best_skews_subdir="best_skews", pole_name1='pole 1', pole_name2='pole 2'):
+def overlay_best_skewnesses(deskew_path, deskew_path2, leave_plots_open=False, best_skews_subdir="best_skews", pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None):
 #    dt_path,age_min,age_max,results_dir = create_matlab_datatable(deskew_path)
 
     deskew_df = filter_deskew_and_calc_aei(deskew_path)
@@ -588,16 +607,16 @@ def overlay_best_skewnesses(deskew_path, deskew_path2, leave_plots_open=False, b
         rows = deskew_df.iloc[prev_i:i]
         rows2 = deskew_df2.iloc[prev_i:i]
         page_num = i/num_profiles_per_page
-        plotting_process = Process(target = overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2})
+        plotting_process = Process(target = overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2,'fz_loc_path':fz_loc_path})
         plotting_process.start()
         prev_i = i
     rows = deskew_df.iloc[prev_i:len(deskew_df.index)]
     rows2 = deskew_df2.iloc[prev_i:len(deskew_df2.index)]
     page_num += 1
-    plotting_process = Process(target = overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2})
+    plotting_process = Process(target = overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2,'fz_loc_path':fz_loc_path})
     plotting_process.start()
 
-def overlay_skewness_by_spreading_zone(deskew_path,deskew_path2,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2'):
+def overlay_skewness_by_spreading_zone(deskew_path,deskew_path2,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None):
     deskew_df = pd.read_csv(deskew_path,sep='\t')
     deskew_df2 = pd.read_csv(deskew_path2,sep='\t')
 
@@ -612,12 +631,12 @@ def overlay_skewness_by_spreading_zone(deskew_path,deskew_path2,leave_plots_open
         sz_deskew_df2.sort_values(by="inter_lat",ascending=False,inplace=True)
         sz_deskew_df.to_csv(tmp_deskew_path,sep='\t',index=False)
         sz_deskew_df2.to_csv(tmp_deskew_path2,sep='\t',index=False)
-        overlay_best_skewnesses(tmp_deskew_path,tmp_deskew_path2,leave_plots_open=leave_plots_open,best_skews_subdir="overlayed_skewness_by_spreading_zones/%s"%str(sz), pole_name1=pole_name1, pole_name2=pole_name2)
+        overlay_best_skewnesses(tmp_deskew_path,tmp_deskew_path2,leave_plots_open=leave_plots_open,best_skews_subdir="overlayed_skewness_by_spreading_zones/%s"%str(sz), pole_name1=pole_name1, pole_name2=pole_name2, fz_loc_path=fz_loc_path)
 
     try: os.remove(tmp_deskew_path); os.remove(tmp_deskew_path2); os.remove("%s.dt.csv"%os.path.basename(tmp_deskew_path).split('.')[0])
     except OSError: print("trouble removing temporary deskew and dt.csv files used for this function, check the code")
 
-def plot_skewness_by_spreading_zone(deskew_path,leave_plots_open=False,ridge_loc_path=None):
+def plot_skewness_by_spreading_zone(deskew_path,leave_plots_open=False,ridge_loc_path=None, fz_loc_path=None):
     deskew_df = pd.read_csv(deskew_path,sep='\t')
 
     tmp_deskew_path = '.tmp_deskew_file'
@@ -626,7 +645,7 @@ def plot_skewness_by_spreading_zone(deskew_path,leave_plots_open=False,ridge_loc
         sz_deskew_df.sort_values(by="comp_name",inplace=True)
         sz_deskew_df.sort_values(by="inter_lat",ascending=False,inplace=True)
         sz_deskew_df.to_csv(tmp_deskew_path,sep='\t',index=False)
-        plot_best_skewnesses(tmp_deskew_path,leave_plots_open=leave_plots_open,ridge_loc_path=ridge_loc_path,best_skews_subdir="skewness_by_spreading_zones/%s"%str(sz))
+        plot_best_skewnesses(tmp_deskew_path,leave_plots_open=leave_plots_open,ridge_loc_path=ridge_loc_path,best_skews_subdir="skewness_by_spreading_zones/%s"%str(sz), fz_loc_path=fz_loc_path)
 
     try: os.remove(tmp_deskew_path); os.remove("%s.dt.csv"%os.path.basename(tmp_deskew_path).split('.')[0])
     except OSError: print("trouble removing temporary deskew and dt.csv files used for this function, check the code")

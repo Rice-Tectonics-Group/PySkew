@@ -54,7 +54,7 @@ def open_shipmag_file(shipmag_file):
     lines = fin.readlines()
     fin.close()
     lines = [line.split() for line in lines]
-    try: dfin = pd.DataFrame(lines,columns=["dist","idk","mag","lat","lon"])
+    try: dfin = pd.DataFrame(lines,columns=["dist","dec_year","mag","lat","lon"])
     except AssertionError:
 #        print("ship mag file %s does not have the standard 5 rows, you should check this data and see if something happened during processing. Returning a empty dataframe"%shipmag_file)
         dfin = pd.DataFrame()

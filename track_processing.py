@@ -122,7 +122,11 @@ if __name__=="__main__":
             pni = sys.argv.index('-pn')
             pole_name1 = sys.argv[pni+1]
             pole_name2 = sys.argv[pni+2]
-        overlay_skewness_by_spreading_zone(deskew_path, deskew_path2, leave_plots_open=leave_plots_open, pole_name1=pole_name1, pole_name2=pole_name2)
+        fz_loc_path = None
+        if '-fzl' in sys.argv:
+            fzli = sys.argv.index('-fzl')
+            fz_loc_path = sys.argv[fzli+1]
+        overlay_skewness_by_spreading_zone(deskew_path, deskew_path2, leave_plots_open=leave_plots_open, pole_name1=pole_name1, pole_name2=pole_name2, fz_loc_path=fz_loc_path)
         sys.exit()
 
     if '-pbsz' in sys.argv:
@@ -132,7 +136,21 @@ if __name__=="__main__":
         if '-rdg' in sys.argv:
             rdgi = sys.argv.index('-rdg')
             ridge_loc_path = sys.argv[rdgi+1]
-        plot_skewness_by_spreading_zone(deskew_path, leave_plots_open=leave_plots_open, ridge_loc_path=ridge_loc_path)
+        fz_loc_path = None
+        if '-fzl' in sys.argv:
+            fzli = sys.argv.index('-fzl')
+            fz_loc_path = sys.argv[fzli+1]
+        plot_skewness_by_spreading_zone(deskew_path, leave_plots_open=leave_plots_open, ridge_loc_path=ridge_loc_path, fz_loc_path=fz_loc_path)
+        sys.exit()
+
+    if '-ffz' in sys.argv:
+        ffzi = sys.argv.index('-ffz')
+        deskew_path = sys.argv[ffzi+1]
+        fz_directory = os.path.join('raw_data','fracture_zones')
+        if '-fd' in sys.argv:
+            fdi = sys.argv.index('-fd')
+            fz_directory = sys.argv[fdi+1]
+        find_fz_crossings(deskew_path,fz_directory=fz_directory)
         sys.exit()
 
     if '-ds' in sys.argv:

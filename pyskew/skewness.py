@@ -1,4 +1,4 @@
-import os
+import os, glob
 import shutil
 import subprocess
 import pandas as pd
@@ -75,8 +75,8 @@ def phase_shift_data(mag_data,phase_shift):
         MAG2 = np.concatenate([MAG2_head,MAG2_tail])
     else:
         MAG2_head=MAG[0:int((N2-1)/2)]*np.exp(-1j*phi)
-        MAG2_tail=MAG[int((N2+1)/2):N2]*np.exp(1j*phi)
-        MAG2 = np.concatenate([MAG2_head,[0],MAG2_tail])
+        MAG2_tail=MAG[int((N2)/2):N2]*np.exp(1j*phi)
+        MAG2 = np.concatenate([MAG2_head,MAG2_tail])
 
     #   Inverse Fourier transform
     NewMag=np.real(np.fft.ifft(MAG2))
@@ -621,11 +621,47 @@ def read_and_fit_ridge_data(ridge_loc_path):
 
     def get_ridge_loc(sz,track_lon_lats):
         if sz not in ridge_loc_dict.keys(): print("sz not found when looking for ridge location, was given spreading zone %s but only had options %s"%(str(sz),str(ridge_loc_dict.keys()))); return None,None
-        idx = intersect_bf(track_lon_lats, ridge_loc_dict[sz],e=1)
+        idx = intersect_bf(track_lon_lats, ridge_loc_dict[sz],e=.5)
         if idx == [None,None]: print("could not calculate intersept"); return None,None
         else: return idx[0][0]
 
     return get_ridge_loc
+
+def read_and_fit_fz_data(fz_directory=os.path.join('raw_data','fracture_zones')):
+    fzs = glob.glob(os.path.join(fz_directory,'*'))
+    lfz = []
+    for fz in fzs:
+        fzdf = pd.read_csv(fz,sep='\t')
+        dists = [Geodesic.WGS84.Inverse(fzdf['Latitude'][0],convert_to_0_360(fzdf['Longitude'][0]),lat,convert_to_0_360(lon))['s12']/1000 for lat,lon in zip(fzdf['Latitude'],fzdf['Longitude'])]
+        new_dists = np.arange(0,dists[-1],10)
+        fz_lons = np.interp(new_dists,dists,convert_to_0_360(fzdf['Longitude']))
+        fz_lats = np.interp(new_dists,dists,fzdf['Latitude'])
+        fz_lon_lats = [[lon,lat] for lon,lat in zip(fz_lons,fz_lats)]
+        lfz.append(fz_lon_lats)
+
+    def get_fz_loc(track_lon_lats,e=.5):
+        inters = []
+        for fz in lfz:
+            idx = intersect_bf(track_lon_lats, fz,e=e)
+            if idx != [None,None]: inters.append(idx[0][0])
+        return inters
+
+    return get_fz_loc
+
+def find_fz_crossings(deskew_path,fz_directory=os.path.join('raw_data','fracture_zones')):
+    deskew_df = pd.read_csv(deskew_path,sep='\t')
+    get_fz_loc = read_and_fit_fz_data(fz_directory)
+
+    fz_inter_dict = {}
+    for i,row in deskew_df.iterrows():
+        data_path = os.path.join(row['data_dir'],row['comp_name'])
+        data_df = open_mag_file(data_path)
+        track_lon_lats = [[convert_to_0_360(lon),lat] for lon,lat in zip(data_df['lon'],data_df['lat'])]
+        inters = get_fz_loc(track_lon_lats)
+        if inters != []: fz_inter_dict[row['comp_name']] = inters
+
+    fz_inter_df = pd.DataFrame({'inters':fz_inter_dict})
+    fz_inter_df.to_csv('fz_intercepts.txt',sep='\t')
 
 def update_useable_tracks_from_deskew(deskew_path,useable_track_path):
     useable_df = pd.read_csv(useable_track_path, sep='\t', header=None)

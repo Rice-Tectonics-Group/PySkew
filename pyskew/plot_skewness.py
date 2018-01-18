@@ -1,4 +1,4 @@
-import os
+import os,sys
 import subprocess
 import pandas as pd
 import numpy as np
@@ -441,7 +441,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 #    plt.rc('text', usetex=True)
 #    plt.rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 
-    fig = plt.figure(figsize=(16, 9), facecolor='white')
+    fig = plt.figure(figsize=(12, 9), facecolor='white')
 
     ax0 = fig.add_subplot(8,1,1)
     remove_axis_lines_and_ticks(ax0)
@@ -479,7 +479,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 
     plot_chron_span_on_axes(rows['sz_name'].iloc[0],fig.get_axes())
 
-    ax0.set_xlim(-300,1200)
+    ax0.set_xlim(-500,500)
     fig.subplots_adjust(hspace=.0) #remove space between subplot axes
     if rows.groupby(level=0).agg(lambda x: len(set(x)) == 1)['sz_name'].iloc[0]:
         title = "%s : %.1f$^\circ$N to %.1f$^\circ$N"%(rows['sz_name'].iloc[0],float(rows['inter_lat'].iloc[0]),float(rows['inter_lat'].iloc[-1]))
@@ -514,14 +514,19 @@ def plot_best_skewnesses(deskew_path, leave_plots_open=False, best_skews_subdir=
     for i in range(num_profiles_per_page,len(deskew_df.index),num_profiles_per_page):
         rows = deskew_df.iloc[prev_i:i]
         page_num = i/num_profiles_per_page
-#        plot_best_skewness_page(rows, results_dir, page_num, leave_plots_open=leave_plots_open, ridge_loc_func=ridge_loc_func)
-        plotting_process = Process(target = plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func,'fz_loc_path':fz_loc_path})
-        plotting_process.start()
+        if 'darwin' in sys.platform:
+            plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=leave_plots_open,ridge_loc_func=ridge_loc_func)
+        else:
+            plotting_process = Process(target = plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func,'fz_loc_path':fz_loc_path})
+            plotting_process.start()
         prev_i = i
     rows = deskew_df.iloc[prev_i:len(deskew_df.index)]
     page_num += 1
-    plotting_process = Process(target = plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func,'fz_loc_path':fz_loc_path})
-    plotting_process.start()
+    if 'darwin' in sys.platform:
+        plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=leave_plots_open,ridge_loc_func=ridge_loc_func)
+    else:
+        plotting_process = Process(target = plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func,'fz_loc_path':fz_loc_path})
+        plotting_process.start()
 
 def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None):
 #    plt.rc('text', usetex=True)
@@ -534,7 +539,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
     ax0.set_ylabel("synthetic (%s)"%'ship',rotation=0,fontsize=14)
     ax0.yaxis.set_label_coords(-.1,.45)
     min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0],'ship',ax0, color='k', linestyle='-')
-    ylim = ax0.get_ylim()
+    ylim = ax0.set_ylim(-150,150)
 
     for j,iterrow in enumerate(zip(rows1.iterrows(),rows2.iterrows())):
         iterrow1,iterrow2 = iterrow
@@ -590,7 +595,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
         fig.savefig(out_file)
         plt.close(fig)
 
-def overlay_best_skewnesses(deskew_path, deskew_path2, leave_plots_open=False, best_skews_subdir="best_skews", pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None):
+def overlay_best_skewnesses(deskew_path, deskew_path2, leave_plots_open=False, best_skews_subdir="best_skews", pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None, num_profiles_per_page = 6):
 #    dt_path,age_min,age_max,results_dir = create_matlab_datatable(deskew_path)
 
     deskew_df = filter_deskew_and_calc_aei(deskew_path)
@@ -601,20 +606,25 @@ def overlay_best_skewnesses(deskew_path, deskew_path2, leave_plots_open=False, b
     results_dir = os.path.join(deskew_df['results_dir'].iloc[0],best_skews_subdir)
     check_dir(results_dir)
 
-    num_profiles_per_page = 6
     prev_i,page_num = 0,0
     for i in range(num_profiles_per_page,len(deskew_df.index),num_profiles_per_page):
         rows = deskew_df.iloc[prev_i:i]
         rows2 = deskew_df2.iloc[prev_i:i]
         page_num = i/num_profiles_per_page
-        plotting_process = Process(target = overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2,'fz_loc_path':fz_loc_path})
-        plotting_process.start()
+        if 'darwin' in sys.platform:
+            overlay_skewness_page(rows,rows2,results_dir,page_num,leave_plots_open=leave_plots_open,pole_name1=pole_name1,pole_name2=pole_name2,fz_loc_path=fz_loc_path)
+        else:
+            plotting_process = Process(target = overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2,'fz_loc_path':fz_loc_path})
+            plotting_process.start()
         prev_i = i
     rows = deskew_df.iloc[prev_i:len(deskew_df.index)]
     rows2 = deskew_df2.iloc[prev_i:len(deskew_df2.index)]
     page_num += 1
-    plotting_process = Process(target = overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2,'fz_loc_path':fz_loc_path})
-    plotting_process.start()
+    if 'darwin' in sys.platform:
+        overlay_skewness_page(rows,rows2,results_dir,page_num,leave_plots_open=leave_plots_open,pole_name1=pole_name1,pole_name2=pole_name2,fz_loc_path=fz_loc_path)
+    else:
+        plotting_process = Process(target = overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2,'fz_loc_path':fz_loc_path})
+        plotting_process.start()
 
 def overlay_skewness_by_spreading_zone(deskew_path,deskew_path2,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None):
     deskew_df = pd.read_csv(deskew_path,sep='\t')

@@ -14,6 +14,8 @@ Flags:
         -pal  : plot all lunes, plots all lunes of given deskew file seperately.
         -pp   : plot pole, plots all lunes like -pll but also takes a .ellipse file which has lon, lat, angle,
                 major, minor axis so it can plot the pole on the same figure.
+        -odsk : similar to plot skewness by spreading zone, it plots overlying deskew plots for each spreading zone after the reduction to the pole. 
+                It takes two .deskew files and two pole names used to run -rtp flag. 
     Spreading Rate Analysis Flags:
         -srp  : Spreading rate picks, displays your left edge picks of anomaly location for each anomaly in a .srp
               file (see -srf for description of file) next to a synthetic with anomaly location age picks if 

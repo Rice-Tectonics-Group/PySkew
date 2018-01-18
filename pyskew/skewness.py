@@ -674,3 +674,21 @@ def update_useable_tracks_from_deskew(deskew_path,useable_track_path):
     out_path = os.path.join(directory,new_useable_track_filename)
     new_useable_df.to_csv(out_path, sep='\t', index=False, header=False)
 
+def map_project_magnetic_data(data_path,projection_az,v_ex=1):
+
+    print("unfinished, and possibly unnecessary"); return
+
+    data_df = open_mag_file(data_path)
+
+    data_df['lat']
+
+def create_deskewed_data_file(deskew_path):
+    pass
+    #read deskew file
+
+    #iterate mag files
+        #read mag files
+        #deskew mag data
+        #save deskewed mag data as $DATAFILE.deskew
+
+#modify bath plots to read these deskewed files

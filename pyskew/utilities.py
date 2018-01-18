@@ -116,3 +116,16 @@ def get_barckhausen_2013_chrons():
             else: gcz_chrons[chron].append(nd)
 
     return ccz_chrons, gcz_chrons
+
+def format_coord(x, y):
+    """
+    If for some reason the matplotlib backend doesn't visualize your mouse position replace ax.format_coord with 
+    this function. According to the internet this should fix the problem anyway.
+
+    Code modifed from user tacaswell on Stack Overflow post:
+    https://stackoverflow.com/questions/15876011/add-information-to-matplotlib-navigation-toolbar-status-bar
+    """
+    col = int(x+0.5)
+    row = int(y+0.5)
+    return 'x=%1.4f, y=%1.4f'%(x, y)
+

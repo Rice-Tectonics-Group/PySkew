@@ -447,6 +447,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     remove_axis_lines_and_ticks(ax0)
     ax0.set_ylabel("synthetic (%s)"%'ship',rotation=0,fontsize=14)
     ax0.yaxis.set_label_coords(-.1,.45)
+    ax0.format_coord = format_coord
     min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0],'ship',ax0, color='k', linestyle='-')
     ylim = ax0.get_ylim()
 
@@ -468,6 +469,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
         ax.set_ylabel(r"$\theta$=%.1f"%float(row['phase_shift'])+"\n"+r"$e_a$=%.1f"%float(row['aei']),rotation=0,fontsize=14)
         ax.yaxis.set_label_coords(1.05,.45)
         ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
+        ax.format_coord = format_coord
 
     ax = fig.add_subplot(8,1,8, sharex=ax0)
     ax.set_anchor('W')
@@ -476,6 +478,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     ax.yaxis.set_label_coords(-.1,.45)
     min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0],'aero', ax, color='k', linestyle='-')
     ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
+    ax.format_coord = format_coord
 
     plot_chron_span_on_axes(rows['sz_name'].iloc[0],fig.get_axes())
 
@@ -533,6 +536,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
     remove_axis_lines_and_ticks(ax0)
     ax0.set_ylabel("synthetic (%s)"%'ship',rotation=0,fontsize=14)
     ax0.yaxis.set_label_coords(-.1,.45)
+    ax0.format_coord = format_coord
     min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0],'ship',ax0, color='k', linestyle='-')
     ylim = ax0.get_ylim()
 
@@ -555,6 +559,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
         ax.set_ylabel(r"$\theta$=%.1f"%float(row1['phase_shift'])+"\n"+r"$e_a$=%.1f"%float(row1['aei'])+'\n'+r"$\theta_2$=%.1f"%float(row2['phase_shift'])+"\n"+r"$e_{a2}$=%.1f"%float(row2['aei'])+'\n-----------',rotation=0,fontsize=10)
         ax.yaxis.set_label_coords(1.05,0.0)
         ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
+        ax.format_coord = format_coord
 
     ax = fig.add_subplot(8,1,8, sharex=ax0)
     ax.set_anchor('W')
@@ -563,6 +568,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
     ax.yaxis.set_label_coords(-.1,.45)
     min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0],'aero', ax, color='k', linestyle='-')
     ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
+    ax.format_coord = format_coord
 
     plot_chron_span_on_axes(rows1['sz_name'].iloc[0],fig.get_axes())
 

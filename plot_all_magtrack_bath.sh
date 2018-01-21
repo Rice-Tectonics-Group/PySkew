@@ -12,7 +12,7 @@ fi
 #read deskew file
 while read i; do
     if [ "${i:0:9}" != "comp_name" ]; then
-        echo $i | awk '{if (substr($1,1,1) != "#") printf("%s\t%s\t%s\t%s/%s\t%s\n", $11, $6, $7, $9, $1, $8)}' >> tmp.txt
+        echo $i | awk '{if (substr($1,1,1) != "#") printf("%s\t%s\t%s\t%s/%s.deskewed\t%s\n", $11, $6, $7, $9, $1, $8-180)}' >> tmp.txt
     fi
 done < $infile
 
@@ -22,9 +22,9 @@ cpt=-Cnew.cpt
 cptfile=new.cpt
 zscale=-Z300
 sitedis=10.0
-sitesize=.3 #in degrees unless c,i,p appended at end to mean cm, inch, point respectivly
+sitesize=.15 #in degrees unless c,i,p appended at end to mean cm, inch, point respectivly
 sitecolor=limegreen #rgb, hex, or name
-sitealpha=25 #higher number=more transparent
+sitealpha=15 #higher number=more transparent
 
 #Script start
 
@@ -32,10 +32,8 @@ gmt makecpt -Cpolar -T-6000/0/400 > $cptfile
 
 while read t slat slon f azi; do
     if [ $t == "aero" ]; then
-        cat $f | awk '{print $5,$4,$3}' > tmp1.txt
         color="black"
     else
-        cat $f | awk '{print $5,$4,$3}' > tmp1.txt
         color="darkslategrey"
     fi
 
@@ -62,7 +60,7 @@ while read t slat slon f azi; do
 
     echo "$slon $slat" | gmt psxy $region $proj -O -K -Sc$sitesize -G$sitecolor -t$sitealpha >> ${plot}
 
-    gmt pswiggle tmp1.txt $region $proj $zscale -O -I$azi -G-$color -Wthin,$color -Tthin,$color,- -t50 >> ${plot}
+    gmt pswiggle $f $region $proj $zscale -O -I$azi -G-$color -Wthin,$color -Tthin,$color,- -t50 >> ${plot}
 
     ps2pdf $plot $plotpdf
 #    convert $plot $plotpng #possible png option???
@@ -72,7 +70,6 @@ while read t slat slon f azi; do
 done < tmp.txt
 
 rm tmp.txt
-rm tmp1.txt
 rm new.cpt
 rm $outdir/*.ps
 

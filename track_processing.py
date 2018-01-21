@@ -44,6 +44,8 @@ Flags:
               different spreading zones so that the names match those in your .deskew file. In addition if you 
               want the code to automatically pull this model you need to place it in this path raw_data/
               spreading_rate_model.txt
+        -cdmf : Creates a bunch of $DATAFILE.deskewed files which have "lat lon mag" deskewed in it for the phase
+               shift given in the input deskew file so it can then be used in gmt scripts for visualization.
         -cor  : Correct intersepts, the automatic intercepts calculated by the geographic preprocessing are often
                off by ~30-50 km and thus should be corrected to make analysis easier and results more accurate.
                This flag does this taking in a deskew file and a correction file.
@@ -159,6 +161,12 @@ if __name__=="__main__":
         dsi = sys.argv.index('-ds')
         deskew_path = sys.argv[dsi+1]
         plot_skewnesses(deskew_path,leave_plots_open=leave_plots_open)
+        sys.exit()
+
+    if '-cdmf' in sys.argv:
+        cdmfi = sys.argv.index('-cdmf')
+        deskew_path = sys.argv[cdmfi+1]
+        create_deskewed_data_file(deskew_path)
         sys.exit()
 
     if '-gs' in sys.argv:

@@ -68,7 +68,7 @@ def phase_shift_data(mag_data,phase_shift):
     MAG=np.fft.fft(magnew)
 
     #   Apply the filter
-    phi=np.deg2rad(phase_shift)
+    phi=np.deg2rad(float(phase_shift))
     if N2%2==0:
         MAG2_head=MAG[0:int(N2/2)]*np.exp(-1j*phi)
         MAG2_tail=MAG[int(N2/2):N2]*np.exp(1j*phi)
@@ -683,12 +683,17 @@ def map_project_magnetic_data(data_path,projection_az,v_ex=1):
     data_df['lat']
 
 def create_deskewed_data_file(deskew_path):
-    pass
     #read deskew file
+    deskew_df = filter_deskew_and_calc_aei(deskew_path)
 
     #iterate mag files
+    for i,row in deskew_df.iterrows():
         #read mag files
+        data_path = os.path.join(row['data_dir'],row['comp_name'])
+        data_df = open_mag_file(data_path)
         #deskew mag data
+        data_df['deskewed_mag'] = phase_shift_data(data_df['mag'],row['phase_shift'])
         #save deskewed mag data as $DATAFILE.deskew
+        print("writing %s"%(data_path+'.deskewed'))
+        data_df[['lon','lat','deskewed_mag']].to_csv(data_path+'.deskewed',sep=',',header=False,index=False)
 
-#modify bath plots to read these deskewed files

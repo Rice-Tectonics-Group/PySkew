@@ -8,6 +8,7 @@ from geographiclib.geodesic import Geodesic
 from functools import reduce
 from .plot_geographic import *
 from .utilities import *
+from pmagpy.ipmag import ipmag
 
 
 def intersect(a1,a2,e=1):
@@ -99,6 +100,51 @@ def shipmag_prep(shipmag_files):
         ship_df = open_mag_file(shipmag_file)
         latlon_df = ship_df[['lat','lon']]
         latlon_file = shipmag_file + ".latlon"
+        latlon_df.to_csv(latlon_file, sep=' ', index=False, header=False)
+
+def aeromag_prep(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag')):
+    for aeromag_file in aeromag_files:
+
+        track,extension = os.path.basename(aeromag_file).split('.')
+        adf = open_mag_file(aeromag_file)
+        ddf = pd.read_csv(date_file,sep='\t',index_col=0)
+        idf = pd.DataFrame(columns=['dis','v_comp','e_comp','t_comp'])
+
+        dis = 0
+        prev_lat,prev_lon = None,None
+        for i,row in adf.iterrows():
+            adf.set_value(i,'dis',dis)
+            if prev_lat!=None and prev_lon!=None:
+                dis += Geodesic.Inverse(row['lat'],row['lon'],prev_lat,prev_lon)['s12']/1000
+
+            decimal_year = ddf.loc[track]['decimal year']
+            dec,inc,mag = ipmag.igrf([decimal_year,row['alt']*0.3048,float(row['lat']),float(row['lon'])])
+            igrf_v_comp = mag*np.sin(np.deg2rad(inc))
+            igrf_e_comp = mag*np.cos(np.deg2rad(inc))*np.sin(np.deg2rad(dec))
+            igrf_t_comp = mag
+
+            adf.set_value(i,'cor_v_comp',row['v_comp']-igrf_v_comp)
+            adf.set_value(i,'cor_e_comp',row['e_comp']-igrf_e_comp)
+            adf.set_value(i,'cor_t_comp',row['t_comp']-igrf_t_comp)
+
+        round3_func = lambda x: round(x,3)
+        idf['dis'] = list(map(round3_func,np.arange(float(adf['dis'].tolist()[0]),float(adf['dis'].tolist()[-1]),1))) #spacing of 1 km, because I can
+        idf['lat'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf['dis'].tolist(),adf['lat'].tolist())))
+        idf['lon'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf['dis'].tolist(),adf['lon'].tolist())))
+        idf['alt'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf['dis'].tolist(),list(map(lambda x: float(x)*.3048, adf['alt'].tolist())))))
+        idf['v_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf['dis'].tolist(),adf['cor_v_comp'].tolist())))
+        idf['e_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf['dis'].tolist(),adf['cor_e_comp'].tolist())))
+        idf['t_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf['dis'].tolist(),adf['cor_t_comp'].tolist())))
+
+        idf[['dis','alt','v_comp','lat','lon']].to_csv(aeromag_file+'.Vd.lp',index=False,header=False,sep=' ')
+        idf[['dis','alt','e_comp','lat','lon']].to_csv(aeromag_file+'.Ed.lp',index=False,header=False,sep=' ')
+        idf[['dis','alt','t_comp','lat','lon']].to_csv(aeromag_file+'.Td.lp',index=False,header=False,sep=' ')
+
+        if extension.startswith('c'):
+            shutil.copyfile(aeromag_file,aeromag_file+'.lp')
+
+        latlon_df = adf[['lat','lon']]
+        latlon_file = aeromag_file + ".latlon"
         latlon_df.to_csv(latlon_file, sep=' ', index=False, header=False)
 
 def find_track_cuts(tracks, chrons_info, results_directory, tolerance=1, min_angle=10,plot=False):

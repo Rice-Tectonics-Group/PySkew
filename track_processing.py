@@ -323,10 +323,13 @@ if __name__=="__main__":
         shipmag_tracks = list(filter(lambda x: 'ship' in x, tracks))
         shipmag_prep(shipmag_tracks)
 
+        aeromag_tracks = list(filter(lambda x: 'aero' in x, tracks))
+        aeromag_prep(aeromag_tracks)
+
         #plots all selected plots for analysis on a basic ortho map with selected chrons
         if plot: plot_tracks(chrons_info, results_directory, tracks=tracks, lon_0=lon_0, lat_0=lat_0)
 
-        print("please run aeromag_prep on all .DAT files then run again with -2 as an arg")
+        print("please rerun again with -2 as an arg")
 
     #find the turns in the tracks set to be analysed, cut and flip those tracks, then calculate best fit great circles for spreading zones to get azimuth and strike for projecting data and decide which cuts intersect which spreading zones closely enough to be analysed, and removes data not going to be used in further analysis
     if '-2' in sys.argv:
@@ -354,6 +357,9 @@ if __name__=="__main__":
         shipmag_tracks = list(filter(lambda x: 'ship' in x, tracks))
         shipmag_prep(shipmag_tracks)
 
+        aeromag_tracks = list(filter(lambda x: 'aero' in x, tracks))
+        aeromag_prep(aeromag_tracks)
+
         print("please rerun with -3 to find strikes and plot cut tracks")
 
     if '-3' in sys.argv:
@@ -371,7 +377,7 @@ if __name__=="__main__":
         #plots all selected plots for analysis on a basic ortho map with selected chrons
         if plot: plot_tracks(chrons_info, results_directory, tracks=tracks, track_dir='all_cut_tracks', lon_0=lon_0, lat_0=lat_0, cuts=True)
 
-        print("please run aeromag_prep on all .c# files then rerun with -4 as an arg to generate a .deskew file and start analysis")
+        print("please rerun with -4 as an arg to generate a .deskew file and start analysis")
 
     #pull out East and Vertical componenets of the data into their own sub directories for deskewing analysis
     if '-4' in sys.argv:
@@ -397,9 +403,6 @@ if __name__=="__main__":
         cut_tracks_file.close()
 
         create_deskew_file(chron_name,results_directory,age_min,age_max,data_directory=data_directory,phase_shift=180,step=60)
-
-        #You must have run aeromag_prep on the cut data to run this function which will finally seperate out the E and V componenets for analysis
-#        seperate_E_V(cut_tracks)
 
     if '-ptl' in sys.argv:
         annotate=False

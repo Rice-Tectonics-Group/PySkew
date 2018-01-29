@@ -128,7 +128,10 @@ def plot_pole_with_lunes(deskew_path,ellipse_path):
     gcm.drawparallels(np.arange(0,90,10),labels=[0,0,0,0])
     gcm.drawmeridians(np.arange(0,360,10),labels=[1,1,1,1])
 
-    plot_lunes(comps,gcm)
+    elipse_file = open(ellipse_path,"r")
+    lon,lat,az,a,b = list(map(float,elipse_file.read().split()))
+
+    plot_lunes(comps,gcm,pole_lat=lat)
 
     plot_pole(ellipse_path,m=gcm)
 
@@ -158,7 +161,9 @@ def plot_lunes_and_save(deskew_path):
     plt.close(fig)
 
 
-def plot_lunes(comps,gcm):
+def plot_lunes(comps,gcm,pole_lat=None):
+
+    if pole_lat==None: pole_lat=0
 
     # For every crossing...
     for i,row in comps.iterrows():
@@ -176,7 +181,7 @@ def plot_lunes(comps,gcm):
         clt_mid = 90-np.degrees(np.arctan(np.tan(np.deg2rad(inc_mid))*0.5))
         lat_mid = Geodesic.WGS84.ArcDirect(float(row["inter_lat"]),float(row["inter_lon"]), strike-90, clt_mid)['lat2']
         # Find array of great semicircle azimuths (degrees)
-        if lat_mid >= 0:
+        if (pole_lat >= 0 and lat_mid >= pole_lat-90) or (pole_lat < 0 and lat_mid >= pole_lat+90):
             azi = np.linspace(strike-(180),strike,100)
         else:
             azi = np.linspace(strike,strike+180,100)

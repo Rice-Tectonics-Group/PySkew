@@ -8,7 +8,7 @@ from geographiclib.geodesic import Geodesic
 from functools import reduce
 from .plot_geographic import *
 from .utilities import *
-from pmagpy.ipmag import ipmag
+import pmagpy.ipmag as ipmag
 
 
 def intersect(a1,a2,e=1):

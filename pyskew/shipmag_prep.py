@@ -96,7 +96,7 @@ def preprocess_m77t(m77tf,data_directory="shipmag_data"):
 
     #write to .lp file
     print("saving %s"%fout_name)
-    interp_df[['dis','decimal_year','mag_cor','lat','lon']].to_csv(fout_name,sep='\t',index=False,header=False)
+    interp_df[['dis','decimal_year','mag_cor','lat','lon']].to_csv(fout_name,sep=' ',index=False,header=False)
 
 
 

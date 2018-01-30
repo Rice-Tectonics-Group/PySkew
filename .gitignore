@@ -16,6 +16,8 @@ Essentials_Problem_Datafiles
 *.inp
 */*.inp
 *.DS*
+*gmt.*
+*ETOPO*
 
 Data_Storage_Directories
 
@@ -36,6 +38,7 @@ Backup/*
 backups/*
 backup/*
 data*
+0000_group_meeting_files/*
 
 Results_File_Types
 

@@ -181,7 +181,7 @@ def plot_lunes(comps,gcm,pole_lat=None):
         clt_mid = 90-np.degrees(np.arctan(np.tan(np.deg2rad(inc_mid))*0.5))
         lat_mid = Geodesic.WGS84.ArcDirect(float(row["inter_lat"]),float(row["inter_lon"]), strike-90, clt_mid)['lat2']
         # Find array of great semicircle azimuths (degrees)
-        if (pole_lat >= 0 and lat_mid >= pole_lat-90) or (pole_lat < 0 and lat_mid >= pole_lat+90):
+        if (pole_lat >= 0 and lat_mid >= 90-pole_lat) or (pole_lat > 0 and lat_mid >= 90+pole_lat):
             azi = np.linspace(strike-(180),strike,100)
         else:
             azi = np.linspace(strike,strike+180,100)

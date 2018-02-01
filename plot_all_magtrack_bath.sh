@@ -28,7 +28,7 @@ sitealpha=15 #higher number=more transparent
 
 #Script start
 
-gmt makecpt -Cpolar -T-6000/0/400 > $cptfile
+gmt makecpt -Cpolar -T-5000/-2000/150 > $cptfile
 
 while read t slat slon f azi; do
     if [ $t == "aero" ]; then
@@ -42,6 +42,7 @@ while read t slat slon f azi; do
 
     #outfile path in single bath file
     plot="$outdir/`basename $f`.ps"
+    title=`basename $f`
     plotpng="`dirname $plot`/`basename $plot .ps`.png"
     plotpdf="`dirname $plot`/`basename $plot .ps`.pdf"
 
@@ -60,7 +61,7 @@ while read t slat slon f azi; do
 
     echo "$slon $slat" | gmt psxy $region $proj -O -K -Sc$sitesize -G$sitecolor -t$sitealpha >> ${plot}
 
-    gmt pswiggle $f $region $proj $zscale -O -I$azi -G-$color -Wthin,$color -Tthin,$color,- -t50 >> ${plot}
+    gmt pswiggle $f $region $proj $zscale -O -I$azi -G-$color -Wthin,$color -Tthin,$color,- -t50 -B+t$title >> ${plot}
 
     ps2pdf $plot $plotpdf
 #    convert $plot $plotpng #possible png option???

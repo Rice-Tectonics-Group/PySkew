@@ -120,7 +120,7 @@ def aeromag_prep(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag'
             decimal_year = ddf.loc[track]['decimal year']
             dec,inc,mag = ipmag.igrf([decimal_year,row['alt']*0.3048,float(row['lat']),float(row['lon'])])
             igrf_v_comp = mag*np.sin(np.deg2rad(inc))
-            igrf_e_comp = mag*np.cos(np.deg2rad(inc))*np.sin(np.deg2rad(dec))
+            igrf_e_comp = mag*np.cos(np.deg2rad(inc))*np.cos(np.deg2rad(dec))
             igrf_t_comp = mag
 
             adf.set_value(i,'cor_v_comp',row['v_comp']-igrf_v_comp)

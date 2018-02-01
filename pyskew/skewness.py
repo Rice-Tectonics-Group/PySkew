@@ -674,14 +674,6 @@ def update_useable_tracks_from_deskew(deskew_path,useable_track_path):
     out_path = os.path.join(directory,new_useable_track_filename)
     new_useable_df.to_csv(out_path, sep='\t', index=False, header=False)
 
-def map_project_magnetic_data(data_path,projection_az,v_ex=1):
-
-    print("unfinished, and possibly unnecessary"); return
-
-    data_df = open_mag_file(data_path)
-
-    data_df['lat']
-
 def create_deskewed_data_file(deskew_path):
     #read deskew file
     deskew_df = filter_deskew_and_calc_aei(deskew_path)
@@ -692,7 +684,7 @@ def create_deskewed_data_file(deskew_path):
         data_path = os.path.join(row['data_dir'],row['comp_name'])
         data_df = open_mag_file(data_path)
         #deskew mag data
-        data_df['deskewed_mag'] = phase_shift_data(data_df['mag'],row['phase_shift'])
+        data_df['deskewed_mag'] = phase_shift_data(data_df['mag'],float(row['phase_shift']))
         #save deskewed mag data as $DATAFILE.deskew
         print("writing %s"%(data_path+'.deskewed'))
         data_df[['lon','lat','deskewed_mag']].to_csv(data_path+'.deskewed',sep=',',header=False,index=False)

@@ -7,10 +7,10 @@ plotpdf="`dirname $infile`/magwiggle.pdf"
 grdfile=ETOPO1_Bed_g_gmt4.grd
 
 #Map boundary defs
-y1=-20
-y2=30
-x1=200
-x2=260
+y1=-30
+y2=25
+x1=230
+x2=270
 
 #Flags
 region=-R$x1/$x2/$y1/$y2
@@ -21,7 +21,7 @@ zscale=-Z600
 
 #Script start
 
-gmt makecpt -Cpolar -T-6000/0/400 > $cptfile
+gmt makecpt -Cpolar -T-5000/-2000/150 > $cptfile
 
 gmt grdimage $grdfile $cpt $proj $region -K > $plot
 

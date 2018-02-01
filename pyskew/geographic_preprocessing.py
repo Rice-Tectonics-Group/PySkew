@@ -111,30 +111,38 @@ def aeromag_prep(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag'
         idf = pd.DataFrame(columns=['dis','v_comp','e_comp','t_comp'])
 
         dis = 0
+        decimal_year = float(ddf.loc[track]['decimal year'])
         prev_lat,prev_lon = None,None
         for i,row in adf.iterrows():
             adf.set_value(i,'dis',dis)
             if prev_lat!=None and prev_lon!=None:
-                dis += Geodesic.Inverse(row['lat'],row['lon'],prev_lat,prev_lon)['s12']/1000
+                dis += Geodesic.WGS84.Inverse(float(row['lat']),float(row['lon']),prev_lat,prev_lon)['s12']/1000
 
-            decimal_year = ddf.loc[track]['decimal year']
-            dec,inc,mag = ipmag.igrf([decimal_year,row['alt']*0.3048,float(row['lat']),float(row['lon'])])
+            dec,inc,mag = ipmag.igrf([decimal_year,float(row['alt'])*0.3048,float(row['lat']),float(row['lon'])])
             igrf_v_comp = mag*np.sin(np.deg2rad(inc))
             igrf_e_comp = mag*np.cos(np.deg2rad(inc))*np.sin(np.deg2rad(dec))
             igrf_t_comp = mag
 
-            adf.set_value(i,'cor_v_comp',row['v_comp']-igrf_v_comp)
-            adf.set_value(i,'cor_e_comp',row['e_comp']-igrf_e_comp)
-            adf.set_value(i,'cor_t_comp',row['t_comp']-igrf_t_comp)
+            adf.set_value(i,'cor_v_comp',float(row['v_comp'])-igrf_v_comp)
+            adf.set_value(i,'cor_e_comp',float(row['e_comp'])-igrf_e_comp)
+            adf.set_value(i,'cor_t_comp',float(row['mag'])-igrf_t_comp)
+
+            prev_lat,prev_lon = float(row['lat']),float(row['lon'])
 
         round3_func = lambda x: round(x,3)
+        adf_dis_list = list(map(float,adf['dis'].tolist()))
+        adf_lat_list = list(map(float,adf['lat'].tolist()))
+        adf_lon_list = list(map(float,adf['lon'].tolist()))
+        adf_v_list = list(map(float,adf['cor_v_comp'].tolist()))
+        adf_e_list = list(map(float,adf['cor_e_comp'].tolist()))
+        adf_t_list = list(map(float,adf['cor_t_comp'].tolist()))
         idf['dis'] = list(map(round3_func,np.arange(float(adf['dis'].tolist()[0]),float(adf['dis'].tolist()[-1]),1))) #spacing of 1 km, because I can
-        idf['lat'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf['dis'].tolist(),adf['lat'].tolist())))
-        idf['lon'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf['dis'].tolist(),adf['lon'].tolist())))
-        idf['alt'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf['dis'].tolist(),list(map(lambda x: float(x)*.3048, adf['alt'].tolist())))))
-        idf['v_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf['dis'].tolist(),adf['cor_v_comp'].tolist())))
-        idf['e_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf['dis'].tolist(),adf['cor_e_comp'].tolist())))
-        idf['t_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf['dis'].tolist(),adf['cor_t_comp'].tolist())))
+        idf['lat'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_lat_list)))
+        idf['lon'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_lon_list)))
+        idf['alt'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,list(map(lambda x: float(x)*.3048, adf['alt'].tolist())))))
+        idf['v_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_v_list)))
+        idf['e_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_e_list)))
+        idf['t_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_t_list)))
 
         idf[['dis','alt','v_comp','lat','lon']].to_csv(aeromag_file+'.Vd.lp',index=False,header=False,sep=' ')
         idf[['dis','alt','e_comp','lat','lon']].to_csv(aeromag_file+'.Ed.lp',index=False,header=False,sep=' ')

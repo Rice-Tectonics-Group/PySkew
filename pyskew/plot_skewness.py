@@ -4,6 +4,11 @@ import pandas as pd
 import numpy as np
 import pmagpy.ipmag as ipmag
 import matplotlib.pyplot as plt
+if 'darwin' in sys.platform:
+    try:
+        plt.switch_backend('QT5Agg')
+    except ImportError as e:
+        print("QT5 not found, this library is optional on MacOS as it allows for better data visualization moving on with default graphics system.")
 import matplotlib.lines as mlines
 from collections import OrderedDict
 from matplotlib.patches import Rectangle

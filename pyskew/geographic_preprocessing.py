@@ -110,15 +110,19 @@ def aeromag_prep(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag'
         ddf = pd.read_csv(date_file,sep='\t',index_col=0)
         idf = pd.DataFrame(columns=['dis','v_comp','e_comp','t_comp'])
 
+        adf = adf[(adf['lat']!=None) & (adf['lon']!=None) & (adf['alt']!=None) & (adf['mag']!=None) & (adf['v_comp']!=None) & (adf['e_comp']!=None)]
+        adf = adf[(adf['lat'].str.count("99999")==0) & (adf['lon'].str.count("99999")==0) & (adf['alt'].str.count("99999")==0) & (adf['mag'].str.count("99999")==0) & (adf['v_comp'].str.count("99999")==0) & (adf['e_comp'].str.count("99999")==0)]
+
         dis = 0
-        decimal_year = float(ddf.loc[track]['decimal year'])
+        decimal_year = float(ddf.loc[track]['decimal_year'])
         prev_lat,prev_lon = None,None
         for i,row in adf.iterrows():
-            adf.set_value(i,'dis',dis)
+
             if prev_lat!=None and prev_lon!=None:
                 dis += Geodesic.WGS84.Inverse(float(row['lat']),float(row['lon']),prev_lat,prev_lon)['s12']/1000
+            adf.set_value(i,'dis',dis)
 
-            dec,inc,mag = ipmag.igrf([decimal_year,float(row['alt'])*0.3048,float(row['lat']),float(row['lon'])])
+            dec,inc,mag = ipmag.igrf([decimal_year,float(row['alt'])*0.3048e-3,float(row['lat']),float(row['lon'])])
             igrf_v_comp = mag*np.sin(np.deg2rad(inc))
             igrf_e_comp = mag*np.cos(np.deg2rad(inc))*np.cos(np.deg2rad(dec))
             igrf_t_comp = mag
@@ -129,6 +133,11 @@ def aeromag_prep(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag'
 
             prev_lat,prev_lon = float(row['lat']),float(row['lon'])
 
+        for col in ['igrf_e_comp','igrf_v_comp','igrf_t_comp']:
+            pols = np.polyfit(adf['dis'].tolist(),adf[col].tolist(),2)
+            mag_fit = np.polyval(pols,adf['dis'].tolist())
+            adf['cor'+col.lstrip('igrf')] = np.array(adf[col].tolist()) - mag_fit
+
         round3_func = lambda x: round(x,3)
         adf_dis_list = list(map(float,adf['dis'].tolist()))
         adf_lat_list = list(map(float,adf['lat'].tolist()))
@@ -136,7 +145,7 @@ def aeromag_prep(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag'
         adf_v_list = list(map(float,adf['cor_v_comp'].tolist()))
         adf_e_list = list(map(float,adf['cor_e_comp'].tolist()))
         adf_t_list = list(map(float,adf['cor_t_comp'].tolist()))
-        idf['dis'] = list(map(round3_func,np.arange(float(adf['dis'].tolist()[0]),float(adf['dis'].tolist()[-1]),1))) #spacing of 1 km, because I can
+        idf['dis'] = list(map(round3_func,np.arange(float(adf['dis'].tolist()[0]),float(adf['dis'].tolist()[-1]),.1))) #spacing of 1 km, because I can
         idf['lat'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_lat_list)))
         idf['lon'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_lon_list)))
         idf['alt'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,list(map(lambda x: float(x)*.3048, adf['alt'].tolist())))))
@@ -144,9 +153,12 @@ def aeromag_prep(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag'
         idf['e_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_e_list)))
         idf['t_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_t_list)))
 
-        idf[['dis','alt','v_comp','lat','lon']].to_csv(aeromag_file+'.Vd.lp',index=False,header=False,sep=' ')
-        idf[['dis','alt','e_comp','lat','lon']].to_csv(aeromag_file+'.Ed.lp',index=False,header=False,sep=' ')
-        idf[['dis','alt','t_comp','lat','lon']].to_csv(aeromag_file+'.Td.lp',index=False,header=False,sep=' ')
+#        adf[['dis','alt','cor_v_comp','lat','lon']].to_csv(aeromag_file+'.Vd',index=False,header=False,sep='\t')
+#        adf[['dis','alt','cor_e_comp','lat','lon']].to_csv(aeromag_file+'.Ed',index=False,header=False,sep='\t')
+#        adf[['dis','alt','cor_t_comp','lat','lon']].to_csv(aeromag_file+'.Td',index=False,header=False,sep='\t')
+        idf[['dis','alt','v_comp','lat','lon']].to_csv(aeromag_file+'.Vd.lp',index=False,header=False,sep='\t')
+        idf[['dis','alt','e_comp','lat','lon']].to_csv(aeromag_file+'.Ed.lp',index=False,header=False,sep='\t')
+        idf[['dis','alt','t_comp','lat','lon']].to_csv(aeromag_file+'.Td.lp',index=False,header=False,sep='\t')
 
         if extension.startswith('c'):
             shutil.copyfile(aeromag_file,aeromag_file+'.lp')

@@ -2,7 +2,7 @@ import os,sys
 import numpy as np
 import pandas as pd
 import pmagpy.ipmag as ipmag
-import track_processing as tp
+from .utilities import check_dir
 from datetime import datetime
 from geographiclib.geodesic import Geodesic
 
@@ -16,7 +16,7 @@ def dt_to_dec(dt):
 
 def split_m77t(h77tf,m77tf,data_directory="shipmag_data"):
 
-    tp.check_dir(data_directory)
+    check_dir(data_directory)
     h77t_df = pd.read_csv(h77tf,sep='\t',dtype=str)
     m77t_df = pd.read_csv(m77tf,sep='\t',dtype=str)
 
@@ -32,7 +32,7 @@ def split_m77t(h77tf,m77tf,data_directory="shipmag_data"):
         if m77t_survey_df.empty: print("no magnetic data found in %s, skipping"%survey_id); continue
 
         survey_dir = os.path.join(data_directory,survey_id)
-        tp.check_dir(survey_dir)
+        check_dir(survey_dir)
         h77t_survey_df.to_csv(os.path.join(survey_dir,survey_id+'.h77t'),sep='\t',index=False)
         m77t_survey_df.to_csv(os.path.join(survey_dir,survey_id+'.m77t'),sep='\t',index=False)
         new_h77t_files.append(os.path.join(survey_dir,survey_id+'.h77t'))

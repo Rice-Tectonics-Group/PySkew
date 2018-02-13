@@ -52,7 +52,7 @@ Flags:
         -mt   : Create maxtab file, creates a maxtab file from a given deskew file so it can be used with max to
                preform other statistical processing.
         -dt   : Create datatable, deprecated flag creates Lin's matlab datatable file format was origionally used
-               to run the matlab code this program depends on and as a check of functionallity.
+               to run the matlab code this program depends on and as a check of functionality.
     Geographic Preprocessing Flags:
         -f    : .inp file input, this is REQUIRED for all flags bellow this as it details the basics of what is
                needed to start analysis from the raw data.

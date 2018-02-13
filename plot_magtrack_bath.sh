@@ -4,7 +4,7 @@
 infile=$1
 plot="`dirname $infile`/magwiggle.ps"
 plotpdf="`dirname $infile`/magwiggle.pdf"
-grdfile=ETOPO1_Bed_g_gmt4.grd
+grdfile=/Users/alice/Documents/GitHub/PySkew/ETOPO1_Bed_g_gmt4.grd
 
 #Map boundary defs
 y1=-30
@@ -23,11 +23,11 @@ zscale=-Z600
 
 gmt makecpt -Cpolar -T-5000/-2000/150 > $cptfile
 
-gmt grdimage $grdfile $cpt $proj $region -K > $plot
+ grdimage $grdfile $cpt $proj $region -K > $plot
 
-gmt pscoast $region $proj -W1p,black -Ggrey -B5 -K -O >> ${plot}
+ pscoast $region $proj -W1p,black -Ggrey -B5 -K -O >> ${plot}
 
-gmt psscale -Dn1.2/0+w10/1 -O -K $region $proj $cpt >> ${plot}
+ psscale -Dn1.2/0+w10/1 -O -K $region $proj $cpt >> ${plot}
 
 while read i; do
     if [ "${i:0:9}" != "comp_name" ]; then
@@ -42,8 +42,8 @@ while read t f azi; do
     else
         color="darkslategrey"
     fi
-    gmt psxy tmp_latlon.txt $region $proj -O -K -Glimegreen -Sc.1 -t75 >> ${plot}
-    gmt pswiggle $f $region $proj $zscale -O -K -I$azi -G-$color -Wthin,$color -Tthin,$color,- -t50 >> ${plot}
+     psxy tmp_latlon.txt $region $proj -O -K -Glimegreen -Sc.1 -t75 >> ${plot}
+     pswiggle $f $region $proj $zscale -O -K -I$azi -G-$color -Wthin,$color -Tthin,$color,- -t50 >> ${plot}
 done < tmp.txt
 
 rm tmp.txt
@@ -56,4 +56,7 @@ ps2pdf $plot $plotpdf
 
 rm $plot
 
-xdg-open $plotpdf #hack remove when done debugging
+#xdg-open $plotpdf #hack remove when done debugging
+open $plotpdf #hack remove when done debugging
+
+

@@ -53,13 +53,13 @@ while read t slat slon f azi; do
     x2=$(echo "$slon+$sitedis" | bc)
     region=-R$x1/$x2/$y1/$y2
 
-    gmt grdimage $grdfile $cpt $proj $region -K > $plot
+     grdimage $grdfile $cpt $proj $region -K > $plot
 
-    gmt pscoast $region $proj -W1p,black -Ggrey -B5 -K -O >> ${plot}
+     pscoast $region $proj -W1p,black -Ggrey -B5 -K -O >> ${plot}
 
-    gmt psscale -Dn1.2/0+w10/1 -O -K $region $proj $cpt >> ${plot}
+     psscale -Dn1.2/0+w10/1 -O -K $region $proj $cpt >> ${plot}
 
-    echo "$slon $slat" | gmt psxy $region $proj -O -K -Sc$sitesize -G$sitecolor -t$sitealpha >> ${plot}
+    echo "$slon $slat" |  psxy $region $proj -O -K -Sc$sitesize -G$sitecolor -t$sitealpha >> ${plot}
 
     gmt pswiggle $f $region $proj $zscale -O -I$azi -G-$color -Wthin,$color -Tthin,$color,- -t50 -B+t$title >> ${plot}
 

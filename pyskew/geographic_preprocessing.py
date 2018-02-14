@@ -127,9 +127,9 @@ def aeromag_prep(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag'
             igrf_e_comp = mag*np.cos(np.deg2rad(inc))*np.cos(np.deg2rad(dec))
             igrf_t_comp = mag
 
-            adf.set_value(i,'cor_v_comp',float(row['v_comp'])-igrf_v_comp)
-            adf.set_value(i,'cor_e_comp',float(row['e_comp'])-igrf_e_comp)
-            adf.set_value(i,'cor_t_comp',float(row['mag'])-igrf_t_comp)
+            adf.set_value(i,'igrf_v_comp',float(row['v_comp'])-igrf_v_comp)
+            adf.set_value(i,'igrf_e_comp',float(row['e_comp'])-igrf_e_comp)
+            adf.set_value(i,'igrf_t_comp',float(row['mag'])-igrf_t_comp)
 
             prev_lat,prev_lon = float(row['lat']),float(row['lon'])
 

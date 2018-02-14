@@ -2,7 +2,7 @@ import os,sys
 import numpy as np
 import pandas as pd
 import pmagpy.ipmag as ipmag
-from utilities import check_dir
+from .utilities import check_dir
 from datetime import datetime
 from geographiclib.geodesic import Geodesic
 

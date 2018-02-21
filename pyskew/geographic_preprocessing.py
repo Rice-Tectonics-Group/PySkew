@@ -103,25 +103,29 @@ def shipmag_prep(shipmag_files):
         latlon_df.to_csv(latlon_file, sep=' ', index=False, header=False)
 
 def aeromag_prep(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag')):
-    for aeromag_file in aeromag_files:
+    for aeromag_file in aeromag_files: #iterate over all aeromag files
 
-        track,extension = os.path.basename(aeromag_file).split('.')
+        track,extension = os.path.basename(aeromag_file).split('.') #segment the name into parts
+        #read data and make a empty dataframe for output data
         adf = open_mag_file(aeromag_file)
         ddf = pd.read_csv(date_file,sep='\t',index_col=0)
         idf = pd.DataFrame(columns=['dis','v_comp','e_comp','t_comp'])
 
-        adf = adf[(adf['lat']!=None) & (adf['lon']!=None) & (adf['alt']!=None) & (adf['mag']!=None) & (adf['v_comp']!=None) & (adf['e_comp']!=None)]
-        adf = adf[(adf['lat'].str.count("99999")==0) & (adf['lon'].str.count("99999")==0) & (adf['alt'].str.count("99999")==0) & (adf['mag'].str.count("99999")==0) & (adf['v_comp'].str.count("99999")==0) & (adf['e_comp'].str.count("99999")==0)]
-
         dis = 0
         decimal_year = float(ddf.loc[track]['decimal_year'])
         prev_lat,prev_lon = None,None
-        for i,row in adf.iterrows():
+        for i,row in adf.iterrows(): #iterate over rows
 
-            if prev_lat!=None and prev_lon!=None:
+            #check for data gaps
+            if (row['lat']==None) or (row['lon']==None) or (row['alt']==None) or (row['mag']==None) or (row['v_comp']==None) or (row['e_comp']==None): continue
+            #check for absurd values outside of the domain of the varible (this will capture null values of -99999)
+            elif (abs(float(row['lat']))>90) or (abs(convert_to_180_180(row['lon']))>180) or (float(row['alt'])<0) or (abs(float(row['mag']))>3000) or (abs(float(row['v_comp']))>3000) or (abs(float(row['e_comp']))>3000): continue
+
+            if prev_lat!=None and prev_lon!=None: #calculate distance
                 dis += Geodesic.WGS84.Inverse(float(row['lat']),float(row['lon']),prev_lat,prev_lon)['s12']/1000
             adf.set_value(i,'dis',dis)
 
+            #calculate and remove IGRF
             dec,inc,mag = ipmag.igrf([decimal_year,float(row['alt'])*0.3048e-3,float(row['lat']),float(row['lon'])])
             igrf_v_comp = mag*np.sin(np.deg2rad(inc))
             igrf_e_comp = mag*np.cos(np.deg2rad(inc))*np.cos(np.deg2rad(dec))
@@ -133,11 +137,13 @@ def aeromag_prep(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag'
 
             prev_lat,prev_lon = float(row['lat']),float(row['lon'])
 
+        #remove a second order polynomial fromm the magnetic data I don't know why but this is something done
         for col in ['igrf_e_comp','igrf_v_comp','igrf_t_comp']:
             pols = np.polyfit(adf['dis'].tolist(),adf[col].tolist(),2)
             mag_fit = np.polyval(pols,adf['dis'].tolist())
             adf['cor'+col.lstrip('igrf')] = np.array(adf[col].tolist()) - mag_fit
 
+        #iterpolate and round data
         round3_func = lambda x: round(x,3)
         adf_dis_list = list(map(float,adf['dis'].tolist()))
         adf_lat_list = list(map(float,adf['lat'].tolist()))

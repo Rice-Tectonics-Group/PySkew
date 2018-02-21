@@ -15,9 +15,7 @@ def filter_deskew_and_calc_aei(deskew_path,spreading_rate_model_path=None,anomal
 
     asf,srf,sz_list = get_asf_srf(spreading_rate_model_path,anomalous_skewness_model_path)
 
-    deskew_df = pd.read_csv(deskew_path,sep='\t',dtype=str)
-
-    deskew_df = deskew_df[~deskew_df["comp_name"].str.startswith('#')]
+    deskew_df = open_deskew_file(deskew_path)
 
     deskew_df["aei"] = [wrap_180_180(180-wrap_180_180(row['phase_shift'])-(90 if ".Vd." in row['comp_name'] else 0) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))) for i,row in deskew_df.iterrows()]
 
@@ -91,7 +89,7 @@ def correct_cande(cande_cor_path,deskew_path,spreading_rate_path=os.path.join('r
         shutil.copyfile(deskew_path,deskew_path+'.ccbak')
 
     #read in the deskew and cande_cor file
-    deskew_df = pd.read_csv(deskew_path,sep="\t")
+    deskew_df = open_deskew_file(deskew_path)
     cande_cor_df = pd.read_csv(cande_cor_path,sep="\t")
     spreading_rate_func,sz_list = generate_spreading_rate_model(spreading_rate_path)
 
@@ -155,7 +153,7 @@ def get_lon_lat_from_plot_pick(deskew_row,plot_pick,dist_e=.75):
     return picked_lon,picked_lat,picked_distance
 
 def create_maxtab_file(deskew_path,anomoly_name):
-    deskew_df = pd.read_csv(deskew_path,sep="\t")
+    deskew_df = open_deskew_file(deskew_path)
     dates_file = open("raw_data/aeromagCDinfo.txt",'r')
     dates_data = {line.split('\t')[0]:line.split('\t')[3] for line in dates_file.readlines()}
     out_str = ""
@@ -537,7 +535,7 @@ def create_spreading_rate_file(spreading_rate_picks_path, ages_path):
     return stats_df
 
 def get_lon_lat_from_plot_picks_and_deskew_file(deskew_path,spreading_rate_picks_path):
-    deskew_df = pd.read_csv(deskew_path,sep='\t')
+    deskew_df = open_deskew_file(deskew_path)
     spreading_rate_picks = pd.read_csv(spreading_rate_picks_path,sep='\t',header=0,index_col=0)
 
     iso_dict = {}
@@ -670,7 +668,7 @@ def read_and_fit_fz_data(fz_directory=os.path.join('raw_data','fracture_zones'))
     return get_fz_loc
 
 def find_fz_crossings(deskew_path,fz_directory=os.path.join('raw_data','fracture_zones')):
-    deskew_df = pd.read_csv(deskew_path,sep='\t')
+    deskew_df = open_deskew_file(deskew_path)
     get_fz_loc = read_and_fit_fz_data(fz_directory)
 
     fz_inter_dict = {}
@@ -687,7 +685,7 @@ def find_fz_crossings(deskew_path,fz_directory=os.path.join('raw_data','fracture
 def update_useable_tracks_from_deskew(deskew_path,useable_track_path):
     useable_df = pd.read_csv(useable_track_path, sep='\t', header=None)
     useable_df['tracks'] = list(map(os.path.basename, useable_df[0].tolist()))
-    deskew_df = pd.read_csv(deskew_path,sep='\t')
+    deskew_df = open_deskew_file(deskew_path)
     useable_tracks = list(map(lambda x: x.rstrip('.Ed .lp .Vd'), deskew_df['comp_name'].tolist()))
     new_useable_df = useable_df[useable_df['tracks'].isin(useable_tracks)][[0,1,2]]
     directory = os.path.dirname(useable_track_path)

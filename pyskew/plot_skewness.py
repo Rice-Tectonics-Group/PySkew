@@ -386,7 +386,7 @@ def plot_deskew_file_skewnesses(row,leave_plots_open=False):
         plt.close(fig)
 
 def plot_skewnesses(deskew_path,leave_plots_open=False):
-    deskew_df = pd.read_csv(deskew_path,sep='\t')
+    deskew_df = open_deskew_file(deskew_path)
 
     row = deskew_df.iloc[0]
 
@@ -643,7 +643,7 @@ def overlay_best_skewnesses(deskew_path, deskew_path2, leave_plots_open=False, b
         plotting_process.start()
 
 def overlay_skewness_by_spreading_zone(deskew_path,deskew_path2,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None):
-    deskew_df = pd.read_csv(deskew_path,sep='\t')
+    deskew_df = open_deskew_file(deskew_path)
     deskew_df2 = pd.read_csv(deskew_path2,sep='\t')
 
     tmp_deskew_path = '.tmp_deskew_file'
@@ -663,7 +663,7 @@ def overlay_skewness_by_spreading_zone(deskew_path,deskew_path2,leave_plots_open
     except OSError: print("trouble removing temporary deskew and dt.csv files used for this function, check the code")
 
 def plot_skewness_by_spreading_zone(deskew_path,leave_plots_open=False,ridge_loc_path=None, fz_loc_path=None):
-    deskew_df = pd.read_csv(deskew_path,sep='\t')
+    deskew_df = open_deskew_file(deskew_path)
 
     tmp_deskew_path = '.tmp_deskew_file'
     for sz in deskew_df['sz_name'].drop_duplicates():
@@ -742,7 +742,7 @@ def plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page
         plt.close(fig)
 
 def plot_spreading_rate_picks(deskew_path,spreading_rate_picks_path,leave_plots_open=False):
-    deskew_df = pd.read_csv(deskew_path,sep='\t')
+    deskew_df = open_deskew_file(deskew_path)
     spreading_rate_picks = pd.read_csv(spreading_rate_picks_path,sep='\t',header=0,index_col=0)
 
     deskew_df['comp_name'] = deskew_df['comp_name'].apply(lambda x: str(x).rstrip('.Ed .Vd .lp'))
@@ -813,7 +813,7 @@ def plot_isochron_picks(deskew_path,spreading_rate_picks_path,leave_plots_open=F
     average_lon = convert_to_0_360(average_lon)
 
     # Read data files
-    deskew_df = pd.read_csv(deskew_path,sep='\t')
+    deskew_df = open_deskew_file(deskew_path)
     results_dir = deskew_df['results_dir'].iloc[0]
 
     # Initialize figure

@@ -3,7 +3,7 @@ import pandas as pd
 from utilities import open_mag_file,write_mag_file_df
 
 def flip_spreading_zone(deskew_path,spreading_zone):
-    dskf = pd.read_csv(deskew_path,sep='\t')
+    dskf = open_deskew_file(deskew_path)
     for i,row in dskf.iterrows():
         if row['sz_name']==spreading_zone:
             flip_data_file(os.path.join(row['data_dir'],row['comp_name']))

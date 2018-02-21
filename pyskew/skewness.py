@@ -323,7 +323,7 @@ def generate_anomalous_skewness_model(anomalous_skewness_path):
 
     return anomalous_skewness_model
 
-def get_shipmag_decimal_year(row,deg_e=.0001):
+def get_shipmag_decimal_year(row,deg_e=.01):
     """
     takes a row (pandas series) of a deskew file which is of type ship and returns the decimal year for the
     intersection point. returns none if not found.
@@ -339,6 +339,27 @@ def get_shipmag_decimal_year(row,deg_e=.0001):
           (convert_to_0_360(datarow['lon'])>=convert_to_0_360(row['inter_lon'])-deg_e and \
           convert_to_0_360(datarow['lon'])<=convert_to_0_360(row['inter_lon'])+deg_e):
             decimal_year=float(datarow['decimal_year']); break
+    return decimal_year
+
+def new_get_shipmag_decimal_year(row,deg_e=.01):
+    """
+    takes a row (pandas series) of a deskew file which is of type ship and returns the decimal year for the
+    intersection point. returns none if not found.
+    """
+    if row['track_type']!='ship':
+        raise ValueError("get_shipmag_decimal_year can only run on shipmag data recieved data of type %s instead"%str(row['track_type']))
+    data_file_path = os.path.join(row["data_dir"],row["comp_name"])
+    data_df = pd.read_csv(data_file_path,names=["dist","decimal_year","mag","lat","lon"],delim_whitespace=True)
+    decimal_year,sum_sq=None,1e9
+    for j,datarow in data_df.iterrows(): #iterate to find the distance associated with the current lat lon
+        next_sum_sq = (float(row['inter_lat'])-float(datarow['lat']))**2 + (convert_to_0_360(row['inter_lon'])-convert_to_0_360(datarow['lon']))**2
+        if sum_sq<next_sum_sq: break
+        elif (float(datarow['lat'])>=float(row['inter_lat'])-deg_e and \
+          float(datarow['lat'])<=float(row['inter_lat'])+deg_e) and \
+          (convert_to_0_360(datarow['lon'])>=convert_to_0_360(row['inter_lon'])-deg_e and \
+          convert_to_0_360(datarow['lon'])<=convert_to_0_360(row['inter_lon'])+deg_e):
+            sum_sq = next_sum_sq
+            decimal_year=float(datarow['decimal_year'])
     return decimal_year
 
 def reduce_to_pole(deskew_path, pole_lon, pole_lat, spreading_rate_model_path=None, anomalous_skewness_model_path=None):

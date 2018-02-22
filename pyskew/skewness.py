@@ -82,38 +82,38 @@ def phase_shift_data(mag_data,phase_shift):
     #   Truncate the head and the tail and return the data
     return NewMag[100:N1+100]
 
-def correct_cande(cande_cor_path,deskew_path,spreading_rate_path=os.path.join('raw_data','spreading_rate_model.txt'),dist_e=.75):
+def correct_site(site_cor_path,deskew_path,spreading_rate_path=os.path.join('raw_data','spreading_rate_model.txt'),dist_e=.75):
     #backup the .deskew file
     if not os.path.isfile(deskew_path+'.ccbak'):
         print("backing up %s to %s"%(deskew_path,deskew_path+'.ccbak'))
         shutil.copyfile(deskew_path,deskew_path+'.ccbak')
 
-    #read in the deskew and cande_cor file
+    #read in the deskew and site_cor file
     deskew_df = open_deskew_file(deskew_path)
-    cande_cor_df = pd.read_csv(cande_cor_path,sep="\t")
+    site_cor_df = pd.read_csv(site_cor_path,sep="\t")
     spreading_rate_func,sz_list = generate_spreading_rate_model(spreading_rate_path)
 
     #copy the deskew df so I can change it and save the corrected latitudes and longitudes
     new_deskew_df = deskew_df.copy()
     for i,drow in deskew_df.iterrows():
-        crow = cande_cor_df[cande_cor_df["comp_name"]==drow["comp_name"]]
+        crow = site_cor_df[site_cor_df["comp_name"]==drow["comp_name"]]
 
         if drow['comp_name'].startswith('#'): continue #commented lines check
         if crow.empty: print("no correction found for component %s"%drow["comp_name"]); continue #no correction for this component check
 
         half_age = (drow['age_max']-drow['age_min'])/2
         avg_age = (drow['age_max']+drow['age_min'])/2
-        half_dis = -np.sign(float(crow['correction']))*half_age*spreading_rate_func(drow['sz_name'],avg_age)
+        half_dis = half_age*spreading_rate_func(drow['sz_name'],avg_age)
 
         if drow['track_type'] == 'aero':
             #Find other component direction so we can average the shift between components
             if 'E' in drow["comp_name"]:
-                other_crow = cande_cor_df[cande_cor_df["comp_name"]==drow["comp_name"].replace('E','V')]
+                other_crow = site_cor_df[site_cor_df["comp_name"]==drow["comp_name"].replace('E','V')]
             elif 'V' in drow["comp_name"]:
-                other_crow = cande_cor_df[cande_cor_df["comp_name"]==drow["comp_name"].replace('V','E')]
+                other_crow = site_cor_df[site_cor_df["comp_name"]==drow["comp_name"].replace('V','E')]
             else: print("Problem determining component direction for %s"%drow["comp_name"]); continue
             #check that the intersept distance correction between E and V are not more than 3 deg different
-            if abs(float(crow['correction']) + float(other_crow['correction']))>3:
+            if abs(float(crow['correction']) - float(other_crow['correction']))>3:
                 print("correction for %s is >3 km different from the other componenet's correction, and the average may be off"%(drow['comp_name']))
             correction = (float(crow['correction'])+float(other_crow['correction']))/2 + half_dis
         elif drow['track_type'] == 'ship':
@@ -562,7 +562,7 @@ def get_lon_lat_from_plot_picks_and_deskew_file(deskew_path,spreading_rate_picks
     iso_df = pd.DataFrame(iso_dict)
     average_lat = sum(lats)/len(lats)
     average_lon = sum(lons)/len(lons)
-    
+
     # Initialize empty dataframe to hold isochron picks
     pick_df = pd.DataFrame(index=iso_df.columns, columns=['lon','lat'])
     for anom in iso_df.index:

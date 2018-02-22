@@ -215,9 +215,9 @@ if __name__=="__main__":
         cori = sys.argv.index('-cor')
         try:
             deskew_path = sys.argv[cori+1]
-            cande_cor_path = sys.argv[cori+2]
-            correct_cande(cande_cor_path,deskew_path)
-        except IndexError: print("please provide a .deskew file and a cande_cor file to correct it with after the -cor flag, aborting")
+            site_cor_path = sys.argv[cori+2]
+            correct_site(site_cor_path,deskew_path)
+        except IndexError: print("please provide a .deskew file and a site_cor file to correct it with after the -cor flag, aborting")
         sys.exit()
 
     if '-srp' in sys.argv:

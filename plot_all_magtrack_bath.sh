@@ -33,8 +33,16 @@ gmt makecpt -Cpolar -T-5000/-2000/150 > $cptfile
 while read t slat slon f azi; do
     if [ $t == "aero" ]; then
         color="black"
+        alpha=70
+        color2="maroon1"
+        alpha2=50
+        f2=`echo "$f" | sed -r 's/[E]+/V/g'`
+        if [ $f == $f2 ]; then
+            continue
+        fi
     else
-        color="darkslategrey"
+        color="black"
+        alpha=50
     fi
 
     #outfile path in data file option
@@ -53,15 +61,19 @@ while read t slat slon f azi; do
     x2=$(echo "$slon+$sitedis" | bc)
     region=-R$x1/$x2/$y1/$y2
 
-     grdimage $grdfile $cpt $proj $region -K > $plot
+    gmt grdimage $grdfile $cpt $proj $region -K > $plot
 
-     pscoast $region $proj -W1p,black -Ggrey -B5 -K -O >> ${plot}
+    gmt pscoast $region $proj -W1p,black -Ggrey -B5 -K -O >> ${plot}
 
-     psscale -Dn1.2/0+w10/1 -O -K $region $proj $cpt >> ${plot}
+    gmt psscale -Dn1.2/0+w10/1 -O -K $region $proj $cpt >> ${plot}
 
-    echo "$slon $slat" |  psxy $region $proj -O -K -Sc$sitesize -G$sitecolor -t$sitealpha >> ${plot}
+    echo "$slon $slat" | gmt psxy $region $proj -O -K -Sc$sitesize -G$sitecolor -t$sitealpha >> ${plot}
 
-    gmt pswiggle $f $region $proj $zscale -O -I$azi -G-$color -Wthin,$color -Tthin,$color,- -t50 -B+t$title >> ${plot}
+    if [ $t == "aero" ]; then
+        gmt pswiggle $f2 $region $proj $zscale -O -K -I$azi -G-$color2 -Wthin,$color -Tthin,$color2,- -t$alpha2 -B+t$title >> ${plot}
+    fi
+
+    gmt pswiggle $f $region $proj $zscale -O -I$azi -G-$color -Wthin,$color -Tthin,$color,- -t$alpha -B+t$title >> ${plot}
 
     ps2pdf $plot $plotpdf
 #    convert $plot $plotpng #possible png option???

@@ -695,7 +695,7 @@ def update_useable_tracks_from_deskew(deskew_path,useable_track_path):
 
 def create_deskewed_data_file(deskew_path):
     #read deskew file
-    deskew_df = filter_deskew_and_calc_aei(deskew_path)
+    deskew_df = open_deskew_file(deskew_path)
 
     #iterate mag files
     for i,row in deskew_df.iterrows():

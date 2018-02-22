@@ -116,6 +116,11 @@ if __name__=="__main__":
         reduce_to_pole(deskew_path,pole_lon,pole_lat)
         sys.exit()
 
+    fz_loc_path = None
+    if '-fzl' in sys.argv:
+        fzli = sys.argv.index('-fzl')
+        fz_loc_path = sys.argv[fzli+1]
+
     if '-odsk' in sys.argv:
         odski = sys.argv.index('-odsk')
         deskew_path = sys.argv[odski+1]
@@ -126,10 +131,6 @@ if __name__=="__main__":
             pni = sys.argv.index('-pn')
             pole_name1 = sys.argv[pni+1]
             pole_name2 = sys.argv[pni+2]
-        fz_loc_path = None
-        if '-fzl' in sys.argv:
-            fzli = sys.argv.index('-fzl')
-            fz_loc_path = sys.argv[fzli+1]
         overlay_skewness_by_spreading_zone(deskew_path, deskew_path2, leave_plots_open=leave_plots_open, pole_name1=pole_name1, pole_name2=pole_name2, fz_loc_path=fz_loc_path)
         sys.exit()
 
@@ -140,10 +141,6 @@ if __name__=="__main__":
         if '-rdg' in sys.argv:
             rdgi = sys.argv.index('-rdg')
             ridge_loc_path = sys.argv[rdgi+1]
-        fz_loc_path = None
-        if '-fzl' in sys.argv:
-            fzli = sys.argv.index('-fzl')
-            fz_loc_path = sys.argv[fzli+1]
         plot_skewness_by_spreading_zone(deskew_path, leave_plots_open=leave_plots_open, ridge_loc_path=ridge_loc_path, fz_loc_path=fz_loc_path)
         sys.exit()
 
@@ -321,10 +318,10 @@ if __name__=="__main__":
         #This is not strictly necessary, but it makes it a lot easier to fit into the existing framework and
         #I'M LAZY
         shipmag_tracks = list(filter(lambda x: 'ship' in x, tracks))
-        shipmag_prep(shipmag_tracks)
+        shipmag_preprocess(shipmag_tracks)
 
         aeromag_tracks = list(filter(lambda x: 'aero' in x, tracks))
-        aeromag_prep(aeromag_tracks)
+        aeromag_preprocess(aeromag_tracks)
 
         #plots all selected plots for analysis on a basic ortho map with selected chrons
         if plot: plot_tracks(chrons_info, results_directory, tracks=tracks, lon_0=lon_0, lat_0=lat_0)
@@ -355,10 +352,10 @@ if __name__=="__main__":
 
         #this time it's litterally just taking the .c# file which is actually a .lp file and copying it so it fits the framework
         shipmag_tracks = list(filter(lambda x: 'ship' in x, tracks))
-        shipmag_prep(shipmag_tracks)
+        shipmag_preprocess(shipmag_tracks)
 
         aeromag_tracks = list(filter(lambda x: 'aero' in x, tracks))
-        aeromag_prep(aeromag_tracks)
+        aeromag_preprocess(aeromag_tracks)
 
         print("please rerun with -3 to find strikes and plot cut tracks")
 

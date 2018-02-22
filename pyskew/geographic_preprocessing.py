@@ -93,7 +93,7 @@ def find_corners(lat_lon_file,tolerance=1,min_angle=np.pi*0.22):
     
     return points, simplified, idx
 
-def shipmag_prep(shipmag_files):
+def shipmag_preprocess(shipmag_files):
     for shipmag_file in shipmag_files:
         if os.path.basename(shipmag_file).split('.')[-1].startswith('c'):
             shutil.copyfile(shipmag_file,shipmag_file+'.lp')
@@ -102,7 +102,7 @@ def shipmag_prep(shipmag_files):
         latlon_file = shipmag_file + ".latlon"
         latlon_df.to_csv(latlon_file, sep=' ', index=False, header=False)
 
-def aeromag_prep(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag')):
+def aeromag_preprocess(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag')):
     for aeromag_file in aeromag_files: #iterate over all aeromag files
 
         track,extension = os.path.basename(aeromag_file).split('.') #segment the name into parts

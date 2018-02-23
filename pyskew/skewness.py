@@ -23,7 +23,7 @@ def filter_deskew_and_calc_aei(deskew_path,spreading_rate_model_path=None,anomal
 
     for i,row in deskew_df[deskew_df['track_type']=='ship'].iterrows():
         decimal_year = get_shipmag_decimal_year(row)
-        if decimal_year==None: print("Intersection point could not be found in data file so IGRF could not be calculated and aei could not be found please check your data or increase degree error of create_matlab_datatable, skipping %s"%row['comp_name']); continue
+        if decimal_year==None: print("Intersection point could not be found in data file so IGRF could not be calculated and aei could not be found please check your data, skipping %s"%row['comp_name']); continue
         igrf = ipmag.igrf([decimal_year,0,float(row['inter_lat']),float(row['inter_lon'])])
         alpha = float(row['strike']) - igrf[0]
         e = np.degrees(np.arctan2(np.tan(np.deg2rad(igrf[1])),np.sin(np.deg2rad(alpha))))

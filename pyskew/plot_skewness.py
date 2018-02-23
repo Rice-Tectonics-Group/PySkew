@@ -459,6 +459,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     ax0.yaxis.set_label_coords(-.1,.45)
     ax0.format_coord = format_coord
     min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0],'ship',ax0, color='k', linestyle='-')
+#    ax0.set_ylim([-200,200]) MODIFY THIS TO CHANGE Y AXIS
     ylim = ax0.get_ylim()
 
     for j,iterrow in enumerate(rows.iterrows()):

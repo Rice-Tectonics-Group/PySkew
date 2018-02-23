@@ -45,7 +45,9 @@ def calc_projected_distance(inter_lon,inter_lat,lons,lats,strike):
 
 def open_deskew_file(deskew_path):
     deskew_df = pd.read_csv(deskew_path,sep='\t')
-    return deskew_df[~deskew_df["comp_name"].str.startswith('#')]
+    deskew_df = deskew_df[~deskew_df["comp_name"].str.startswith('#')]
+    cols = deskew_df.columns
+    return deskew_df.reset_index()[cols]
 
 def open_mag_file(mag_file):
     dfin = open_aeromag_file(mag_file)

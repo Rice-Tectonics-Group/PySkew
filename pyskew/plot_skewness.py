@@ -406,19 +406,11 @@ def plot_skewnesses(deskew_path,leave_plots_open=False):
     for i,row in deskew_df.iterrows():
         if '#' in row['comp_name']: continue #check for and remove commented profiles
         print("starting process for %s"%row['comp_name'])
-#        plot_deskew_file_skewnesses(row)
-        plotting_process = Process(target = plot_deskew_file_skewnesses,args=[row],kwargs={'leave_plots_open':leave_plots_open})
-        plotting_process.start()
-
-#        if matlab:
-#            if leave_plots_open: COMMAND = '''matlab -nodesktop -r "addpath('bin/MatlabCode/','raw_data'); show_skewness('%s',%s,%s,%s,%s,%s,'%s','%s','%s');"'''%(row['comp_name'],row['phase_shift'],row['step'],row['inter_lat'],row['inter_lon'],row['strike'],row['track_type'],row['data_dir'],row['results_dir'])
-#            else: COMMAND = '''matlab -nodesktop -nodisplay -r "addpath('bin/MatlabCode/','raw_data'); show_skewness('%s',%s,%s,%s,%s,%s,'%s','%s','%s'); exit;"'''%(row['comp_name'],row['phase_shift'],row['step'],row['inter_lat'],row['inter_lon'],row['strike'],row['track_type'],row['data_dir'],row['results_dir'])
-#            subprocess.check_call(COMMAND,shell=True)
-#        else:
-#            if leave_plots_open:
-#                subprocess.check_call('''octave-cli --persist --eval "addpath('bin/MatlabCode/','raw_data'); show_skewness('%s',%s,%s,%s,%s,%s,'%s','%s','%s')" &'''%(row['comp_name'],row['phase_shift'],row['step'],row['inter_lat'],row['inter_lon'],row['strike'],row['track_type'],row['data_dir'],row['results_dir']),shell=True)
-#            else:
-#                subprocess.check_call('''octave-cli --quiet --no-window-system --eval "addpath('bin/MatlabCode/','raw_data'); show_skewness('%s',%s,%s,%s,%s,%s,'%s','%s','%s')" &'''%(row['comp_name'],row['phase_shift'],row['step'],row['inter_lat'],row['inter_lon'],row['strike'],row['track_type'],row['data_dir'],row['results_dir']),shell=True)
+        if 'darwin' in sys.platform:
+            plot_deskew_file_skewnesses(row,leave_plots_open=leave_plots_open)
+        else:
+            plotting_process = Process(target = plot_deskew_file_skewnesses,args=[row],kwargs={'leave_plots_open':leave_plots_open})
+            plotting_process.start()
 
 def plot_ridge_loc(deskew_row,ridge_loc_func,ax,**kwargs):
     data_file_path = os.path.join(deskew_row["data_dir"],deskew_row["comp_name"])

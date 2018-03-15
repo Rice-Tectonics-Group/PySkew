@@ -2,17 +2,10 @@ import os,sys
 import numpy as np
 import pandas as pd
 import pmagpy.ipmag as ipmag
-from .utilities import check_dir
+from .utilities import check_dir,dt_to_dec
 from datetime import datetime
 from geographiclib.geodesic import Geodesic
 
-
-def dt_to_dec(dt):
-    """Convert a datetime to decimal year."""
-    year_start = datetime(dt.year, 1, 1)
-    year_end = year_start.replace(year=dt.year+1)
-    return dt.year + ((dt - year_start).total_seconds() /  # seconds so far
-        float((year_end - year_start).total_seconds()))  # seconds in year
 
 def split_m77t(h77tf,m77tf,data_directory="shipmag_data"):
 
@@ -96,7 +89,7 @@ def preprocess_m77t(m77tf,data_directory="shipmag_data"):
 
     #write to .lp file
     print("saving %s"%fout_name)
-    interp_df[['dis','decimal_year','mag_cor','lat','lon']].to_csv(fout_name,sep=' ',index=False,header=False)
+    interp_df[['dis','decimal_year','mag_cor','lat','lon']].to_csv(fout_name,sep='\t',index=False,header=False)
 
 
 

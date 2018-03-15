@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+from datetime import datetime
 from geographiclib.geodesic import Geodesic
 
 def check_dir(d):
@@ -32,6 +33,13 @@ def wrap_0_360(x):
     except ValueError: raise ValueError("could not coerce input %s into type float for calculation"%str(x))
     return x%360
 
+def dt_to_dec(dt):
+    """Convert a datetime to decimal year."""
+    year_start = datetime(dt.year, 1, 1)
+    year_end = year_start.replace(year=dt.year+1)
+    return dt.year + ((dt - year_start).total_seconds() /  # seconds so far
+        float((year_end - year_start).total_seconds()))  # seconds in year
+
 def read_idx_from_string(idx_str):
     flat_idx = list(map(float,idx_str.replace("[","").replace("(","").replace("]","").replace(")","").replace("'","").split(",")))
     return (((flat_idx[0],flat_idx[1]),(flat_idx[2],flat_idx[3])),(int(flat_idx[4]),int(flat_idx[5])))
@@ -60,7 +68,7 @@ def open_shipmag_file(shipmag_file):
     lines = fin.readlines()
     fin.close()
     lines = [line.split() for line in lines]
-    try: dfin = pd.DataFrame(lines,columns=["dist","dec_year","mag","lat","lon"])
+    try: dfin = pd.DataFrame(lines,columns=["dist","dec_year","mag","lat","lon"],dtype=float)
     except AssertionError:
 #        print("ship mag file %s does not have the standard 5 rows, you should check this data and see if something happened during processing. Returning a empty dataframe"%shipmag_file)
         dfin = pd.DataFrame()
@@ -71,7 +79,7 @@ def open_aeromag_file(aeromag_file):
     lines = fin.readlines()
     fin.close()
     lines = [line.split() for line in lines]
-    try: dfin = pd.DataFrame(lines,columns=["time","lat","lon","n_comp","e_comp","h_comp","v_comp","mag","dec","inc","None","alt"])
+    try: dfin = pd.DataFrame(lines,columns=["time","lat","lon","n_comp","e_comp","h_comp","v_comp","mag","dec","inc","None","alt"],dtype=float)
     except AssertionError:
 #        print("aeromag file %s does not have the standard 12 rows, you should check this data and see if something happened during processing. Returning a empty dataframe"%aeromag_file)
         dfin = pd.DataFrame()
@@ -99,8 +107,8 @@ def cmp_to_key(mycmp):
             return mycmp(self.obj, other.obj) != 0
     return K
 
-def get_barckhausen_2013_chrons():
-    ndf = open('raw_data/chrons/Barckhausen2013/GSFML.Barckhausen++_2013_MGR.picks.gmt','r')
+def get_barckhausen_2013_chrons(barckhausen_path=os.path.join('raw_data','chrons','Barckhausen2013','GSFML.Barckhausen++_2013_MGR.picks.gmt')):
+    ndf = open(barckhausen_path,'r')
 
     meta_lonlat = ndf.readlines()[7:]
 
@@ -134,4 +142,13 @@ def format_coord(x, y):
     col = int(x+0.5)
     row = int(y+0.5)
     return 'x=%1.4f, y=%1.4f'%(x, y)
+
+def run_in_parallel(target,args=[],kwargs={}):
+        if 'darwin' in sys.platform:
+            target(*args,**kwargs)
+        else:
+            process = Process(target = target,args=args,kwargs=kwargs)
+            process.start()
+
+
 

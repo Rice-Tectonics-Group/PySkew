@@ -119,7 +119,7 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('raw_data','dates.ae
             #check for data gaps
             if (row['lat']==None) or (row['lon']==None) or (row['alt']==None) or (row['mag']==None) or (row['v_comp']==None) or (row['e_comp']==None): continue
             #check for absurd values outside of the domain of the varible (this will capture null values of -99999)
-            elif (abs(float(row['lat']))>90) or (abs(convert_to_180_180(row['lon']))>180) or (float(row['alt'])<0) or (abs(float(row['mag']))>3000) or (abs(float(row['v_comp']))>3000) or (abs(float(row['e_comp']))>3000): continue
+            elif (abs(float(row['lat']))>90) or (abs(convert_to_180_180(row['lon']))>180) or (float(row['alt'])<0) or (abs(float(row['mag']))==99999) or (abs(float(row['v_comp']))==99999) or (abs(float(row['e_comp']))==99999): continue
 
             if prev_lat!=None and prev_lon!=None: #calculate distance
                 dis += Geodesic.WGS84.Inverse(float(row['lat']),float(row['lon']),prev_lat,prev_lon)['s12']/1000
@@ -127,30 +127,32 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('raw_data','dates.ae
 
             #calculate and remove IGRF
             dec,inc,mag = ipmag.igrf([decimal_year,float(row['alt'])*0.3048e-3,float(row['lat']),float(row['lon'])])
-            igrf_v_comp = mag*np.sin(np.deg2rad(inc))
-            igrf_e_comp = mag*np.cos(np.deg2rad(inc))*np.cos(np.deg2rad(dec))
-            igrf_t_comp = mag
+            res_v_comp = mag*np.sin(np.deg2rad(inc))
+            res_e_comp = mag*np.cos(np.deg2rad(inc))*np.cos(np.deg2rad(dec))
+            res_t_comp = mag
 
-            adf.set_value(i,'igrf_v_comp',float(row['v_comp'])-igrf_v_comp)
-            adf.set_value(i,'igrf_e_comp',float(row['e_comp'])-igrf_e_comp)
-            adf.set_value(i,'igrf_t_comp',float(row['mag'])-igrf_t_comp)
+            adf.set_value(i,'res_v_comp',float(row['v_comp'])-res_v_comp)
+            adf.set_value(i,'res_e_comp',float(row['e_comp'])-res_e_comp)
+            adf.set_value(i,'res_t_comp',float(row['mag'])-res_t_comp)
 
             prev_lat,prev_lon = float(row['lat']),float(row['lon'])
 
+        adf = adf[(adf['res_e_comp']<3000) & (adf['res_v_comp']<3000) & (adf['res_t_comp']<3000)]
+
         #remove a second order polynomial fromm the magnetic data I don't know why but this is something done
-        for col in ['igrf_e_comp','igrf_v_comp','igrf_t_comp']:
+        for col in ['res_e_comp','res_v_comp','res_t_comp']:
             pols = np.polyfit(adf['dis'].tolist(),adf[col].tolist(),2)
             mag_fit = np.polyval(pols,adf['dis'].tolist())
-            adf['cor'+col.lstrip('igrf')] = np.array(adf[col].tolist()) - mag_fit
+            adf['cor'+col.lstrip('res')] = np.array(adf[col].tolist()) - mag_fit
 
         #iterpolate and round data
         round3_func = lambda x: round(x,3)
-        adf_dis_list = list(map(float,adf['dis'].tolist()))
-        adf_lat_list = list(map(float,adf['lat'].tolist()))
-        adf_lon_list = list(map(float,adf['lon'].tolist()))
-        adf_v_list = list(map(float,adf['cor_v_comp'].tolist()))
-        adf_e_list = list(map(float,adf['cor_e_comp'].tolist()))
-        adf_t_list = list(map(float,adf['cor_t_comp'].tolist()))
+#        adf_dis_list = list(map(float,adf['dis'].tolist()))
+#        adf_lat_list = list(map(float,adf['lat'].tolist()))
+#        adf_lon_list = list(map(float,adf['lon'].tolist()))
+#        adf_v_list = list(map(float,adf['cor_v_comp'].tolist()))
+#        adf_e_list = list(map(float,adf['cor_e_comp'].tolist()))
+#        adf_t_list = list(map(float,adf['cor_t_comp'].tolist()))
         idf['dis'] = list(map(round3_func,np.arange(float(adf['dis'].tolist()[0]),float(adf['dis'].tolist()[-1]),.1))) #spacing of 1 km, because I can
         idf['lat'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_lat_list)))
         idf['lon'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_lon_list)))
@@ -353,7 +355,7 @@ def cut_tracks_and_flip(track_cuts, data_directory, heading="east"):
             segment_path = os.path.join(directory,'c%d'%i,path.split('.')[0] + '.c%d'%i)
             i+=1
             print("writing: %s"%segment_path)
-            df_segment.to_csv(segment_path, sep=' ', header=False, index=False)
+            df_segment.to_csv(segment_path, sep='\t', header=False, index=False)
             cut_tracks.append(segment_path)
     f_flipped = open(os.path.join(data_directory,"flipped_data.txt"),'w+')
     f_flipped.write(reduce(lambda x,y: x+'\n'+y, flipped_data))

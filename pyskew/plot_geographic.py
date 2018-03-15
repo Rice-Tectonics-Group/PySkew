@@ -6,11 +6,11 @@ import matplotlib.lines as mlines
 from mpl_toolkits.basemap import Basemap
 from .utilities import *
 
-def plot_chron_info(chrons_info,m,coord_0_360=False,**kwargs):
+def plot_chron_info(chrons_info, m, coord_0_360=False, chron_dir=os.path.join("raw_data","chrons","cande"), barckhausen_path=os.path.join('raw_data','chrons','Barckhausen2013','GSFML.Barckhausen++_2013_MGR.picks.gmt'),**kwargs):
     #Create Chron markers
     for chron_info in chrons_info:
         chron,chron_color = chron_info
-        chron_path = os.path.join("raw_data","chrons","cande","cande.%s"%str(chron))
+        chron_path = os.path.join(chron_dir,"cande.%s"%str(chron))
         if not os.path.isfile(chron_path): print("no file %s, so there is probably no chron %s in cande's model."%(chron_path,str(chron))); continue
         fchron = open(chron_path,'r')
         lines = fchron.readlines()
@@ -34,7 +34,7 @@ def plot_chron_info(chrons_info,m,coord_0_360=False,**kwargs):
                     entries[0].append(float(entry[0])); entries[1].append(float(entry[1]))
                 else:
                     entries[0].append(convert_to_180_180(entry[0])); entries[1].append(float(entry[1]))
-        ccz,gcz = get_barckhausen_2013_chrons()
+        ccz,gcz = get_barckhausen_2013_chrons(barckhausen_path=barckhausen_path)
         if str(chron) in ccz.keys():
             if ccz[str(chron)]:
                 lonlats = np.array(ccz[str(chron)])

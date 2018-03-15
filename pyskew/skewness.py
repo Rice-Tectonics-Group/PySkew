@@ -17,9 +17,9 @@ def filter_deskew_and_calc_aei(deskew_path,spreading_rate_model_path=None,anomal
 
     deskew_df = open_deskew_file(deskew_path)
 
-    deskew_df["aei"] = [wrap_180_180(180-wrap_180_180(row['phase_shift'])-(90 if ".Vd." in row['comp_name'] else 0) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))) for i,row in deskew_df.iterrows()]
-
     deskew_df["ei"] = [(90 if ".Vd." in comp else 0) for ps,comp in zip(deskew_df["phase_shift"],deskew_df["comp_name"])]
+
+    deskew_df["aei"] = [wrap_180_180(180 - wrap_180_180(row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))) for i,row in deskew_df.iterrows()]
 
     for i,row in deskew_df[deskew_df['track_type']=='ship'].iterrows():
         decimal_year = get_shipmag_decimal_year(row)
@@ -101,9 +101,24 @@ def correct_site(site_cor_path,deskew_path,spreading_rate_path=os.path.join('raw
         if drow['comp_name'].startswith('#'): continue #commented lines check
         if crow.empty: print("no correction found for component %s"%drow["comp_name"]); continue #no correction for this component check
 
-        half_age = (drow['age_max']-drow['age_min'])/2
-        avg_age = (drow['age_max']+drow['age_min'])/2
-        half_dis = half_age*spreading_rate_func(drow['sz_name'],avg_age)
+#        half_age = (drow['age_max']-drow['age_min'])/2
+#        avg_age = (drow['age_max']+drow['age_min'])/2
+#        half_dis = half_age*spreading_rate_func(drow['sz_name'],avg_age)
+        sz = drow['sz_name']
+        try: dis_span = np.loadtxt(os.path.join('SynthData','dis_span_%s.txt'%sz),delimiter=',')
+        except (IOError,OSError) as e:
+            try:
+
+                default_name = ''
+                if os.path.isfile(os.path.join('SynthData','dis_span_Default.txt')): default_name = 'Default'
+                elif os.path.isfile(os.path.join('SynthData','dis_span_default.txt')): default_name = 'default'
+                else: sz = 'default'; raise IOError
+
+                dis_span = np.loadtxt(os.path.join('SynthData','dis_span_%s.txt'%default_name),delimiter=',')
+
+            except (IOError,OSError) as e:
+                raise IOError("No synthetic found for %s, please generate a new synthetic which contains a spreading rate model for this spreading zone"%sz)
+        half_dis = abs(float(dis_span[0]))
 
         if drow['track_type'] == 'aero':
             #Find other component direction so we can average the shift between components
@@ -128,7 +143,7 @@ def correct_site(site_cor_path,deskew_path,spreading_rate_path=os.path.join('raw
 
     new_deskew_df.to_csv(deskew_path,sep="\t",index=False)
 
-def get_lon_lat_from_plot_pick(deskew_row,plot_pick,dist_e=.75):
+def get_lon_lat_from_plot_pick(deskew_row,plot_pick,dist_e=.01):
     drow,correction=deskew_row,plot_pick
 
     data_file_path = os.path.join(drow["data_dir"],drow["comp_name"])
@@ -369,6 +384,22 @@ def reduce_to_pole(deskew_path, pole_lon, pole_lat, spreading_rate_model_path=No
     print("reducing to pole - lat: %.3f, lon: %.3f"%(pole_lat,pole_lon))
 
     for i,row in deskew_df.iterrows():
+        reduced_skewness = reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf)
+
+        deskew_df.set_value(i,'phase_shift',round(reduced_skewness,3))
+
+    old_results_dir = deskew_df['results_dir'].iloc[0]
+    new_results_dir = os.path.join(old_results_dir,"pole_%.0f_%.0f_results"%(pole_lon,pole_lat))
+    check_dir(new_results_dir)
+    deskew_df['results_dir'] = new_results_dir
+
+    reduced_deskew_df = deskew_df[['comp_name','phase_shift','step','age_min','age_max','inter_lat','inter_lon','strike','data_dir','results_dir','track_type','sz_name','r','g','b']]
+
+    out_path = os.path.join(os.path.dirname(deskew_path),"pole_%.0f_%.0f.deskew"%(pole_lon,pole_lat))   
+    print("writing to %s"%out_path)
+    reduced_deskew_df.to_csv(out_path,sep='\t',index=False)
+
+def reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf):
         #taken from Lin's Matlab Code (doesn't seem to work)
 #        geodes_inv_dic = Geodesic.WGS84.Inverse(float(row['inter_lat']),float(row['inter_lon']),pole_lat,pole_lon)
 #        strike,arc_len_pole,az_pole = float(row['strike']),geodes_inv_dic['a12'],geodes_inv_dic['azi1']
@@ -394,19 +425,6 @@ def reduce_to_pole(deskew_path, pole_lon, pole_lat, spreading_rate_model_path=No
         anom_skew = asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))
 
         reduced_skewness = wrap_0_360(180 - float(row['ei']) - e_r + anom_skew)
-
-        deskew_df.set_value(i,'phase_shift',round(reduced_skewness,3))
-
-    old_results_dir = deskew_df['results_dir'].iloc[0]
-    new_results_dir = os.path.join(old_results_dir,"pole_%.0f_%.0f_results"%(pole_lon,pole_lat))
-    check_dir(new_results_dir)
-    deskew_df['results_dir'] = new_results_dir
-
-    reduced_deskew_df = deskew_df[['comp_name','phase_shift','step','age_min','age_max','inter_lat','inter_lon','strike','data_dir','results_dir','track_type','sz_name','r','g','b']]
-
-    out_path = os.path.join(os.path.dirname(deskew_path),"pole_%.0f_%.0f.deskew"%(pole_lon,pole_lat))   
-    print("writing to %s"%out_path)
-    reduced_deskew_df.to_csv(out_path,sep='\t',index=False)
 
 def create_deskew_file(chron_name,results_directory,age_min,age_max,data_directory='.',phase_shift=180,step=60):
     cut_tracks_path=os.path.join(data_directory,"usable_tracks_and_intersects_for_%s.txt"%str(chron_name))

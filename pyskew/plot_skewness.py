@@ -343,7 +343,7 @@ def remove_axis_lines_and_ticks(ax):
     ax.set_xticks([])
     ax.set_yticks([])
 
-def plot_deskew_file_skewnesses(row,leave_plots_open=False):
+def plot_deskew_page(row,leave_plots_open=False):
 #    plt.rc('text', usetex=True)
 
     fig = plt.figure(figsize=(16, 9), facecolor='white')
@@ -375,14 +375,74 @@ def plot_deskew_file_skewnesses(row,leave_plots_open=False):
     fig.suptitle("%s - PhaseShift=%.1f - Step=%d"%(row['comp_name'],float(row['phase_shift']),int(row['step'])),fontsize=16)
     plot_scale_bars(ax)
 
+    out_file = os.path.join(row['results_dir'],'deskew_plots',"%s_%s_%s.png"%(str(row['comp_name']),str(round(row['phase_shift'],3)),str(row['step'])))
+
+    save_show_plots(out_file,leave_plots_open=leave_plots_open,msg="saving deskew file for %s to %s"%(row['comp_name'],out_file))
+
+def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate_model_path=None, anomalous_skewness_model_path=None, xlims=[-500,500], ylims=[-200,200], leave_plots_open=False):
+
+    fig = plt.figure(figsize=(16, 9), facecolor='white')
+
+    ax0 = fig.add_subplot(6,1,6)
+    ax0.set_anchor('W')
+    remove_axis_lines_and_ticks(ax0)
+    ax0.set_ylabel("synthetic (%s)"%row['track_type'],rotation=0,fontsize=14)
+    ax0.yaxis.set_label_coords(1.07,.45)
+    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'],row['track_type'], ax0, color='k', linestyle='-')
+    ylim = ax0.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
+
+    asf,srf,sz_list = get_asf_srf(spreading_rate_model_path,anomalous_skewness_model_path)
+    azi = Geodesic.WGS84.Inverse(row['inter_lat'],row['inter_lon'],pole_lat,pole_lon)['azi1']
+
+    for j in range(5):
+        ax = fig.add_subplot(6,1,j+1, sharex=ax0)
+        ax.set_anchor('W')
+
+        remove_axis_lines_and_ticks(ax)
+
+        ax.set_ylabel(r"$\theta$=%.1f"%float(phase_shift),rotation=0,fontsize=14)
+        ax.yaxis.set_label_coords(1.05,.45)
+#        ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
+
+        if j==0:
+            geo_dict = Geodesic.WGS84.ArcDirect(pole_lat,pole_lon,dis,azi+90)
+            tpole_lon,tpole_lat = geo_dict['lon2'],geo_dict['lat2']
+            phase_shift = reduce_dsk_row_to_pole(row, tpole_lon, tpole_lat, asf, srf)
+        elif j==1:
+            geo_dict = Geodesic.WGS84.ArcDirect(pole_lat,pole_lon,dis,azi)
+            tpole_lon,tpole_lat = geo_dict['lon2'],geo_dict['lat2']
+            phase_shift = reduce_dsk_row_to_pole(row, tpole_lon, tpole_lat, asf, srf)
+        elif j==2:
+            tpole_lon,tpole_lat = pole_lon,pole_lat
+            phase_shift = reduce_dsk_row_to_pole(row, tpole_lon, tpole_lat, asf, srf)
+        elif j==3:
+            geo_dict = Geodesic.WGS84.ArcDirect(pole_lat,pole_lon,dis,azi-180)
+            tpole_lon,tpole_lat = geo_dict['lon2'],geo_dict['lat2']
+            phase_shift = reduce_dsk_row_to_pole(row, tpole_lon, tpole_lat, asf, srf)
+        elif j==4:
+            geo_dict = Geodesic.WGS84.ArcDirect(pole_lat,pole_lon,dis,azi-90)
+            tpole_lon,tpole_lat = geo_dict['lon2'],geo_dict['lat2']
+            phase_shift = reduce_dsk_row_to_pole(row, tpole_lon, tpole_lat, asf, srf)
+
+        min_proj_dis, max_proj_dis = plot_skewness_data(row,phase_shift,ax,color='k',linestyle='-',picker=leave_plots_open)
+
+    plot_chron_span_on_axes(row['sz_name'],fig.get_axes())
+
+    ax0.set_xlim(xlims)
+    fig.subplots_adjust(hspace=.0) #remove space between subplot axes
+    fig.suptitle("%s - PhaseShift=%.1f - Step=%d"%(row['comp_name'],float(row['phase_shift']),int(row['step'])),fontsize=16)
+    plot_scale_bars(ax)
+
+    out_file = os.path.join(row['results_dir'],'deskew_plots',"%s_%s_%s.png"%(str(row['comp_name']),str(round(row['phase_shift'],3)),str(row['step'])))
+
+    save_show_plots(out_file,leave_plots_open=leave_plots_open,msg="saving deskew file for %s to %s"%(row['comp_name'],out_file))
+
+def save_show_plots(out_file,leave_plots_open=True,msg=None):
+    if isinstance(msg,str): print(msg)
     if leave_plots_open:
         plt.show()
     else:
-        out_file = os.path.join(row['results_dir'],'deskew_plots',"%s_%s_%s.png"%(str(row['comp_name']),str(round(row['phase_shift'],3)),str(row['step'])))
-        print("saving deskew file for %s to %s"%(row['comp_name'],out_file))
         fig.savefig(out_file)
-#        with open(out_file,'w+') as fout:
-#            fig.canvas.print_figure(fout)
         plt.close(fig)
 
 def plot_skewnesses(deskew_path,leave_plots_open=False):
@@ -406,11 +466,7 @@ def plot_skewnesses(deskew_path,leave_plots_open=False):
     for i,row in deskew_df.iterrows():
         if '#' in row['comp_name']: continue #check for and remove commented profiles
         print("starting process for %s"%row['comp_name'])
-        if 'darwin' in sys.platform:
-            plot_deskew_file_skewnesses(row,leave_plots_open=leave_plots_open)
-        else:
-            plotting_process = Process(target = plot_deskew_file_skewnesses,args=[row],kwargs={'leave_plots_open':leave_plots_open})
-            plotting_process.start()
+        run_in_parallel(plot_deskew_page,args=[row],kwargs={'leave_plots_open':leave_plots_open})
 
 def plot_ridge_loc(deskew_row,ridge_loc_func,ax,**kwargs):
     data_file_path = os.path.join(deskew_row["data_dir"],deskew_row["comp_name"])
@@ -451,7 +507,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     ax0.yaxis.set_label_coords(-.1,.45)
     ax0.format_coord = format_coord
     min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0],'ship',ax0, color='k', linestyle='-')
-   ylim = ax0.set_ylim([-200,200]) #MODIFY THIS TO CHANGE Y AXIS
+    ylim = ax0.set_ylim([-200,200]) #MODIFY THIS TO CHANGE Y AXIS
 #    ylim = ax0.get_ylim()
 
     for j,iterrow in enumerate(rows.iterrows()):
@@ -494,12 +550,9 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     fig.suptitle(title,fontsize=16)
     plot_scale_bars(ax)
 
-    if leave_plots_open:
-        plt.show()
-    else:
-        out_file = os.path.join(results_dir,"page_%d.png"%page_num)
-        fig.savefig(out_file)
-        plt.close(fig)
+    out_file = os.path.join(results_dir,"page_%d.png"%page_num)
+
+    save_show_plots(out_file,leave_plots_open=leave_plots_open)
 
 def plot_best_skewnesses(deskew_path, leave_plots_open=False, best_skews_subdir="best_skews", ridge_loc_path=None, fz_loc_path=None):
 #    dt_path,age_min,age_max,results_dir = create_matlab_datatable(deskew_path)
@@ -520,19 +573,11 @@ def plot_best_skewnesses(deskew_path, leave_plots_open=False, best_skews_subdir=
     for i in range(num_profiles_per_page,len(deskew_df.index),num_profiles_per_page):
         rows = deskew_df.iloc[prev_i:i]
         page_num = i/num_profiles_per_page
-        if 'darwin' in sys.platform:
-            plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=leave_plots_open,ridge_loc_func=ridge_loc_func)
-        else:
-            plotting_process = Process(target = plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func,'fz_loc_path':fz_loc_path})
-            plotting_process.start()
+        run_in_parallel(plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func,'fz_loc_path':fz_loc_path})
         prev_i = i
     rows = deskew_df.iloc[prev_i:len(deskew_df.index)]
     page_num += 1
-    if 'darwin' in sys.platform:
-        plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=leave_plots_open,ridge_loc_func=ridge_loc_func)
-    else:
-        plotting_process = Process(target = plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func,'fz_loc_path':fz_loc_path})
-        plotting_process.start()
+    run_in_parallel(plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func,'fz_loc_path':fz_loc_path})
 
 def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None):
 #    plt.rc('text', usetex=True)
@@ -546,7 +591,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
     ax0.yaxis.set_label_coords(-.1,.45)
     ax0.format_coord = format_coord
     min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0],'ship',ax0, color='k', linestyle='-')
-    ylim = ax0.set_ylim(-150,150)
+    ylim = ax0.set_ylim(-200,200)
 
     for j,iterrow in enumerate(zip(rows1.iterrows(),rows2.iterrows())):
         iterrow1,iterrow2 = iterrow
@@ -580,7 +625,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
 
     plot_chron_span_on_axes(rows1['sz_name'].iloc[0],fig.get_axes())
 
-    ax0.set_xlim(-600,900)
+    ax0.set_xlim(-400,600)
     fig.subplots_adjust(hspace=.0) #remove space between subplot axes
 
     if rows1.groupby(level=0).agg(lambda x: len(set(x)) == 1)['sz_name'].iloc[0]:
@@ -597,12 +642,9 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
 
     plt.legend(handles=poles_handles,loc=3,bbox_to_anchor=(.0, .0),bbox_transform=plt.gcf().transFigure, frameon=False)
 
-    if leave_plots_open:
-        plt.show()
-    else:
-        out_file = os.path.join(results_dir,"page_%d.png"%page_num)
-        fig.savefig(out_file)
-        plt.close(fig)
+    out_file = os.path.join(results_dir,"page_%d.png"%page_num)
+
+    save_show_plots(out_file,leave_plots_open=leave_plots_open)
 
 def overlay_best_skewnesses(deskew_path, deskew_path2, leave_plots_open=False, best_skews_subdir="best_skews", pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None, num_profiles_per_page = 6):
 #    dt_path,age_min,age_max,results_dir = create_matlab_datatable(deskew_path)
@@ -620,20 +662,12 @@ def overlay_best_skewnesses(deskew_path, deskew_path2, leave_plots_open=False, b
         rows = deskew_df.iloc[prev_i:i]
         rows2 = deskew_df2.iloc[prev_i:i]
         page_num = i/num_profiles_per_page
-        if 'darwin' in sys.platform:
-            overlay_skewness_page(rows,rows2,results_dir,page_num,leave_plots_open=leave_plots_open,pole_name1=pole_name1,pole_name2=pole_name2,fz_loc_path=fz_loc_path)
-        else:
-            plotting_process = Process(target = overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2,'fz_loc_path':fz_loc_path})
-            plotting_process.start()
+        run_in_parallel(overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2,'fz_loc_path':fz_loc_path})
         prev_i = i
     rows = deskew_df.iloc[prev_i:len(deskew_df.index)]
     rows2 = deskew_df2.iloc[prev_i:len(deskew_df2.index)]
     page_num += 1
-    if 'darwin' in sys.platform:
-        overlay_skewness_page(rows,rows2,results_dir,page_num,leave_plots_open=leave_plots_open,pole_name1=pole_name1,pole_name2=pole_name2,fz_loc_path=fz_loc_path)
-    else:
-        plotting_process = Process(target = overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2,'fz_loc_path':fz_loc_path})
-        plotting_process.start()
+    run_in_parallel(overlay_skewness_page,args=[rows,rows2,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'pole_name1':pole_name1,'pole_name2':pole_name2,'fz_loc_path':fz_loc_path})
 
 def overlay_skewness_by_spreading_zone(deskew_path,deskew_path2,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None):
     deskew_df = open_deskew_file(deskew_path)
@@ -726,13 +760,9 @@ def plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page
     fig.suptitle(title,fontsize=16)
     plot_scale_bars(ax)
 
-    if leave_plots_open:
-        plt.show()
-    else:
-        out_file = os.path.join(results_dir,"page_%d.png"%page_num)
-        print("Saving as %s"%out_file)
-        fig.savefig(out_file)
-        plt.close(fig)
+    out_file = os.path.join(results_dir,"page_%d.png"%page_num)
+
+    save_show_plots(out_file,leave_plots_open=leave_plots_open,msg="Saving as %s"%out_file)
 
 def plot_spreading_rate_picks(deskew_path,spreading_rate_picks_path,leave_plots_open=False):
     deskew_df = open_deskew_file(deskew_path)
@@ -793,12 +823,9 @@ def plot_spreading_rate_results(sr_path,xmin=None,xmax=None,ymin=None,ymax=None,
     plt.ylabel("Spreading Half Rate (km/Myr)")
     plt.title(title)
 
-    if leave_plots_open:
-        plt.show()
-    else:
-        out_file = os.path.join(os.path.dirname(sr_path),os.path.basename(sr_path).split('.')[0]+"_spreading_rate_%s.png"%(median_or_mean))
-        fig.savefig(out_file)
-        plt.close(fig)
+    out_file = os.path.join(os.path.dirname(sr_path),os.path.basename(sr_path).split('.')[0]+"_spreading_rate_%s.png"%(median_or_mean))
+
+    save_show_plots(out_file,leave_plots_open=leave_plots_open)
 
 def plot_isochron_picks(deskew_path,spreading_rate_picks_path,leave_plots_open=False):
     iso_df,average_lon,average_lat = get_lon_lat_from_plot_picks_and_deskew_file(deskew_path,spreading_rate_picks_path)
@@ -842,13 +869,8 @@ def plot_isochron_picks(deskew_path,spreading_rate_picks_path,leave_plots_open=F
     frame = legend.get_frame()
     frame.set_alpha(.7)
 
-    if leave_plots_open:
-        plt.show()
-    else:
-        out_file = os.path.join(results_dir,'iso_chron_plots',os.path.basename(spreading_rate_picks_path).split('.')[0]+'.png')
-        check_dir(os.path.dirname(out_file))
-        print("Saving to %s"%out_file)
-        fig.savefig(out_file)
-        plt.close(fig)
+    out_file = os.path.join(results_dir,'iso_chron_plots',os.path.basename(spreading_rate_picks_path).split('.')[0]+'.png')
+
+    save_show_plots(out_file,leave_plots_open=leave_plots_open,msg="Saving to %s"%out_file)
 
 

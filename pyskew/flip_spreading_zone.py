@@ -1,6 +1,6 @@
 import sys,os,shutil
 import pandas as pd
-from utilities import open_mag_file,write_mag_file_df
+from .utilities import open_deskew_file,open_mag_file,write_mag_file_df
 
 def flip_spreading_zone(deskew_path,spreading_zone):
     dskf = open_deskew_file(deskew_path)
@@ -18,7 +18,7 @@ def flip_data_file(data_path):
     #flip data file
     data_df = open_mag_file(data_path)
     print("flipping data in %s"%data_path)
-    import pdb; pdb.set_trace()
+#    import pdb; pdb.set_trace()
     data_df = data_df.iloc[::-1]
 
     #write out data file

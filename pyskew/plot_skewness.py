@@ -12,7 +12,6 @@ if 'darwin' in sys.platform:
 import matplotlib.lines as mlines
 from collections import OrderedDict
 from matplotlib.patches import Rectangle
-from multiprocessing import Process
 from geographiclib.geodesic import Geodesic
 from .skewness import *
 from .plot_geographic import *
@@ -377,7 +376,16 @@ def plot_deskew_page(row,leave_plots_open=False):
 
     out_file = os.path.join(row['results_dir'],'deskew_plots',"%s_%s_%s.png"%(str(row['comp_name']),str(round(row['phase_shift'],3)),str(row['step'])))
 
-    save_show_plots(out_file,leave_plots_open=leave_plots_open,msg="saving deskew file for %s to %s"%(row['comp_name'],out_file))
+    save_show_plots(fig,out_file,leave_plots_open=leave_plots_open,msg="saving deskew file for %s to %s"%(row['comp_name'],out_file))
+
+def plot_pole_perturbations(deskew_path,ellipse_path,dis=5,spreading_rate_model_path=None, anomalous_skewness_model_path=None, xlims=[-500,500], ylims=[-200,200], leave_plots_open=False):
+
+    deskew_df = filter_deskew_and_calc_aei(deskew_path)
+    elipse_file = open(ellipse_path,"r")
+    lon,lat,az,a,b = list(map(float,elipse_file.read().split()))
+
+    for i,row in deskew_df.iterrows():
+        run_in_parallel(plot_trial_pole_reduction_page,args=[row,lon,lat],kwargs={'dis':dis, 'spreading_rate_model_path':spreading_rate_model_path, 'anomalous_skewness_model_path':anomalous_skewness_model_path, 'xlims':xlims, 'ylims':ylims, 'leave_plots_open':leave_plots_open})
 
 def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate_model_path=None, anomalous_skewness_model_path=None, xlims=[-500,500], ylims=[-200,200], leave_plots_open=False):
 
@@ -400,10 +408,6 @@ def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate
 
         remove_axis_lines_and_ticks(ax)
 
-        ax.set_ylabel(r"$\theta$=%.1f"%float(phase_shift),rotation=0,fontsize=14)
-        ax.yaxis.set_label_coords(1.05,.45)
-#        ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
-
         if j==0:
             geo_dict = Geodesic.WGS84.ArcDirect(pole_lat,pole_lon,dis,azi+90)
             tpole_lon,tpole_lat = geo_dict['lon2'],geo_dict['lat2']
@@ -423,6 +427,12 @@ def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate
             geo_dict = Geodesic.WGS84.ArcDirect(pole_lat,pole_lon,dis,azi-90)
             tpole_lon,tpole_lat = geo_dict['lon2'],geo_dict['lat2']
             phase_shift = reduce_dsk_row_to_pole(row, tpole_lon, tpole_lat, asf, srf)
+        else:
+            raise ValueError("pole perturbation direction unknown")
+
+        ax.set_ylabel(r"$\theta$=%.1f"%float(phase_shift),rotation=0,fontsize=14)
+        ax.yaxis.set_label_coords(1.05,.45)
+        ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
 
         min_proj_dis, max_proj_dis = plot_skewness_data(row,phase_shift,ax,color='k',linestyle='-',picker=leave_plots_open)
 
@@ -433,11 +443,13 @@ def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate
     fig.suptitle("%s - PhaseShift=%.1f - Step=%d"%(row['comp_name'],float(row['phase_shift']),int(row['step'])),fontsize=16)
     plot_scale_bars(ax)
 
-    out_file = os.path.join(row['results_dir'],'deskew_plots',"%s_%s_%s.png"%(str(row['comp_name']),str(round(row['phase_shift'],3)),str(row['step'])))
+    check_dir(os.path.join(row['results_dir'],'pole_perturbation_plots'))
 
-    save_show_plots(out_file,leave_plots_open=leave_plots_open,msg="saving deskew file for %s to %s"%(row['comp_name'],out_file))
+    out_file = os.path.join(row['results_dir'],'pole_perturbation_plots',"%s_%s_%s.png"%(str(row['comp_name']),str(round(row['phase_shift'],3)),str(row['step'])))
 
-def save_show_plots(out_file,leave_plots_open=True,msg=None):
+    save_show_plots(fig,out_file,leave_plots_open=leave_plots_open,msg="saving deskew file for %s to %s"%(row['comp_name'],out_file))
+
+def save_show_plots(fig,out_file,leave_plots_open=True,msg=None):
     if isinstance(msg,str): print(msg)
     if leave_plots_open:
         plt.show()
@@ -464,7 +476,6 @@ def plot_skewnesses(deskew_path,leave_plots_open=False):
     check_dir(os.path.join(row['results_dir'],'deskew_plots'))
 
     for i,row in deskew_df.iterrows():
-        if '#' in row['comp_name']: continue #check for and remove commented profiles
         print("starting process for %s"%row['comp_name'])
         run_in_parallel(plot_deskew_page,args=[row],kwargs={'leave_plots_open':leave_plots_open})
 
@@ -552,7 +563,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 
     out_file = os.path.join(results_dir,"page_%d.png"%page_num)
 
-    save_show_plots(out_file,leave_plots_open=leave_plots_open)
+    save_show_plots(fig,out_file,leave_plots_open=leave_plots_open)
 
 def plot_best_skewnesses(deskew_path, leave_plots_open=False, best_skews_subdir="best_skews", ridge_loc_path=None, fz_loc_path=None):
 #    dt_path,age_min,age_max,results_dir = create_matlab_datatable(deskew_path)
@@ -644,7 +655,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
 
     out_file = os.path.join(results_dir,"page_%d.png"%page_num)
 
-    save_show_plots(out_file,leave_plots_open=leave_plots_open)
+    save_show_plots(fig,out_file,leave_plots_open=leave_plots_open)
 
 def overlay_best_skewnesses(deskew_path, deskew_path2, leave_plots_open=False, best_skews_subdir="best_skews", pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None, num_profiles_per_page = 6):
 #    dt_path,age_min,age_max,results_dir = create_matlab_datatable(deskew_path)
@@ -762,7 +773,7 @@ def plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page
 
     out_file = os.path.join(results_dir,"page_%d.png"%page_num)
 
-    save_show_plots(out_file,leave_plots_open=leave_plots_open,msg="Saving as %s"%out_file)
+    save_show_plots(fig,out_file,leave_plots_open=leave_plots_open,msg="Saving as %s"%out_file)
 
 def plot_spreading_rate_picks(deskew_path,spreading_rate_picks_path,leave_plots_open=False):
     deskew_df = open_deskew_file(deskew_path)
@@ -785,7 +796,7 @@ def plot_spreading_rate_picks(deskew_path,spreading_rate_picks_path,leave_plots_
     page_num += 1
     plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page_num, leave_plots_open=leave_plots_open)
 
-def plot_spreading_rate_results(sr_path,xmin=None,xmax=None,ymin=None,ymax=None,median_or_mean='mean',title="",leave_plots_open=False):
+def plot_spreading_rate_results(sr_path, xlims=[-500,500], ylims=[-200,200], median_or_mean='mean', title="", leave_plots_open=False):
     sr_df = pd.read_csv(sr_path,sep='\t',header=0,index_col=0)
 
     mean_median_values = [val for val in sr_df[median_or_mean].tolist() for _ in (0, 1)]
@@ -804,11 +815,11 @@ def plot_spreading_rate_results(sr_path,xmin=None,xmax=None,ymin=None,ymax=None,
     plt.plot(ages,mean_median_values,color='black',linewidth=3)
     plt.plot(ages,confidence_ub,color='black',linestyle='--',linewidth=1)
     plt.plot(ages,confidence_lb,color='black',linestyle='--',linewidth=1)
-    
+
     # Fix x-axis limits if specified
-    if (xmin != None) and (xmax != None): plt.xlim( (xmin, xmax) )
-    if (ymin != None) and (ymax != None): plt.ylim( (ymin, ymax) )
-    
+    plt.xlim( xlims )
+    plt.ylim( ylims )
+
     i = 0
     for mean_median,std,age,n in zip(sr_df[median_or_mean].tolist(),sr_df['std'].tolist(),nested_ages,sr_df['n'].tolist()):
         #import pdb; pdb.set_trace()
@@ -816,7 +827,7 @@ def plot_spreading_rate_results(sr_path,xmin=None,xmax=None,ymin=None,ymax=None,
         ax.add_patch(Rectangle((age[0], mean_median - (2.0*std)/np.sqrt(n)), age[1]-age[0],  (4.0*std)/np.sqrt(n),color='grey',alpha=.5,zorder=0,linewidth=0))
         ax.annotate('%s'%anom,xy=(sum(age)/len(age),mean_median + (2.0*std)/np.sqrt(n)),va='bottom',ha='center',fontsize=8)
         ax.annotate('n=%d'%n,xy=(sum(age)/len(age),mean_median - (2.0*std)/np.sqrt(n) - 1),va='top',ha='center',fontsize=8)
-        
+
         i += 1
 
     plt.xlabel("Age (Myr)")
@@ -825,7 +836,7 @@ def plot_spreading_rate_results(sr_path,xmin=None,xmax=None,ymin=None,ymax=None,
 
     out_file = os.path.join(os.path.dirname(sr_path),os.path.basename(sr_path).split('.')[0]+"_spreading_rate_%s.png"%(median_or_mean))
 
-    save_show_plots(out_file,leave_plots_open=leave_plots_open)
+    save_show_plots(fig,out_file,leave_plots_open=leave_plots_open)
 
 def plot_isochron_picks(deskew_path,spreading_rate_picks_path,leave_plots_open=False):
     iso_df,average_lon,average_lat = get_lon_lat_from_plot_picks_and_deskew_file(deskew_path,spreading_rate_picks_path)
@@ -871,6 +882,6 @@ def plot_isochron_picks(deskew_path,spreading_rate_picks_path,leave_plots_open=F
 
     out_file = os.path.join(results_dir,'iso_chron_plots',os.path.basename(spreading_rate_picks_path).split('.')[0]+'.png')
 
-    save_show_plots(out_file,leave_plots_open=leave_plots_open,msg="Saving to %s"%out_file)
+    save_show_plots(fig,out_file,leave_plots_open=leave_plots_open,msg="Saving to %s"%out_file)
 
 

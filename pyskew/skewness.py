@@ -426,6 +426,8 @@ def reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf):
 
         reduced_skewness = wrap_0_360(180 - float(row['ei']) - e_r + anom_skew)
 
+        return reduced_skewness
+
 def create_deskew_file(chron_name,results_directory,age_min,age_max,data_directory='.',phase_shift=180,step=60):
     cut_tracks_path=os.path.join(data_directory,"usable_tracks_and_intersects_for_%s.txt"%str(chron_name))
     cut_tracks_file = open(cut_tracks_path,'r')

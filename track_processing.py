@@ -103,8 +103,17 @@ if __name__=="__main__":
     #do thing with sys.argv and a input file or something later so you don't have to open the stupid file
     if "-h" in sys.argv: help(__name__); sys.exit()
 
-    leave_plots_open = False
-    if "-lp" in sys.argv: leave_plots_open=True
+    kwargs={}
+
+    if "-lp" in sys.argv: kwargs['leave_plots_open']=True
+
+    if "-xl" in sys.argv:
+        xli = sys.argv.index('-xl')
+        kwargs['xlims'] = sys.argv[xli+1].split(',')
+
+    if "-yl" in sys.argv:
+        yli = sys.argv.index('-yl')
+        kwargs['ylims'] = sys.argv[yli+1]
 
     if '-rtp' in sys.argv:
         rtpi = sys.argv.index('-rtp')
@@ -119,19 +128,17 @@ if __name__=="__main__":
     fz_loc_path = None
     if '-fzl' in sys.argv:
         fzli = sys.argv.index('-fzl')
-        fz_loc_path = sys.argv[fzli+1]
+        kwargs['fz_loc_path'] = sys.argv[fzli+1]
 
     if '-odsk' in sys.argv:
         odski = sys.argv.index('-odsk')
         deskew_path = sys.argv[odski+1]
         deskew_path2 = sys.argv[odski+2]
-        pole_name1 = 'pole 1'
-        pole_name2 = 'pole 2'
         if '-pn' in sys.argv:
             pni = sys.argv.index('-pn')
-            pole_name1 = sys.argv[pni+1]
-            pole_name2 = sys.argv[pni+2]
-        overlay_skewness_by_spreading_zone(deskew_path, deskew_path2, leave_plots_open=leave_plots_open, pole_name1=pole_name1, pole_name2=pole_name2, fz_loc_path=fz_loc_path)
+            kwargs['pole_name1'] = sys.argv[pni+1]
+            kwargs['pole_name2'] = sys.argv[pni+2]
+        overlay_skewness_by_spreading_zone(deskew_path, deskew_path2, **kwargs)
         sys.exit()
 
     if '-pbsz' in sys.argv:
@@ -140,8 +147,8 @@ if __name__=="__main__":
         ridge_loc_path = None
         if '-rdg' in sys.argv:
             rdgi = sys.argv.index('-rdg')
-            ridge_loc_path = sys.argv[rdgi+1]
-        plot_skewness_by_spreading_zone(deskew_path, leave_plots_open=leave_plots_open, ridge_loc_path=ridge_loc_path, fz_loc_path=fz_loc_path)
+            kwargs['ridge_loc_path'] = sys.argv[rdgi+1]
+        plot_skewness_by_spreading_zone(deskew_path, **kwargs)
         sys.exit()
 
     if '-ffz' in sys.argv:
@@ -150,14 +157,14 @@ if __name__=="__main__":
         fz_directory = os.path.join('raw_data','fracture_zones')
         if '-fd' in sys.argv:
             fdi = sys.argv.index('-fd')
-            fz_directory = sys.argv[fdi+1]
-        find_fz_crossings(deskew_path,fz_directory=fz_directory)
+            kwargs['fz_directory'] = sys.argv[fdi+1]
+        find_fz_crossings(deskew_path,**kwargs)
         sys.exit()
 
     if '-ds' in sys.argv:
         dsi = sys.argv.index('-ds')
         deskew_path = sys.argv[dsi+1]
-        plot_skewnesses(deskew_path,leave_plots_open=leave_plots_open)
+        plot_skewnesses(deskew_path,**kwargs)
         sys.exit()
 
     if '-cdmf' in sys.argv:
@@ -180,6 +187,16 @@ if __name__=="__main__":
         deskew_path = sys.argv[ppi+1]
         ellipse_file = sys.argv[ppi+2]
         plot_pole_with_lunes(deskew_path,ellipse_file)
+        sys.exit()
+
+    if '-polep' in sys.argv:
+        polepi = sys.argv.index('-polep')
+        deskew_path = sys.argv[polepi+1]
+        ellipse_path = sys.argv[polepi+2]
+        if '-dis' in sys.argv:
+            disi = sys.argv.index('-dis')
+            kwargs['dis'] = float(sys.argv[disi+1])
+        plot_pole_perturbations(deskew_path,ellipse_path,**kwargs)
         sys.exit()
 
     if '-pll' in sys.argv:
@@ -221,21 +238,15 @@ if __name__=="__main__":
         srpi = sys.argv.index('-srp')
         deskew_path = sys.argv[srpi+1]
         spreading_rate_picks_path = sys.argv[srpi+2]
-        plot_spreading_rate_picks(deskew_path,spreading_rate_picks_path,leave_plots_open=leave_plots_open)
+        plot_spreading_rate_picks(deskew_path,spreading_rate_picks_path,**kwargs)
         sys.exit()
 
     if '-srr' in sys.argv:
         srri = sys.argv.index('-srr')
         sr_path = sys.argv[srri+1]
-        median_or_mean = 'mean'
-        title = ""
-        xmin = None; xmax = None
-        ymin = None; ymax = None
-        if '-median' in sys.argv: median_or_mean='median'
-        if '-title' in sys.argv: title=sys.argv[sys.argv.index('-title')+1]
-        if '-xlim' in sys.argv: xmin=float(sys.argv[sys.argv.index('-xlim')+1]); xmax=float(sys.argv[sys.argv.index('-xlim')+2]);
-        if '-ylim' in sys.argv: ymin=float(sys.argv[sys.argv.index('-ylim')+1]); ymax=float(sys.argv[sys.argv.index('-ylim')+2]);
-        plot_spreading_rate_results(sr_path,xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax,median_or_mean=median_or_mean,title=title,leave_plots_open=leave_plots_open)
+        if '-median' in sys.argv: kwargs['median_or_mean']='median'
+        if '-title' in sys.argv: kwargs['title']=sys.argv[sys.argv.index('-title')+1]
+        plot_spreading_rate_results(sr_path,**kwargs)
         sys.exit()
 
     if '-srf' in sys.argv:
@@ -255,7 +266,7 @@ if __name__=="__main__":
         isoi = sys.argv.index('-iso')
         deskew_path = sys.argv[isoi+1]
         spreading_rate_picks_path = sys.argv[isoi+2]
-        plot_isochron_picks(deskew_path,spreading_rate_picks_path,leave_plots_open=leave_plots_open)
+        plot_isochron_picks(deskew_path,spreading_rate_picks_path,**kwargs)
         sys.exit()
 
     if '-sip' in sys.argv:

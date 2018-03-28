@@ -1,9 +1,11 @@
 import os,sys
 import pandas as pd
 import numpy as np
+from scipy.linalg import invpascal
 from datetime import datetime
 from geographiclib.geodesic import Geodesic
 from multiprocessing import Process
+from functools import reduce
 
 def check_dir(d):
     if not os.path.isdir(d):
@@ -51,6 +53,11 @@ def calc_projected_distance(inter_lon,inter_lat,lons,lats,strike):
     projected_distances = pd.DataFrame([{'lat':gs['lat2'],'lon':gs['lon2'],'dist':(gs['s12']*np.sin(np.deg2rad(float(strike)-gs['azi2'])))/1000} for gs in geodesic_solutions])
 
     return projected_distances
+
+def open_ellipse_file(ellipse_path):
+    elipse_file = open(ellipse_path,"r")
+    lon,lat,az,a,b = list(map(float,elipse_file.read().split()))
+    return lon,lat,az,a,b
 
 def open_deskew_file(deskew_path):
     deskew_df = pd.read_csv(deskew_path,sep='\t')
@@ -150,6 +157,107 @@ def run_in_parallel(target,args=[],kwargs={}):
         else:
             process = Process(target = target,args=args,kwargs=kwargs)
             process.start()
+
+def polyfit(x,y,degree,err=None,full=False):
+    """
+    Does a polynomial fit of any degree using the numpy polyfit routine, which uses SVD to minimize sum sq error.
+    Then calculates estimated standard deviation of all model parameters as per Bevington (1969) ch 8.
+    As well as the goodness of fit value R^2 to provide more information on the fit than the default numpy function
+
+    Parameters:
+        x - the independent variable to compute the regression with respect to, note that x is assumed to have no 
+            varriance according to these equations. If this is not the case then pass in err = sqrt(xerr**2 + 
+            yerr**2) as per Bevington ch 6.
+        y - the dependent variable calculated from x, which is assumed to contain all error
+            degree - the degree of the polynomial to be fit
+    Optional Parameters:
+        err - the error in the dependent variable, should be a vector of equal length to x and y, if None set to 1
+        full - boolean which determines the amount of statistics returned
+
+    Returns:
+        if full:
+            pols,sds,chi2,deg_free,r2,res,rank,sv,rcond
+        else:
+            pols,sds,chi2,deg_free,r2
+    """
+    if isinstance(err,type(None)): err = np.ones(len(x)) #equal weight
+    x,y,err,N = np.array(x),np.array(y),np.array(err),len(x)
+
+    #calculate fit and chi2
+    if full: pols,res,rank,sv,rcond = np.polyfit(x,y,degree,w=(1/(err**2)),full=full)
+    else: pols = np.polyfit(x,y,degree,w=(1/(err**2)),full=full)
+    yp = np.polyval(pols,x)
+    chi2 = sum(((y-yp)/err)**2)
+    deg_free = (N-degree-1)
+    reduced_chi2 = chi2/deg_free
+
+    #calculate precision parameter (R^2)
+    mean = sum(y)/len(y)
+    ssres = sum((y-yp)**2)
+    sstot = sum((y-mean)**2)
+    r2 = 1 - ssres/sstot
+
+    #calculate std of each model parameter
+
+    #construct matrix alpha described in Bev 8-23
+    alpha = []
+    for j,a1 in enumerate(pols):
+        alpha.append([])
+        for k,a2 in enumerate(pols):
+            alpha[j].append(sum((err**-2)*(x**j)*(x**k)))
+
+    #invert alpha to get error matrix which has the varriance of the ith model parameter on it's diagonal as per Bev 8-28
+    error_matrix = np.linalg.inv(alpha)
+    if (err==np.ones(len(x))).all():
+        ss = sum((y-yp)**2)/deg_free
+        sds = np.sqrt(ss*np.diag(error_matrix))[::-1]
+    else: sds = np.sqrt(np.diag(error_matrix))[::-1]
+
+    if full: return pols,sds,chi2,deg_free,r2,res,rank,sv,rcond
+    else: return pols,sds,chi2,deg_free,r2
+
+def polyerr(pols,sds,x,xerr=None):
+    if isinstance(xerr,type(None)): xerr = np.zeros(len(x))
+    pols,sds,x,xerr = np.array(pols)[::-1],np.array(sds)[::-1],np.array(x),np.array(xerr)
+    return np.sqrt(sum(np.array([((pols[i]*(x**i))**2) * ( (i*(x**(i-1))*xerr)/(x**2) + (sds[i]**2)/(pols[i]**2) ) for i in range(len(pols))])))
+
+def polyenv(pols,x,yerr,xerr=None,center=None):
+    if center==None: center = sum(x)/len(x) #by default center the error env on the mean of the independent var.
+    n,pols,x,yerr = len(pols),np.array(pols)[::-1],np.array(yerr),np.array(x)
+
+    P = np.linalg.matrix_power(invpascal(n,kind='lower').T,int(center+.5))
+    new_pols = (np.linalg.inv(P) @ pols)[::-1]
+
+    alpha = []
+    for j,a1 in enumerate(new_pols):
+        alpha.append([])
+        for k,a2 in enumerate(new_pols):
+            alpha[j].append(sum((yerr**-2)*((x-center)**j)*((x-center)**k)))
+
+    error_matrix = np.linalg.inv(alpha)
+    new_sds = list(np.sqrt(np.diag(error_matrix)))[::-1]
+
+    return polyerr(new_pols,new_sds,x-center,xerr)
+
+def odrfit(x,y,sx,sy,func,start_vector):
+    from scipy import odr
+    model = odr.Model(func)
+    data = odr.RealData(x,y,sx=sx,sy=sy)
+    odr = odr.ODR(data,model,beta0=start_vector)
+    out = odr.run()
+    pols = out.beta
+    sds = out.sd_beta
+
+    yp = func(pols,x)
+    mean = sum(y)/len(y)
+    ssres = sum((y-yp)**2)
+    sstot = sum((y-mean)**2)
+    r2 = 1 - ssres/sstot
+
+    return pols,sds,r2
+
+def format_polyfit(pols,sds,r2,yname='y',xname='x'):
+    return yname + ' = ' + reduce(lambda x,y: x+'+'+y,["(%.2f+-%.2f)*%s^%d"%(pol,sd,xname,len(pols)-n-1) for n,(pol,sd) in enumerate(zip(pols,sds))]) + '; R2 = %.2f'%r2
 
 
 

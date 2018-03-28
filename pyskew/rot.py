@@ -3,10 +3,10 @@ from geographiclib.geodesic import Geodesic
 
 class Rot(object):
 
-    def __init__(self,lat,lon,w,age_lb,age_ub,azi=0):
+    def __init__(self,lat,lon,w,age_lb,age_ub):
         self.lat = lat
         self.lon = lon
-        self.azi = azi #add azimuth rotations for oriented objects
+#        self.azi = azi #add azimuth rotations for oriented objects
         self.w = w
         self.age_lb = age_lb
         self.age_ub = age_ub
@@ -67,7 +67,20 @@ class Rot(object):
         if arc_dis>90: arc_dis = 180-arc_dis
         return self.wr*sin(deg2rad(arc_dis))
 
-    def rotate(self,lat,lon):
+    def rotate(self,lat,lon,azi=0,d=1):
+
+        geo_dict = Geodesic.WGS84.ArcDirect(lat,lon,azi,d)
+
+        tmp_lat,tmp_lon = geo_dict['lat2'],geo_dict['lon2']
+
+        nlat,nlon = self.rotate_site(lat,lon)
+        ntmp_lat,ntmp_lon = self.rotate_site(tmp_lat,tmp_lon)
+
+        geo_dict = Geodesic.WGS84.Inverse(nlat,nlon,ntmp_lat,ntmp_lon)
+
+        return round(nlat,3),round(nlon,3),round(geo_dict['azi1'],3)
+
+    def rotate_site(self,lat,lon):
 
         A = self.to_matrix()
         c = array(latlon2cart(lat,lon))

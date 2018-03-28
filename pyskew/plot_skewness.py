@@ -78,10 +78,7 @@ def plot_all_lunes_seperate(deskew_path):
             fig.savefig(plot_path)
             plt.close(fig)
 
-def plot_pole(ellipse_path,m=None,color='cyan',marker='o',s=30,zorder=3,alpha=.5,label=None,**kwargs):
-
-    elipse_file = open(ellipse_path,"r")
-    lon,lat,az,a,b = list(map(float,elipse_file.read().split()))
+def plot_pole(lon,lat,az,a,b,m=None,color='cyan',marker='o',s=30,zorder=3,alpha=.5,label=None,**kwargs):
 
     if m==None:
         # Create figure
@@ -96,7 +93,28 @@ def plot_pole(ellipse_path,m=None,color='cyan',marker='o',s=30,zorder=3,alpha=.5
     m.scatter(0, 90, facecolor='black', edgecolor='black', marker='+', s=s, latlon=True, zorder=120)
     ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=True, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
 
-    return m,lon,lat,az,a,b
+    return m
+
+def plot_small_circles(plon,plat,m=None,range_arcdis=(10,180,10),range_azis=(-180,180,1),**kwargs):
+    if m==None:
+        # Create figure
+        fig = plt.figure(figsize=(16,9), dpi=80)
+        ax = fig.add_subplot(111)
+        # Create map
+        m = create_basic_map(projection='npstere', lat_0=90, boundinglat=60, ax=ax)
+
+    for arcdis in range(*range_arcdis):
+        sml_circ_points = []
+        for azi in range(*range_azis):
+            geo_dict = Geodesic.WGS84.ArcDirect(plat,plon,azi,arcdis)
+            sml_circ_points.append([geo_dict['lon2'],geo_dict['lat2']])
+        asml_circ_points = np.array(sml_circ_points)
+        mlon,mlat = m(asml_circ_points[:,0],asml_circ_points[:,1])
+        mlon = remove_off_map_points(mlon)
+        mlat = remove_off_map_points(mlat)
+        m.plot(mlon[:-1],mlat[:-1],**kwargs)
+
+    return m
 
 def plot_pole_track(ellipse_paths, m=None, **kwargs):
 
@@ -112,7 +130,8 @@ def plot_pole_track(ellipse_paths, m=None, **kwargs):
     lats,lons = [],[]
     if 'label' in kwargs.keys(): label = kwargs.pop('label')
     for ellipse_path in ellipse_paths:
-        m,lon,lat,az,a,b = plot_pole(ellipse_path,m=m,**kwargs)
+        lon,lat,az,a,b = open_ellipse_file(ellipse_path)
+        m = plot_pole(lon,lat,az,a,b,m=m,**kwargs)
         lons.append(lon);lats.append(lat)
 
     m.plot(lons,lats,latlon=True,label=label,**kwargs)
@@ -137,7 +156,8 @@ def plot_pole_with_lunes(deskew_path,ellipse_path):
 
     plot_lunes(comps,gcm,pole_lat=lat)
 
-    plot_pole(ellipse_path,m=gcm)
+    lon,lat,az,a,b = open_ellipse_file(ellipse_path)
+    plot_pole(lon,lat,az,a,b,m=gcm)
 
     out_path = os.path.join(comps['results_dir'].iloc[0],"poles.png")
     check_dir(os.path.dirname(out_path))

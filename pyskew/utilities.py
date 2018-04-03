@@ -65,6 +65,9 @@ def open_deskew_file(deskew_path):
     cols = deskew_df.columns
     return deskew_df.reset_index()[cols]
 
+def write_deskew_file(deskew_path): #need to impleent with , float_format="%.3f" for prettyness
+    pass
+
 def open_mag_file(mag_file):
     dfin = open_aeromag_file(mag_file)
     if dfin.empty: dfin = open_shipmag_file(mag_file)
@@ -94,7 +97,7 @@ def open_aeromag_file(aeromag_file):
     return dfin
 
 def write_mag_file_df(df,path):
-    df.to_csv(path, sep=' ', header=False, index=False)
+    df.to_csv(path, sep=' ', header=False, index=False, float_format="%.3f")
 
 def cmp_to_key(mycmp):
     'Convert a cmp= function into a key= function'
@@ -219,14 +222,19 @@ def polyfit(x,y,degree,err=None,full=False):
 def polyerr(pols,sds,x,xerr=None):
     if isinstance(xerr,type(None)): xerr = np.zeros(len(x))
     pols,sds,x,xerr = np.array(pols)[::-1],np.array(sds)[::-1],np.array(x),np.array(xerr)
-    return np.sqrt(sum(np.array([((pols[i]*(x**i))**2) * ( (i*(x**(i-1))*xerr)/(x**2) + (sds[i]**2)/(pols[i]**2) ) for i in range(len(pols))])))
+    return np.sqrt(sum(np.array([((pols[i]*(x**i))**2) * ( ((i*(x**(i-1))*xerr)**2)/(x**2) + (sds[i]**2)/(pols[i]**2) ) for i in range(len(pols))])))
 
 def polyenv(pols,x,yerr,xerr=None,center=None):
     if center==None: center = sum(x)/len(x) #by default center the error env on the mean of the independent var.
-    n,pols,x,yerr = len(pols),np.array(pols)[::-1],np.array(yerr),np.array(x)
+    n,pols,x,yerr = len(pols),np.array(pols)[::-1],np.array(x),np.array(yerr)
 
-    P = np.linalg.matrix_power(invpascal(n,kind='lower').T,int(center+.5))
-    new_pols = (np.linalg.inv(P) @ pols)[::-1]
+    P = invpascal(n,kind='lower').T
+    A = np.zeros([n,n])
+    for i in range(n):
+        for j in range(n):
+            if (j-i) < 0: continue
+            A[i,j] = P[i,j]*center**(j-i)
+    new_pols = (np.linalg.inv(A) @ pols)[::-1]
 
     alpha = []
     for j,a1 in enumerate(new_pols):
@@ -237,7 +245,7 @@ def polyenv(pols,x,yerr,xerr=None,center=None):
     error_matrix = np.linalg.inv(alpha)
     new_sds = list(np.sqrt(np.diag(error_matrix)))[::-1]
 
-    return polyerr(new_pols,new_sds,x-center,xerr)
+    return polyerr(new_pols,new_sds,x-center,xerr=xerr)
 
 def odrfit(x,y,sx,sy,func,start_vector):
     from scipy import odr

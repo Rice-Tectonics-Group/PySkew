@@ -79,6 +79,7 @@ def plot_all_lunes_seperate(deskew_path):
             plt.close(fig)
 
 def plot_pole(lon,lat,az,a,b,m=None,color='cyan',marker='o',s=30,zorder=3,alpha=.5,label=None,**kwargs):
+    #a and b should be full axes of the ellipse not semi-axes
 
     if m==None:
         # Create figure
@@ -116,7 +117,15 @@ def plot_small_circles(plon,plat,m=None,range_arcdis=(10,180,10),range_azis=(-18
 
     return m
 
-def plot_pole_track(ellipse_paths, m=None, **kwargs):
+def plot_pole_track_from_files(ellipse_paths,m=None,**kwargs):
+    ellipse_data = []
+    for ellipse_path in ellipse_paths:
+        lon,lat,az,a,b = open_ellipse_file(ellipse_path)
+        ellipse_data.append([lon,lat,az,a,b])
+    m = plot_pole_track(ellipse_data,m=m,**kwargs)
+    return m
+
+def plot_pole_track(ellipse_data, m=None,modify_alpha_with_error=True,min_alpha=0.2,max_alpha=0.8, **kwargs):
 
     if m==None:
         # Create figure
@@ -125,18 +134,51 @@ def plot_pole_track(ellipse_paths, m=None, **kwargs):
         # Create map
         m = create_basic_map(projection='npstere', lat_0=90, boundinglat=60, ax=ax)
         m.drawparallels(np.arange(0,90,10),labels=[0,0,0,0])
-        m.drawmeridians(np.arange(0,360,10),labels=[1,1,1,1])
+        m.drawmeridians(np.arange(0,360,10),labels=[1,1,0,1])
 
-    lats,lons = [],[]
+    if modify_alpha_with_error:
+        if len(ellipse_data)>1:
+            error_array = abs(np.array(ellipse_data)[:,3])+abs(np.array(ellipse_data)[:,4])
+            max_error,min_error = max(error_array),min(error_array)
+            A = (max_alpha-min_alpha)/(min_error-max_error)
+            B = max_alpha-A*min_error
+            calc_alpha = lambda x : A*x+B
+        else: calc_alpha = lambda x: max_alpha
+
+    lats,lons,label,zorder = [],[],None,4
     if 'label' in kwargs.keys(): label = kwargs.pop('label')
-    for ellipse_path in ellipse_paths:
-        lon,lat,az,a,b = open_ellipse_file(ellipse_path)
-        m = plot_pole(lon,lat,az,a,b,m=m,**kwargs)
+    if 'zorder' in kwargs: zorder = kwargs.pop('zorder')+2
+    for lon,lat,az,a,b in ellipse_data:
+        if modify_alpha_with_error: kwargs['alpha'] = calc_alpha(a+b)
+        m = plot_pole(lon,lat,az,a,b,m=m,zorder=zorder,**kwargs)
         lons.append(lon);lats.append(lat)
 
-    m.plot(lons,lats,latlon=True,label=label,**kwargs)
+    m.plot(lons,lats,latlon=True,label=label,zorder=zorder-1,**kwargs)
+    m.plot(lons,lats,latlon=True,color='k',zorder=zorder-2,linewidth=1.5)
 
     return m
+
+def plot_pole_tracks(tracks, plot_kwargs=None, m=None,modify_alpha_with_error=True, min_alpha=0.2, max_alpha=0.8, return_alpha_calculator=False):
+
+    if modify_alpha_with_error:
+        error_array = abs(np.array([pole[3] for track in tracks for pole in track]))+abs(np.array([pole[3] for track in tracks for pole in track]))
+        max_error,min_error = max(error_array),min(error_array)
+        A = (max_alpha-min_alpha)/(min_error-max_error)
+        B = max_alpha-A*min_error
+        calc_alpha = lambda x : A*x+B
+
+    if plot_kwargs==None: plot_kwargs = [{} for i in range(len(tracks))]
+
+    for track,kwargs in zip(tracks,plot_kwargs):
+        if modify_alpha_with_error:
+            error_array = abs(np.array(track)[:,3])+abs(np.array(track)[:,4])
+            kwargs['min_alpha'],kwargs['max_alpha'] = calc_alpha(max(error_array)),calc_alpha(min(error_array))
+        m = plot_pole_track(track,m=m,modify_alpha_with_error=modify_alpha_with_error,**kwargs)
+
+    if return_alpha_calculator and modify_alpha_with_error:
+        return m,calc_alpha
+    else:
+        return m
 
 def plot_pole_with_lunes(deskew_path,ellipse_path):
 

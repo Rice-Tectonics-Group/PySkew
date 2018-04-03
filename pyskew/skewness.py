@@ -330,8 +330,12 @@ def generate_anomalous_skewness_model(anomalous_skewness_path):
     as_lists = [list(map(float,line.rstrip('\n').split('\t'))) for line in as_file.readlines()]
 
     def anomalous_skewness_model(sr):
-        for ub_sr,as_val in as_lists:
-            if float(sr)<=ub_sr: return as_val
+        for i,(ub_sr,as_val) in enumerate(as_lists):
+            if float(sr)<=ub_sr:
+                if i==0: return as_val
+                m = (as_val-as_lists[i-1][1])/(ub_sr-as_lists[i-1][0])
+                b = as_val - m*ub_sr
+                return m*sr+b
         print("spreading rate %.3f could not be found in the anomalous skewness model"%float(sr))
 
     return anomalous_skewness_model

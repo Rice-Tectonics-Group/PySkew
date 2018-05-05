@@ -66,7 +66,7 @@ def create_basic_map(projection='ortho',resolution='l',lat_0=0,lon_0=180, llcrnr
         m = Basemap(projection=projection, lon_0=0, boundinglat=boundinglat, resolution=resolution, ax=ax)
     else: print("the create_basic_map function is very basic and may need to be expanded to handle this projection"); return
     m.drawcoastlines(linewidth=.25)
-    m.fillcontinents(color='bisque',lake_color='white',zorder=1)
+    m.fillcontinents(color='grey',lake_color='white',zorder=1)
     m.drawmapboundary(fill_color='white')
     if meridians_args and parallels_args:
         m.drawmeridians(*meridians_args)

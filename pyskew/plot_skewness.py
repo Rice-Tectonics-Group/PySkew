@@ -78,24 +78,6 @@ def plot_all_lunes_seperate(deskew_path):
             fig.savefig(plot_path)
             plt.close(fig)
 
-def plot_pole(lon,lat,az,a,b,m=None,color='cyan',marker='o',s=30,zorder=3,alpha=.5,label=None,**kwargs):
-    #a and b should be full axes of the ellipse not semi-axes
-
-    if m==None:
-        # Create figure
-        fig = plt.figure(figsize=(16,9), dpi=80)
-        ax = fig.add_subplot(111)
-        # Create map
-        m = create_basic_map(projection='npstere', lat_0=90, boundinglat=60, ax=ax)
-        m.drawparallels(np.arange(0,90,10),labels=[0,0,0,0])
-        m.drawmeridians(np.arange(0,360,10),labels=[1,1,1,1])
-
-    m.scatter(lon, lat, facecolor=color, edgecolor='black', marker=marker, s=s, latlon=True, zorder=zorder, label=label)
-    m.scatter(0, 90, facecolor='black', edgecolor='black', marker='+', s=s, latlon=True, zorder=120)
-    ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=True, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
-
-    return m
-
 def plot_small_circles(plon,plat,m=None,range_arcdis=(10,180,10),range_azis=(-180,180,1),**kwargs):
     if m==None:
         # Create figure
@@ -122,10 +104,23 @@ def plot_pole_track_from_files(ellipse_paths,m=None,**kwargs):
     for ellipse_path in ellipse_paths:
         lon,lat,az,a,b = open_ellipse_file(ellipse_path)
         ellipse_data.append([lon,lat,az,a,b])
-    m = plot_pole_track(ellipse_data,m=m,**kwargs)
+    m,_ = plot_pole_track(ellipse_data,m=m,**kwargs)
     return m
 
-def plot_pole_track(ellipse_data, m=None,modify_alpha_with_error=True,min_alpha=0.2,max_alpha=0.8, **kwargs):
+def get_alpha_func(max_error,min_error,max_alpha,min_alpha):
+    A = (max_alpha-min_alpha)/(min_error-max_error)
+    B = max_alpha-A*min_error
+    calc_alpha = lambda x : A*x+B
+    return calc_alpha
+
+def get_alpha_func_from_ellipse_data(ellipse_data,max_alpha,min_alpha):
+    error_array = abs(np.array(ellipse_data)[:,3])+abs(np.array(ellipse_data)[:,4])
+    max_error,min_error = max(error_array),min(error_array)
+    calc_alpha = get_alpha_func(max_error,min_error,max_alpha,min_alpha)
+    return calc_alpha
+
+def plot_pole(lon,lat,az,a,b,m=None,color='cyan',marker='o',s=30,zorder=3,alpha=.5,label=None,pole_text=None,pole_text_pos=None,**kwargs):
+    #a and b should be full axes of the ellipse not semi-axes
 
     if m==None:
         # Create figure
@@ -134,38 +129,56 @@ def plot_pole_track(ellipse_data, m=None,modify_alpha_with_error=True,min_alpha=
         # Create map
         m = create_basic_map(projection='npstere', lat_0=90, boundinglat=60, ax=ax)
         m.drawparallels(np.arange(0,90,10),labels=[0,0,0,0])
+        m.drawmeridians(np.arange(0,360,10),labels=[1,1,1,1])
+
+    m.scatter(lon, lat, facecolor=color, edgecolor='black', marker=marker, s=s, latlon=True, zorder=zorder, label=label)
+    m.scatter(0, 90, facecolor='black', edgecolor='black', marker='+', s=s, latlon=True, zorder=120)
+    if pole_text!=None:
+        if pole_text_pos!=None: plt.text(*m(*pole_text_pos),pole_text,zorder=500)
+        else: plt.text(*m(lon+1,lat+.7),pole_text,zorder=500)
+    ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=True, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
+
+    return m
+
+def plot_pole_track(ellipse_data, m=None,modify_alpha_with_error=True, min_alpha=0.2, max_alpha=0.8, annotations=[],annotation_positions=[], **kwargs):
+
+    if m==None:
+        # Create figure
+        fig = plt.figure(figsize=(16,9), dpi=80)
+        ax = fig.add_subplot(111)
+        # Create map
+        m = create_basic_map(projection='npstere', lat_0=90, boundinglat=50, ax=ax)
+        m.drawparallels(np.arange(0,90,10),labels=[0,0,0,0])
         m.drawmeridians(np.arange(0,360,10),labels=[1,1,0,1])
 
     if modify_alpha_with_error:
-        if len(ellipse_data)>1:
-            error_array = abs(np.array(ellipse_data)[:,3])+abs(np.array(ellipse_data)[:,4])
-            max_error,min_error = max(error_array),min(error_array)
-            A = (max_alpha-min_alpha)/(min_error-max_error)
-            B = max_alpha-A*min_error
-            calc_alpha = lambda x : A*x+B
+        if len(ellipse_data)>1: calc_alpha = get_alpha_func_from_ellipse_data(ellipse_data,max_alpha,min_alpha)
         else: calc_alpha = lambda x: max_alpha
 
     lats,lons,label,zorder = [],[],None,4
     if 'label' in kwargs.keys(): label = kwargs.pop('label')
     if 'zorder' in kwargs: zorder = kwargs.pop('zorder')+2
-    for lon,lat,az,a,b in ellipse_data:
+    for i,(lon,lat,az,a,b) in enumerate(ellipse_data):
         if modify_alpha_with_error: kwargs['alpha'] = calc_alpha(a+b)
-        m = plot_pole(lon,lat,az,a,b,m=m,zorder=zorder,**kwargs)
+        if i < len(annotations): pole_text = annotations[i]
+        else: pole_text = None
+        if i < len(annotation_positions): pole_text_pos = annotation_positions[i]
+        else: pole_text_pos = None
+        m = plot_pole(lon,lat,az,a,b,m=m,zorder=zorder,pole_text=pole_text,pole_text_pos=pole_text_pos,**kwargs)
         lons.append(lon);lats.append(lat)
 
     m.plot(lons,lats,latlon=True,label=label,zorder=zorder-1,**kwargs)
     m.plot(lons,lats,latlon=True,color='k',zorder=zorder-2,linewidth=1.5)
 
-    return m
+    return m,plt.gcf()
 
 def plot_pole_tracks(tracks, plot_kwargs=None, m=None,modify_alpha_with_error=True, min_alpha=0.2, max_alpha=0.8, return_alpha_calculator=False):
 
     if modify_alpha_with_error:
         error_array = abs(np.array([pole[3] for track in tracks for pole in track]))+abs(np.array([pole[3] for track in tracks for pole in track]))
         max_error,min_error = max(error_array),min(error_array)
-        A = (max_alpha-min_alpha)/(min_error-max_error)
-        B = max_alpha-A*min_error
-        calc_alpha = lambda x : A*x+B
+        calc_alpha = get_alpha_func(max_error,min_error,max_alpha,min_alpha)
+    else: calc_alpha = lambda x: max_alpha
 
     if plot_kwargs==None: plot_kwargs = [{} for i in range(len(tracks))]
 
@@ -173,7 +186,7 @@ def plot_pole_tracks(tracks, plot_kwargs=None, m=None,modify_alpha_with_error=Tr
         if modify_alpha_with_error:
             error_array = abs(np.array(track)[:,3])+abs(np.array(track)[:,4])
             kwargs['min_alpha'],kwargs['max_alpha'] = calc_alpha(max(error_array)),calc_alpha(min(error_array))
-        m = plot_pole_track(track,m=m,modify_alpha_with_error=modify_alpha_with_error,**kwargs)
+        m,_ = plot_pole_track(track,m=m,modify_alpha_with_error=modify_alpha_with_error,**kwargs)
 
     if return_alpha_calculator and modify_alpha_with_error:
         return m,calc_alpha

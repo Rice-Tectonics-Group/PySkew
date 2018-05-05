@@ -64,7 +64,7 @@ def preprocess_m77t(m77tf,data_directory="shipmag_data"):
 
         #determine IGRF and remove from uncorrected intensity
         igrf_cor = ipmag.igrf([dec_year,0,float(row['LAT']),float(row['LON'])])[2]
-        mag_cor = float(row['MAG_TOT']) - ipmag.igrf([dec_year,0,float(row['LAT']),float(row['LON'])])[2]
+        mag_cor = float(row['MAG_TOT']) - igrf_cor
         m77t_df.set_value(i,'MAG_COR',round(mag_cor,5))
 
     round3_func = lambda x: round(x,3)

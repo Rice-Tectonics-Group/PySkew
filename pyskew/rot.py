@@ -411,21 +411,24 @@ class Rot(object):
         if arc_dis>90: arc_dis = 180-arc_dis
         return self.wr*sin(deg2rad(arc_dis))
 
-    def rotate(self,lat,lon,azi=0,cov=None,d=1):
+    def rotate(self,lat,lon,azi=0,a=None,b=None,phi=None,cov=None,d=1):
 
         if isinstance(cov,type(None)):
-            cov = zeros([2,2])
+            if isinstance(a,None) or isinstance(b,None) or isinstance(phi,None):
+                cov = zeros([2,2])
+            else:
+                cov = ellipse_to_cov(a,b,phi)
 
         geo_dict = Geodesic.WGS84.ArcDirect(lat,lon,azi,d)
 
         tmp_lat,tmp_lon = geo_dict['lat2'],geo_dict['lon2']
 
-        nlat,nlon,ncov = self.rotate_site(lat,lon,cov=cov)
+        nlat,nlon,ell,ncov = self.rotate_site(lat,lon,cov=cov)
         ntmp_lat,ntmp_lon,ntmp_cov = self.rotate_site(tmp_lat,tmp_lon,cov=cov)
 
         geo_dict = Geodesic.WGS84.Inverse(nlat,nlon,ntmp_lat,ntmp_lon)
 
-        return round(nlat,3),round(nlon,3),round(geo_dict['azi1'],3),ncov #I think this already takes into account the azimuth uncertainty but I'm not sure
+        return round(nlat,3),round(nlon,3),round(geo_dict['azi1'],3),ell #I think this already takes into account the azimuth uncertainty but I'm not sure
 
     def rotate_site(self,lat,lon,cov=None):
 
@@ -441,7 +444,7 @@ class Rot(object):
 
         (nlat,nlon),ncov = cart2latlon(*nc,ncart_cov)
 
-        return nlat,nlon,ncov
+        return nlat,nlon,cov_to_ellipse(ncov),ncov
 
     #################Equality#################
 
@@ -669,14 +672,28 @@ def cart2latlon(wx,wy,wz,cart_cov):
     lon = rad2deg(arctan2(wy,wx))
     lat = rad2deg(arctan2(wz,sqrt(wx**2 + wy**2)))
 
-    J = array([[-wy/(wx**2+wy**2),(wx)/(wx**2+wy**2),0],
-              [(-wx*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
+    J = array([[(-wx*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
                (-wy*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
-               sqrt(wx**2 + wy**2)/(wx**2 + wy**2 + wz**2)]])
+               sqrt(wx**2 + wy**2)/(wx**2 + wy**2 + wz**2)],
+               [-wy/(wx**2+wy**2),(wx)/(wx**2+wy**2),0]])
 
     latlon_cov = J @ (((180/pi)**2)*cart_cov) @ J.T
 
     return [lat,lon],latlon_cov
+
+def ellipse_to_cov(sa,sb,phi):
+    rphi = deg2rad(phi)
+    var1 = sa**2 * cos(rphi)**2 + sb**2 * sin(rphi)**2 #vlat
+    var2 = sa**2 * sin(rphi)**2 + sb**2 * cos(rphi)**2 #vlon
+    covar12 = (sa**2 - sb**2) * sin(rphi) * cos(rphi)
+    return array([[var1,covar12],[covar12,var2]])
+
+def cov_to_ellipse(cov):
+    w,v = linalg.eig(cov)
+    vmax = v[:,list(w).index(max(w))]
+    print(w,v)
+    phi = rad2deg(arctan2(vmax[1],vmax[0]))
+    return tuple((*(sqrt(w)),phi))
 
 def vs_to_cov(vs):
     return array([[vs[0],vs[3],vs[4]],

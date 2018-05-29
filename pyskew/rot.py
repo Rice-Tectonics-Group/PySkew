@@ -425,7 +425,7 @@ class Rot(object):
 
         geo_dict = Geodesic.WGS84.Inverse(nlat,nlon,ntmp_lat,ntmp_lon)
 
-        return round(nlat,3),round(nlon,3),round(geo_dict['azi1'],3),ncov
+        return round(nlat,3),round(nlon,3),round(geo_dict['azi1'],3),ncov #I think this already takes into account the azimuth uncertainty but I'm not sure
 
     def rotate_site(self,lat,lon,cov=None):
 
@@ -436,7 +436,8 @@ class Rot(object):
         cov_A = self.get_matrix_cov()
         c,cart_cov = latlon2cart(lat,lon,cov)
         nc = A @ c
-        ncart_cov = (cov_A @ cart_cov.flatten()).reshape(3,3) #NOT SURE THIS IS RIGHT
+        Jr = np.array([[c[0],0,0,c[1],0,0,c[2],0,0],[0,c[0],0,0,c[1],0,0,c[2],0],[0,0,c[0],0,0,c[1],0,0,c[2]]])
+        ncart_cov = A @ cart_cov @ A.T + Jr @ cov_A @ Jr.T
 
         (nlat,nlon),ncov = cart2latlon(*nc,ncart_cov)
 

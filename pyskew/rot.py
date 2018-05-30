@@ -166,7 +166,7 @@ class PlateReconstruction(object):
         rots += self.children[0].get_srots()
         for child in self.children[1:]:
             for rot in child.get_srots():
-                rots.append(rots[-1].reverse_time()+rot)
+                rots.append(self[rots[-1].age_f:self.age]+rot) #THIS IS WRONG ADDS STAGE POLE TO RECONSTRUCTION POLES
         return rots
 
     def get_rrots(self):
@@ -249,8 +249,8 @@ class PlateReconstruction(object):
     def __getitem__(self,_slice):
         #check types and parse input
         if isinstance(_slice,slice): start,stop,step = _slice.start,_slice.stop,_slice.step
-        elif isinstance(_slice,float) or isinstance(_slice,int): start,stop,step = _slice,None,None
-        elif isinstance(_slice,list) or isinstance(_slice,tuple) or isinstance(_slice,ndarray):
+        elif isnum(_slice): start,stop,step = float(_slice),None,None
+        elif isiter(_slice):
             return [self.__getitem__(start) for start in _slice]
         else: raise TypeError("A slice of a rotation is not defined for %s"%str(_slice))
 
@@ -262,8 +262,21 @@ class PlateReconstruction(object):
             print("Start age %.3f greater than oldest reconstruction for %s relative to %s, extending final rotation"%(float(start),self.mov_plate,self.fix_plate))
             return self.get_rrots()[-1][start]
 
+        start_parent=self
         for child in self.children:
-            if child.age>start: start_rot = child.rot[start]
+            if child.age>=start: start_rot = child.rot[start]; break
+            elif child.get_age_bounds()[1]>start: start_rot,start_parent = child[start],child; break #will be reconsturction to child
+
+        if stop==None:
+            if start_parent==self: return start_rot
+            else: return start_parent.rot+start_rot
+        elif step==None:
+            return start_rot.forward_rot() + start_parent[stop]
+        else:
+            rots = []
+            for next in arange(start+step,stop+step,step):
+                rots.append(self[start:next])
+            return rots
 
         raise RuntimeError("Couldn't find a rotation or a problem with input in __getitem__ for reconstruction %s this is almost certainly a bug, contact a developer at the github page."%(str(self)))
 
@@ -281,7 +294,7 @@ class PlateReconstruction(object):
             if value in self.rots:
                 self.rots.remove(value)
             else: raise ValueError("There is no equivlent rotation in this reconstruction cannot remove:\n%s"%str(value))
-        elif isinstance(value,int) or isinstance(value,float):
+        elif isnum(value):
             for rot in self.rots:
                 if value in rot:
                     self.rots.remove(rot)
@@ -290,7 +303,7 @@ class PlateReconstruction(object):
         self.calculate_stage_and_reconst_rots()
 
     def __contains__(self,value):
-        if isinstance(value,float) or isinstance(value,int):
+        if isnum(value):
             return any([(value in rot) for rot in self.get_rots()])
         elif isinstance(value,Rot):
             return ((value in self.get_rots) or (value in self.get_srots) or (value in self.get_rrots()))
@@ -495,6 +508,7 @@ class Rot(object):
 
     def __add__(self,other_rot):
         if not isinstance(other_rot, Rot): raise TypeError("Rotation addition is only defined with other Rot objects was given %s"%str(other_rot))
+        elif self.age_f!=other_rot.age_i: raise RotationError("Tried to add a rotation with end age %.2f to a roation with start age %.2f"%(self.age_f,other_rot.age_i))
         R1 = self.to_matrix()
         R1_cov = self.get_matrix_cov()
         R2 = other_rot.to_matrix()
@@ -555,8 +569,8 @@ class Rot(object):
     def __getitem__(self,_slice): #MAY NEED TO CONSIDER INTERPOLATION'S CONTRIBUTIN TO ERROR
         #check types and parse input
         if isinstance(_slice,slice): start,stop,step = _slice.start,_slice.stop,_slice.step
-        elif isinstance(_slice,float) or isinstance(_slice,int): start,stop,step = _slice,None,None
-        elif isinstance(_slice,list) or isinstance(_slice,tuple) or isinstance(_slice,ndarray):
+        elif isnum(_slice): start,stop,step = float(_slice),None,None
+        elif isiter(_slice):
             return [self.__getitem__(start) for start in _slice]
         else: raise TypeError("A slice of a rotation is not defined for %s"%str(_slice))
 
@@ -750,6 +764,20 @@ def get_R_star(R,p=1):
             else:
                 R_star[i,j] = ((r1*r2)**p)
     return R_star
+
+def isnum(obj):
+    try:
+        float(obj)
+        return True
+    except (ValueError,TypeError) as e:
+        return False
+
+def isiter(obj):
+    try:
+        iter(obj)
+        return True
+    except TypeError:
+        return False
 
 def merge_lists_without_duplicates(l1,l2):
     in_l1 = set(l1)

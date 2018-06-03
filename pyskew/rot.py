@@ -262,10 +262,14 @@ class PlateReconstruction(object):
             print("Start age %.3f greater than oldest reconstruction for %s relative to %s, extending final rotation"%(float(start),self.mov_plate,self.fix_plate))
             return self.get_rrots()[-1][start]
 
-        start_parent=self
+        start_parent,prev=self,None
         for child in self.children:
-            if child.age>=start: start_rot = child.rot[start]; break
+            if start==child.age: start_rot = child.rot; break
+            elif child.age>start:
+                if prev==None: start_rot = child.rot[start]
+                else: start_rot = prev.rot+(prev.rot.reverse_time()+child.rot)[start]; break
             elif child.get_age_bounds()[1]>start: start_rot,start_parent = child[start],child; break #will be reconsturction to child
+            else: prev=child
 
         if stop==None:
             if start==self.age: return Rot()
@@ -742,7 +746,7 @@ def ellipse_to_cov(sa,sb,phi):
     covar12 = (sa**2 - sb**2) * sin(rphi) * cos(rphi)
     return array([[var1,covar12],[covar12,var2]])
 
-def cov_to_ellipse(cov):
+def cov_to_ellipse(cov): # NEED TO ACCOUNT FOR THE FACT THAT LAT AND LON HAVE DIFFERENT METRICS BAISED ON POSITION
     w,v = linalg.eig(cov)
     vmax = v[:,list(w).index(max(w))]
     phi = rad2deg(arctan2(vmax[1],vmax[0]))

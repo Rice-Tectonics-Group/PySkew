@@ -436,7 +436,7 @@ class Rot(object):
         cov_A = self.get_matrix_cov()
         c,cart_cov = latlon2cart(lat,lon,cov)
         nc = A @ c
-        Jr = np.array([[c[0],0,0,c[1],0,0,c[2],0,0],[0,c[0],0,0,c[1],0,0,c[2],0],[0,0,c[0],0,0,c[1],0,0,c[2]]])
+        Jr = array([[c[0],0,0,c[1],0,0,c[2],0,0],[0,c[0],0,0,c[1],0,0,c[2],0],[0,0,c[0],0,0,c[1],0,0,c[2]]])
         ncart_cov = A @ cart_cov @ A.T + Jr @ cov_A @ Jr.T
 
         (nlat,nlon),ncov = cart2latlon(*nc,ncart_cov)

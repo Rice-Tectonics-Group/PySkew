@@ -443,14 +443,14 @@ class Rot(object):
         if arc_dis>90: arc_dis = 180-arc_dis
         return self.wr*sin(deg2rad(arc_dis))
 
-    #NEED TO CHANGE THE METHOD HERE AZI AND PHI REDUNDANT NOW ERROR PROP WORKS WE DON'T NEED AZI
+    #NEED TO CHANGE THE METHOD HERE AZI AND PHI REDUNDANT NOW ERROR PROP "WORKS" WE SHOULDN'T NEED AZI
     def rotate(self,lat,lon,azi=0,a=None,b=None,phi=None,cov=None,d=1):
 
         if isinstance(cov,type(None)):
             if isinstance(a,type(None)) or isinstance(b,type(None)) or isinstance(phi,type(None)):
                 cov = zeros([2,2])
             else:
-                cov = ellipse_to_cov(a,b,phi)
+                cov = ellipse_to_cov(lat,lon,a,b,phi)
 
         geo_dict = Geodesic.WGS84.ArcDirect(lat,lon,azi,d)
 
@@ -477,7 +477,7 @@ class Rot(object):
 
         (nlat,nlon),ncov = cart2latlon(*nc,ncart_cov)
 
-        return nlat,nlon,cov_to_ellipse(ncov),ncov
+        return nlat,nlon,cov_to_ellipse(nlat,nlon,ncov),ncov
 
     #################Equality#################
 
@@ -681,9 +681,9 @@ def latlonrot2cart(lat,lon,w,cov):
     wy = radw*cos(radlat)*sin(radlon)
     wz = radw*sin(radlat)
 
-    J = array([[-radw*sin(radlat)*cos(radlon),-radw*sin(radlon)*cos(radlat),cos(radlat)*cos(radlon)],
-               [-radw*sin(radlat)*sin(radlon),radw*cos(radlon)*cos(radlat),cos(radlat)*sin(radlon)],
-               [radw*cos(radlat),0,sin(radlat)]])
+    J = array([[-radw*sin(radlat)*cos(radlon),-radw*sin(radlon)*cos(radlat),cos(radlat)*cos(radlon)], #wx
+               [-radw*sin(radlat)*sin(radlon),radw*cos(radlon)*cos(radlat),cos(radlat)*sin(radlon)], #wy
+               [radw*cos(radlat),0,sin(radlat)]]) #wz
 
     cart_cov = J @ (((pi/180)**2)*cov) @ J.T
 
@@ -696,9 +696,9 @@ def cart2latlonrot(wx,wy,wz,cart_cov):
 
     J = array([[(-wx*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
                (-wy*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
-               sqrt(wx**2 + wy**2)/(wx**2 + wy**2 + wz**2)],
-               [-wy/(wx**2+wy**2),(wx)/(wx**2+wy**2),0],
-               [wx/deg2rad(w),wy/deg2rad(w),wz/deg2rad(w)]])
+               sqrt(wx**2 + wy**2)/(wx**2 + wy**2 + wz**2)], #lat derivatives
+               [-wy/(wx**2+wy**2),(wx)/(wx**2+wy**2),0], #lon derivatives
+               [wx/deg2rad(w),wy/deg2rad(w),wz/deg2rad(w)]]) #w derivatives
 
     latlonrot_cov = (((180/pi)**2)*(J @ cart_cov @ J.T))
 
@@ -739,15 +739,44 @@ def cart2latlon(wx,wy,wz,cart_cov):
 
     return [lat,lon],latlon_cov
 
-def ellipse_to_cov(sa,sb,phi):
+def change_lon_to_GCD_metric(lat,lon,cov):
+    cov = array(list(cov))
+    R = 6371.2 #km
+    gcd2km = 111.113 #km in a gcd
+    C = ((2*pi*R*cos(deg2rad(lat))/gcd2km)/360) #metric conversion factor
+    #you can prove that if gcd_lon=C*lon than you can convert both variance and covariance this way from Bevington 3.14
+    cov[1,:] = C*cov[1,:]
+    cov[0,1] = C*cov[0,1]
+    if len(cov[:,0])>2: cov[2,1] = C*cov[2,1]
+    return cov
+
+def change_GCD_to_lon_metric(lat,lon,cov):
+    cov = array(list(cov))
+    R = 6371.2 #km
+    gcd2km = 111.113 #km in a gcd
+    C = ((2*pi*R*cos(deg2rad(lat))/gcd2km)/360) #metric conversion factor
+    #you can prove that if gcd_lon=C*lon than you can convert both variance and covariance this way from Bevington 3.14
+    cov[1,:] = (1/C)*cov[1,:]
+    cov[0,1] = (1/C)*cov[0,1]
+    if len(cov[:,0])>2: cov[2,1] = (1/C)*cov[2,1]
+    return cov
+
+def ellipse_to_cov(lat,lon,sa,sb,phi):
     rphi = deg2rad(phi)
     var1 = sa**2 * cos(rphi)**2 + sb**2 * sin(rphi)**2 #vlat
     var2 = sa**2 * sin(rphi)**2 + sb**2 * cos(rphi)**2 #vlon
     covar12 = (sa**2 - sb**2) * sin(rphi) * cos(rphi)
-    return array([[var1,covar12],[covar12,var2]])
+    return change_GCD_to_lon_metric(lat,lon,array([[var1,covar12],[covar12,var2]]))
 
-def cov_to_ellipse(cov): # NEED TO ACCOUNT FOR THE FACT THAT LAT AND LON HAVE DIFFERENT METRICS BAISED ON POSITION
+def cov_to_ellipse(lat,lon,cov):
+    # NEED TO ACCOUNT FOR THE FACT THAT LAT AND LON HAVE DIFFERENT METRICS BAISED ON POSITION
+    # THIS FORMULA ONLY WORKS FOR EQUAL METRIC SPACES
+    if len(cov)==0: return
+    if len(cov[:,0])>2: cov=cov[:2,:]
+    if len(cov[0,:])>2: cov=cov[:,:2]
+    cov = change_lon_to_GCD_metric(lat,lon,cov)
     w,v = linalg.eig(cov)
+    w = abs(w)
     vmax = v[:,list(w).index(max(w))]
     phi = rad2deg(arctan2(vmax[1],vmax[0]))
     return tuple((*sorted(sqrt(w),reverse=True),phi))
@@ -760,59 +789,6 @@ def vs_to_cov(wx,wy,wz,vs): #I NEED TO CHANGE THE DATA READ WRITE FORMAT RIGHT N
 def cov_to_vs(lat,lon,w,cov):
     _,cov = latlonrot2cart(lat,lon,w,cov)
     return [cov[0,0],cov[1,1],cov[2,2],cov[0,1],cov[0,2],cov[1,2]]
-
-def nullspace(A, atol=1e-13, rtol=0):
-    """Compute an approximate basis for the nullspace of A.
-
-    The algorithm used by this function is based on the singular value
-    decomposition of `A`.
-
-    Parameters
-    ----------
-    A : ndarray
-        A should be at most 2-D.  A 1-D array with length k will be treated
-        as a 2-D with shape (1, k)
-    atol : float
-        The absolute tolerance for a zero singular value.  Singular values
-        smaller than `atol` are considered to be zero.
-    rtol : float
-        The relative tolerance.  Singular values less than rtol*smax are
-        considered to be zero, where smax is the largest singular value.
-
-    If both `atol` and `rtol` are positive, the combined tolerance is the
-    maximum of the two; that is::
-        tol = max(atol, rtol * smax)
-    Singular values smaller than `tol` are considered to be zero.
-
-    Return value
-    ------------
-    ns : ndarray
-        If `A` is an array with shape (m, k), then `ns` will be an array
-        with shape (k, n), where n is the estimated dimension of the
-        nullspace of `A`.  The columns of `ns` are a basis for the
-        nullspace; each element in numpy.dot(A, ns) will be approximately
-        zero.
-    """
-
-    A = atleast_2d(A)
-    u, s, vh = svd(A)
-    tol = max(atol, rtol * s[0])
-    nnz = (s >= tol).sum()
-    ns = vh[nnz:].conj().T
-    return ns
-
-def get_R_star(R,p=1):
-    """
-    Returns matrix of all multiplicative combinations of the elements of R raised to a power p
-    """
-    R_star = zeros([R.shape[0]*R.shape[1],R.shape[0]*R.shape[1]])
-    for i,r1 in enumerate(R.flatten()):
-        for j,r2 in enumerate(R.flatten()):
-            if p<0 and r1*r2==0:
-                R_star[i,j] = 0
-            else:
-                R_star[i,j] = ((r1*r2)**p)
-    return R_star
 
 def isnum(obj):
     try:

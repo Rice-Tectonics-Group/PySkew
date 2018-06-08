@@ -22,18 +22,44 @@ class PlateReconstruction(object):
     
     """
 
-    def __init__(self,mov_plate,fix_plate,rots,comment=None,sources={}):
+    def __init__(self,mov_plate,fix_plate,rots,comment=None,sources={},parent=None):
         self.mov_plate = str(mov_plate)
         self.fix_plate = str(fix_plate)
         if comment==None: comment = "Motion of %s relative to %s"%(mov_plate,fix_plate)
         self.comment = str(comment)
         self.sources = sources
+        self.extend_final_rot = False
+        if self.sources=={}: self.sources = {rot:"" for rot in rots}
         if any(list(map(lambda x: not isinstance(x,Rot), rots))):
             raise ValueError("All values in rotsn argument must be Rot objects, was given %s"%str(rots))
-        try: self.rots = [rot.backwards_rot() for rot in rots]
+        try: tmp_rots = [rot.backwards_rot() for rot in rots]
         except ValueError: raise ValueError("rots argument must be list-like, was given %s"%str(rots))
-        self.rots.sort() #insure self.rots is always sorted by age
-        self.calculate_stage_and_reconst_rots()
+        tmp_rots.sort() #insure self.rots is always sorted by age
+
+        self.parent = parent
+        self.children = []
+        if isinstance(parent,PlateReconstruction): self.rot,self.age = tmp_rots[0],tmp_rots[0].age_f
+        elif isinstance(parent,type(None)):
+            if tmp_rots[0].age_i!=0:
+                tmp_rots.insert(0,Rot(age_i=0,age_f=tmp_rots[0].age_i))
+            self.rot,self.age = None,tmp_rots[0].age_i
+        else: raise ValueError("parent of type %s not supported for PlateReconstruction"%str(type(parent)))
+        for i,rot in enumerate(tmp_rots):
+            if rot.age_i!=self.age: continue
+            chrots = [rot] + [chrot for chrot in tmp_rots if chrot.age_i==rot.age_f]
+            j=i+1
+            while j<len(tmp_rots) and tmp_rots[j] in chrots: j+=1
+            if j<len(tmp_rots) and (any([chrot.age_f>tmp_rots[j].age_f for chrot in chrots]) or any([chrot==tmp_rots[j] for chrot in chrots])):
+                raise ValueError("One of your stage rotation is providing duplicate information to your reconstruction rotation\n%s"%(str(tmp_rots[i+1])))
+            chsources = {self.sources[chrot]:chrot for chrot in chrots if chrot in self.sources}
+            self.children.append(PlateReconstruction(self.mov_plate,self.fix_plate,chrots,comment=self.comment,sources=chsources,parent=self))
+
+    #################Modify State#################
+
+    def set_extend(self,boolean):
+        if boolean: print("rotations will now be extrapolated if indexed out of bounds")
+        else: print("no motion will be assumed if rotation is indexed out of bounds")
+        self.extend_final_rot=boolean
 
     #################I/O#################
 
@@ -43,11 +69,11 @@ class PlateReconstruction(object):
             mov_plate,fix_plate,comment = f.readline().rstrip('\n').split('\t')[:3]
         df = pd.read_csv(fin,header=1,sep='\t')
         df.fillna(0, inplace=True)
-        errors = [{'cov':vs_to_cov(vs),'s1age_f':s1age_f,'s1age_i':s1age_i} for vs,s1age_i,s1age_f in zip(df[['vlat','vlon','vrot','vlatlon','vlatrot','vlonrot']].values.tolist(),df['s1start_age'],df['s1stop_age'])]
+        errors = [{'cov':vs_to_cov(*latlonrot2cart(lat,lon,w,zeros([3,3]))[0],vs),'s1age_f':s1age_f,'s1age_i':s1age_i} for lat,lon,w,vs,s1age_i,s1age_f in zip(df['lat'],df['lon'],df['rot'],df[['vxx','vyy','vzz','vxy','vxz','vyz']].values.tolist(),df['s1start_age'],df['s1stop_age'])]
         rots_list = df[['lat','lon','rot','start_age','stop_age']].values.tolist()
         rots = [Rot(*rot,**err) for rot,err in zip(rots_list,errors)]
-        sources = df['source'].to_dict()
-        new_sources = {source:rot for source,rot in zip(sources,rots)}
+        sources = df['source'].tolist()
+        new_sources = {rot:source for source,rot in zip(sources,rots)}
         return PlateReconstruction(mov_plate,fix_plate,rots,comment=comment,sources=new_sources)
 
     def to_csv(self,fout,sep='\t'):
@@ -67,33 +93,33 @@ class PlateReconstruction(object):
     #################Casting#################
 
     def to_df(self):
-        df = pd.DataFrame([(r.backwards_rot()).to_dict(add_data={'source':self.sources[r]}) for r in self.rots])
-        df = df[['lat','lon','rot','rot_rate','start_age','stop_age','s1start_age','s1stop_age','vlat','vlon','vrot','vlatlon','vlatrot','vlonrot','source']]
+        df = pd.DataFrame([(r.backwards_rot()).to_dict(add_data={'source':(self.sources[r] if r in self.sources.keys() else "")}) for r in self.get_rots()])
+        df = df[['lat','lon','rot','rot_rate','start_age','stop_age','s1start_age','s1stop_age','vxx','vyy','vzz','vxy','vxz','vyz','source']]
         return df
 
     def reconst_to_df(self):
-        df = pd.DataFrame([(r).to_dict(add_data={'source':'this study'}) for r in self.reconst_rots])
-        df = df[['lat','lon','rot','rot_rate','start_age','stop_age','s1start_age','s1stop_age','vlat','vlon','vrot','vlatlon','vlatrot','vlonrot','source']]
+        df = pd.DataFrame([(r).to_dict(add_data={'source':'this study'}) for r in self.get_rrots()])
+        df = df[['lat','lon','rot','rot_rate','start_age','stop_age','s1start_age','s1stop_age','vxx','vyy','vzz','vxy','vxz','vyz','source']]
         return df
 
     def stages_to_df(self):
-        df = pd.DataFrame([(r).to_dict(add_data={'source':'this study'}) for r in self.stage_rots])
-        df = df[['lat','lon','rot','rot_rate','start_age','stop_age','s1start_age','s1stop_age','vlat','vlon','vrot','vlatlon','vlatrot','vlonrot','source']]
+        df = pd.DataFrame([(r).to_dict(add_data={'source':'this study'}) for r in self.get_srots()])
+        df = df[['lat','lon','rot','rot_rate','start_age','stop_age','s1start_age','s1stop_age','vxx','vyy','vzz','vxy','vxz','vyz','source']]
         return df
 
     def list_ages(self):
         """
-        Return non-zero ages for which there are rotations
+        Return ages for which there are rotations to the age of the root
         """
         ages=[]
-        for rot in self.reconst_rots:
+        for rot in self.get_rrots():
             if rot.age_i not in ages: ages.append(rot.age_i)
             if rot.age_f not in ages: ages.append(rot.age_f)
-        if 0.0 in ages: ages.remove(0.0)
+        if self.age in ages: ages.remove(self.age)
         return ages
 
     def get_age_bounds(self):
-        ages = [0.0]+self.list_ages()
+        ages = [self.age]+self.list_ages()
         ages.sort()
         return ages[0],ages[-1]
 
@@ -135,46 +161,40 @@ class PlateReconstruction(object):
         """
         reads .fin file and does the same opperations as mpfin
         """
-        raise NotImplementedError("This is a feature in progress for now you can manually manipulate the reconstructions")
+        raise NotImplementedError("This is a feature in progress and may be placed in the circuit object for now you can manually manipulate the reconstructions")
 
     #################Calculation Functions#################
 
-    def calculate_stage_and_reconst_rots(self):
-        """
-        As of now assumes that lower age bound of previous rotation is same as other rotation so they cancel
-        """
-        self.stage_rots = [self.rots[0].backwards_rot()]
-        self.reconst_rots = [self.rots[0].backwards_rot()]
-        if self.rots[0] not in self.sources: self.sources[self.rots[0]] = '' #handle first rotation's sources
+    def get_rots(self):
+        if self.rot==None: rots = []
+        else: rots = [self.rot]
+        for child in self.children:
+            for rot in child.get_rots():
+                rots.append(rot)
+        return rots
 
-        for rot in self.rots[1:]: #construct reconstruction rotations
-            if rot not in self.sources: self.sources[rot] = '' #handle sources
-            if rot.age_f in self.get_reconstruction_ages():
-                print("Age %.2f already has an uninterpolated pole constained in reconst keeping only new rotation:\n%s\n%s\nDiscarding first rotation"%(rot.age_f,str(self[rot.age_f]),str(rot)))
-                del self[rot.age_f]
-            prev_age = self.reconst_rots[-1].age_f
-            self.stage_rots.append(self[prev_age:rot.age_i]+rot)
-            self.reconst_rots.append(self[rot.age_i]+rot)
+    def get_srots(self):
+        if self.rot==None: rots = []
+        else: rots = [self.rot]
+        if len(self.children)==0: return rots
+        rots += self.children[0].get_srots()
+        for child in self.children[1:]:
+            for rot in child.get_srots():
+                rots.append(self[rots[-1].age_f:self.age]+rot) #THIS IS WRONG ADDS STAGE POLE TO RECONSTRUCTION POLES
+        return rots
 
-        return self.stage_rots,self.reconst_rots
-
-    def old_calculate_stage_and_reconst_rots(self):
-        """
-        As of now assumes that lower age bound of previous rotation is same as other rotation so they cancel
-        """
-        self.stage_rots = [self.rots[0].backwards_rot()]
-        self.reconst_rots = [self.rots[0].backwards_rot()]
-        if self.rots[0] not in self.sources: self.sources[self.rots[0]] = '' #handle first rotation's sources
-        for rot in self.rots[1:]:
-            prev_rot=self.reconst_rots[-1]
-            if rot not in self.sources: self.sources[rot] = '' #handle sources
-            if rot==prev_rot:
-                print("Equivlent rots found:\n%s\n%s\nDiscarding second rotation"%(str(prev_rot),str(rot)))
-            else:
-                rrot = rot.backwards_rot()
-                self.reconst_rots.append(rrot)
-                self.stage_rots.append(prev_rot.forward_rot()+rrot)
-        return self.stage_rots,self.reconst_rots
+    def get_rrots(self):
+        if self.rot==None:
+            rots = []
+            for child in self.children:
+                for rot in child.get_rrots():
+                    rots.append(rot)
+        else:
+            rots = [self.rot]
+            for child in self.children:
+                for rot in child.get_rrots():
+                    rots.append(self.rot+rot)
+        return rots
 
     def interpolate(self,other_reconst):
         """
@@ -201,107 +221,115 @@ class PlateReconstruction(object):
             raise TypeError("addition is only defined between reconstructions, was given %s"%str(other_reconst))
         if self.fix_plate==other_reconst.mov_plate:
             my_rots,oth_rots = self.interpolate(other_reconst)
-            new_rots = [oth_rot+my_rot for my_rot,oth_rot in zip(my_rots,oth_rots)]
+            new_rots = [my_rot+oth_rot for my_rot,oth_rot in zip(my_rots,oth_rots)]
             return PlateReconstruction(self.mov_plate,other_reconst.fix_plate,new_rots)
-        elif self.mov_plate==other_reconst.mov_plate:
-            return -self+other_reconst
-        elif self.fix_plate==other_reconst.fix_plate:
-            return self+-other_reconst
-        elif self.mov_plate==other_reconst.fix_plate:
-            raise RotationError("The fixed plate of the first reconstruction should be in common with the moving plate of the second reconstruction. There are 2 possible reconstructions given your input reverse one of your reconstructions at least so there is a uniqe solution. Was given:\n%s\n%s"%(str(self),str(other_reconst)))
         else:
-            raise ValueError("The two reconstructions being added must have at least 1 plate in common. Recived:\nmoving -> fixed\n%s -> %s\n%s -> %s"%(self.mov_plate, self.fix_plate, other_reconst.mov_plate, other_reconst.fix_plate))
-
-    def simple__add__(self,other_reconst):
-        if not isinstance(other_reconst,PlateReconstruction):
-            raise TypeError("addition is only defined between reconstructions, was given %s"%str(other_reconst))
-        if self.fix_plate==other_reconst.mov_plate:
-            my_rots,oth_rots = self.interpolate(other_reconst)
-            new_rots = [oth_rot+my_rot for my_rot,oth_rot in zip(my_rots,oth_rots)]
-            return PlateReconstruction(self.mov_plate,other_reconst.fix_plate,new_rots)
-        elif self.mov_plate==other_reconst.mov_plate or self.fix_plate==other_reconst.fix_plate or self.mov_plate==other_reconst.fix_plate:
             raise RotationError("The fixed plate of the first reconstruction must be the same as the moving plate of the second reconstruction. Was given:\n%s\n%s"%(str(self),str(other_reconst)))
-        else:
-            raise ValueError("The two reconstructions being added must have at least 1 plate in common. Recived:\nmoving -> fixed\n%s -> %s\n%s -> %s"%(self.mov_plate, self.fix_plate, other_reconst.mov_plate, other_reconst.fix_plate))
 
     def __sub__(self,other_reconst):
-        return -self+-other_reconst
+        return self+-other_reconst
 
     def __neg__(self):
-        new_rots = [-r for r in self.rots]
+        new_rots = [-r for r in self.get_rots()]
         return PlateReconstruction(self.fix_plate,self.mov_plate,new_rots,comment=self.comment,sources=self.sources)
 
     def __invert__(self):
-        new_rots = [~r for r in self.rots]
+        new_rots = [~r for r in self.get_rots()]
         return PlateReconstruction(self.mov_plate,self.fix_plate,new_rots,comment=self.comment,sources=self.sources)
 
     ###########Indexing & Sequencing###########
 
     def __len__(self):
-        return len(self.rots)
+        return len(self.children)
 
     def __getitem__(self,_slice):
         #check types and parse input
         if isinstance(_slice,slice): start,stop,step = _slice.start,_slice.stop,_slice.step
-        elif isinstance(_slice,float) or isinstance(_slice,int): start,stop,step = _slice,None,None
-        elif isinstance(_slice,list) or isinstance(_slice,tuple) or isinstance(_slice,ndarray):
-            return [self.__getitem__(start) for start in _slice]
+        elif isnum(_slice): start,stop,step = float(_slice),None,None
+        elif isiter(_slice):
+            return [self.__getitem__(slice(*item)) if isiter(item) else self.__getitem__(item) for item in _slice]
         else: raise TypeError("A slice of a rotation is not defined for %s"%str(_slice))
 
         #check boundedness of problem
         min_age,max_age = self.get_age_bounds()
         if start < min_age:
-            raise ValueError("Start age of %.3f is less than youngest reconstruction for %s relative to %s"%(float(start),self.mov_plate,self.fix_plate))
+            print("Start age of %.3f is less than youngest reconstruction for %s relative to %s, returning null rotation"%(float(start),self.mov_plate,self.fix_plate))
+            if stop==None: return Rot(age_f=start)
+            else: return Rot(age_i=start,age_f=stop)
+#            raise ValueError("Start age of %.3f is less than youngest reconstruction for %s relative to %s"%(float(start),self.mov_plate,self.fix_plate))
         if start > max_age:
-            print("Start age %.3f greater than oldest reconstruction for %s relative to %s, extending final rotation"%(float(start),self.mov_plate,self.fix_plate))
-            return self.reconst_rots[-1][start]
+            if self.extend_final_rot:
+                print("Start age %.3f greater than oldest reconstruction for %s relative to %s, extending final rotation"%(float(start),self.mov_plate,self.fix_plate))
+                return self.get_rrots()[-1][start]
+            else:
+                print("Start age %.3f greater than oldest reconstruction for %s relative to %s, returning final rotaiton"%(float(start),self.mov_plate,self.fix_plate))
+                out_rot = self.get_rrots()[-1].copy()
+                if stop==None: out_rot.age_f = start
+                else: out_rot.age_i,out_rot.age_f = start,stop
+                return out_rot
 
-        if stop==None and step==None: #Index case
-            tot_rot = Rot(0,0,0,0,0)
-            for rot in self.stage_rots:
-                if start in rot: return tot_rot + rot[start]
-                tot_rot += rot
-        elif stop!=None and step==None: #Slice without step case
-            return self.__getitem__(start).reverse_time() + self.__getitem__(stop)
-        else: #Slice with step case
+        start_rot,start_parent,prev=None,self,None
+        for child in self.children:
+            if start==child.age: start_rot = child.rot; break
+            elif child.age>start:
+                if prev==None: start_rot = child.rot[start]
+                else: start_rot = prev.rot+(prev.rot.reverse_time()+child.rot)[start]; break
+            elif child.get_age_bounds()[1]>=start: start_rot,start_parent = child[start],child; break #will be reconsturction to child
+            else: prev=child
+
+        if start_rot==None: raise RuntimeError("Starting Rotation could not be found in Reconstruction despite being within bounds, raise issue for dev there is a bug")
+        if stop==None:
+            if start==self.age: return Rot()
+            elif start_parent==self: return start_rot
+            else: return start_parent.rot+start_rot
+        elif step==None:
+            return start_rot.forward_rot() + start_parent[stop]
+        else:
             rots = []
-            for value in range(start,stop+step,step):
-                if value==0: continue
-                tot_rot = Rot(0,0,0,0,0)
-                for rot in self.stage_rots:
-                    if value in rot: rots.append(tot_rot + rot[value]); break
-                    tot_rot += rot
+            for next in arange(start+step,stop+step,step):
+                rots.append(self[start:next])
             return rots
 
         raise RuntimeError("Couldn't find a rotation or a problem with input in __getitem__ for reconstruction %s this is almost certainly a bug, contact a developer at the github page."%(str(self)))
 
     def __setitem__(self,idx,value):
-        if isinstance(value,Rot): self.rots.append(value); self.rots.sort()
-        elif isinstance(idx,slice) and len(value)==3:
-            self.rots.append(Rot(*value,idx.start,idx.stop))
-            self.rots.sort()
+        if isinstance(value,Rot): nrot=value
+        elif isinstance(idx,slice) and len(value)==3: nrot = Rot(*value,idx.start,idx.stop)
+        else: raise TypeError("Cannot add roation to PlateReconstruction for index: %s and value: %s. You must provide either a Rot object for value and any index (index will be ignored) or a slice for index (i.e. [0:10]) which represents your age bounds and a list with values [lat,lon,w] for your value."%(str(idx),str(value)))
+        if nrot.age_i==self.age:
+            for child in self.children:
+                if nrot==child.rot: self.children.remove(child); del self.sources[child.rot]
+            self.children.append(PlateReconstruction(self.mov_plate,self.fix_plate,[nrot],comment=self.comment,parent=self))
+            self.sources[nrot] = ""
+        elif nrot.age_i>self.get_age_bounds()[1] and self.children!=[]:
+            oldest = self.children[-1]
+            if oldest.children!=[]: oldest.__setitem__(idx,nrot)
+            else:
+                nrot_interp = oldest.rot[nrot.age_i]+nrot
+                self.children.append(PlateReconstruction(self.mov_plate,self.fix_plate,[nrot_interp],comment=self.comment,parent=self))
+                self.sources[nrot_interp] = ""
         else:
-            raise TypeError("Cannot add roation to PlateReconstruction for index: %s and value: %s. You must provide either a Rot object for value and any index (index will be ignored) or a slice for index (i.e. [0:10]) which represents your age bounds and a list with values [lat,lon,w] for your value."%(str(idx),str(value)))
-        self.calculate_stage_and_reconst_rots()
+            for child in self.children:
+                child.__setitem__(idx,nrot)
 
     def __delitem__(self,value):
         if isinstance(value,Rot):
-            if value in self.rots:
-                self.rots.remove(value)
+            for child in self.children:
+                if child.rot==Rot: self.children.remove(child); del self.sources[child.rot]
+                elif value in child: child.__delitem__(value)
             else: raise ValueError("There is no equivlent rotation in this reconstruction cannot remove:\n%s"%str(value))
-        elif isinstance(value,int) or isinstance(value,float):
-            for rot in self.rots:
-                if value in rot:
-                    self.rots.remove(rot)
+        elif isnum(value):
+            for child in self.children:
+                if value in child.rot: self.children.remove(child); del self.sources[child.rot]
+                elif value in child: child.__delitem__(value)
         else:
             raise TypeError("There is no way to remove %s from reconstruction"%str(value))
-        self.calculate_stage_and_reconst_rots()
 
     def __contains__(self,value):
-        if isinstance(value,float) or isinstance(value,int):
-            return any([(value in rot) for rot in self.rots])
+        if isnum(value):
+            return any([(value in rot) for rot in self.get_rots()])
         elif isinstance(value,Rot):
-            return ((value in self.rot) or (value in self.stage_rots) or (value in self.reconst_rots))
+            return ((value in self.get_rots()))
         else:
             raise TypeError("cannot check if %s is in a reconstruction object"%str(value))
 
@@ -311,12 +339,21 @@ class PlateReconstruction(object):
         min_age,max_age = self.get_age_bounds()
         return "Reconstruction Rotations for %s relative to %s, from %.2f to %.2f"%(self.mov_plate,self.fix_plate,min_age,max_age)
 
+    def print_tree(self):
+        print(self.tree_str())
+
+    def tree_str(self,level=0):
+        out_str = '\t'*level + str(self.age) + '\n'
+        for child in self.children:
+            out_str += child.tree_str(level=level+1)
+        return out_str
+
 
 #############################################Rotation Object#####################################################
 
 class Rot(object):
 
-    def __init__(self,lat,lon,w,age_i,age_f,s1lat=0,s1lon=0,s1w=0,s1age_i=0,s1age_f=0,cov=None):
+    def __init__(self,lat=0,lon=0,w=0,age_i=0,age_f=0,s1lat=0,s1lon=0,s1w=0,s1age_i=0,s1age_f=0,cov=None):
         self.lat = float(lat)
         self.lon = float(lon)
 #        self.azi = azi #add azimuth rots for oriented objects
@@ -332,7 +369,8 @@ class Rot(object):
         self.vage_i = s1age_i**2
         self.vage_f = s1age_f**2
         if self.w==0 or (self.age_i==0 and self.age_f==0): self.vwr=0
-        else: self.vwr = (self.wr**2)*((self.cov[2,2]/(self.w**2)) + ((self.vage_f+self.vage_i)/(self.age_f+self.age_i)**2)) #IGNORES COVARIANCE HERE
+        #Assumes ages and rotation rate are uncorrelated
+        else: self.vwr = (self.wr**2)*((self.cov[2,2]/(self.w**2)) + ((self.vage_f+self.vage_i)/(self.age_f+self.age_i)**2))
 
         self.calc_matrix()
 
@@ -350,18 +388,18 @@ class Rot(object):
         return [self.lat,self.lon,self.w]
 
     def to_dict(self,add_data={}):
-        vs = cov_to_vs(self.cov)
+        vs = cov_to_vs(self.lat,self.lon,self.w,self.cov)
         rdict = {'lat':self.lat,'lon':self.lon,'rot':self.w,'rot_rate':self.wr,'start_age':self.age_i, \
                  'stop_age':self.age_f,'s1start_age':sqrt(self.vage_i),'s1stop_age':sqrt(self.vage_f),
-                 'vlat':vs[0],'vlon':vs[1],'vrot':vs[2],'vlatlon':vs[3],'vlatrot':vs[4],'vlonrot':vs[5]}
+                 'vxx':vs[0],'vyy':vs[1],'vzz':vs[2],'vxy':vs[3],'vxz':vs[4],'vyz':vs[5]}
         return dict(rdict, **add_data)
 
     def copy(self):
         return Rot(self.lat,self.lon,self.w,self.age_i,self.age_f,s1age_f=sqrt(self.vage_f),s1age_i=sqrt(self.vage_i),cov=self.cov)
 
     def reverse_time(self):
-        ncov = self.inv_wcovs(self.cov)
-        return Rot(self.lat,self.lon,-self.w,self.age_f,self.age_i,s1age_f=sqrt(self.vage_i),s1age_i=sqrt(self.vage_f),cov=ncov)
+#        ncov = self.inv_wcovs(self.cov)
+        return Rot(self.lat,self.lon,-self.w,self.age_f,self.age_i,s1age_f=sqrt(self.vage_i),s1age_i=sqrt(self.vage_f),cov=self.cov)
 
     def backwards_rot(self):
         if self.age_i>self.age_f: return self.reverse_time()
@@ -407,25 +445,33 @@ class Rot(object):
         self.R_cov = J @ cart_cov @ J.T
 
     def vel_point(self,lat,lon):
-        arc_dis = Geodesic.WGS84.Inverse(lat,lon,self.lat,self.lon)['a12'] #SHOULD HAVE ARCDIS ERROR AS LENGTH OF ELLIPSE AROUND POLE IN AZI DIRECTION
+        geo_dict = Geodesic.WGS84.Inverse(lat,lon,self.lat,self.lon) #SHOULD HAVE ARCDIS ERROR AS LENGTH OF ELLIPSE AROUND POLE IN AZI DIRECTION/sqrt(2)
+        arc_dis = geo_dict['a12']
+        azi = geo_dict['azi1']
+        a,b,phi = cov_to_ellipse(self.lat,self.lon,self.cov) #get uncertainty in rotation pole geographic position
+        s1_arcdis = sqrt(((a*b)**2)/((cos(phi-azi)*b)**2 + (sin(phi-azi)*a)**2))/sqrt(2) #univariate 1sigma error in direction of site
         if arc_dis>90: arc_dis = 180-arc_dis
-        return self.wr*sin(deg2rad(arc_dis))
+        return self.wr*sin(deg2rad(arc_dis)),self.vwr*sin(deg2rad(arc_dis)) + (s1_arcdis**2)*self.wr*cos(deg2rad(arc_dis))
 
-    def rotate(self,lat,lon,azi=0,cov=None,d=1):
+    #NEED TO CHANGE THE METHOD HERE AZI AND PHI REDUNDANT NOW ERROR PROP "WORKS" WE SHOULDN'T NEED AZI
+    def rotate(self,lat,lon,azi=0,a=None,b=None,phi=None,cov=None,d=1):
 
         if isinstance(cov,type(None)):
-            cov = zeros([2,2])
+            if isinstance(a,type(None)) or isinstance(b,type(None)) or isinstance(phi,type(None)):
+                cov = zeros([2,2])
+            else:
+                cov = ellipse_to_cov(lat,lon,a,b,phi)
 
         geo_dict = Geodesic.WGS84.ArcDirect(lat,lon,azi,d)
 
         tmp_lat,tmp_lon = geo_dict['lat2'],geo_dict['lon2']
 
-        nlat,nlon,ncov = self.rotate_site(lat,lon,cov=cov)
-        ntmp_lat,ntmp_lon,ntmp_cov = self.rotate_site(tmp_lat,tmp_lon,cov=cov)
+        nlat,nlon,ell,ncov = self.rotate_site(lat,lon,cov=cov)
+        ntmp_lat,ntmp_lon,tmp_ell,ntmp_cov = self.rotate_site(tmp_lat,tmp_lon,cov=cov)
 
         geo_dict = Geodesic.WGS84.Inverse(nlat,nlon,ntmp_lat,ntmp_lon)
 
-        return round(nlat,3),round(nlon,3),round(geo_dict['azi1'],3),ncov #I think this already takes into account the azimuth uncertainty but I'm not sure
+        return round(nlat,3),round(nlon,3),round(geo_dict['azi1'],3),ell #I think this already takes into account the azimuth uncertainty but I'm not sure
 
     def rotate_site(self,lat,lon,cov=None):
 
@@ -441,7 +487,7 @@ class Rot(object):
 
         (nlat,nlon),ncov = cart2latlon(*nc,ncart_cov)
 
-        return nlat,nlon,ncov
+        return nlat,nlon,cov_to_ellipse(nlat,nlon,ncov),ncov
 
     #################Equality#################
 
@@ -452,7 +498,8 @@ class Rot(object):
     #################Visualizing#################
 
     def plot_pole(self,m=None,**kwargs):
-        return psk.plot_pole(self.lon,self.lat,0.0,sqrt(self.v1lon),sqrt(self.v1lat),m=m,**kwargs)
+        a,b,phi = cov_to_ellipse(self.lat,self.lon,self.cov)
+        return psk.plot_pole(self.lon,self.lat,phi,2*a,2*b,m=m,**kwargs) #full axes
 
     #################Magic Functions#################
 
@@ -472,21 +519,6 @@ class Rot(object):
             rows.append(col)
         return hstack([vstack(col) for col in rows])
 
-    @staticmethod
-    def old_get_R1J(R2):
-        Js = []
-        for r in R2.T:
-            Js.append(hstack([vstack([r,zeros([2,3])]),vstack([zeros([1,3]),r,zeros([1,3])]),vstack([zeros([2,3]),r])]))
-        return vstack(Js)
-
-    @staticmethod
-    def old_get_R2J(R1):
-        Js = []
-        for r in R1.T:
-            r = array([r])
-            Js.append(vstack([hstack([r.T,zeros([3,2])]),hstack([zeros([3,1]),r.T,zeros([3,1])]),hstack([zeros([3,2]),r.T])]))
-        return hstack(Js)
-
     def __add__(self,other_rot):
         if not isinstance(other_rot, Rot): raise TypeError("Rotation addition is only defined with other Rot objects was given %s"%str(other_rot))
         R1 = self.to_matrix()
@@ -498,13 +530,6 @@ class Rot(object):
         J2 = self.get_R2J(R1.T)
         cov_T = J1 @ R1_cov @ J1.T + J2 @ R2_cov @ J2.T
 
-#        cov_T = T_star * ((R2_star @ R2_cov) + (R1_star @ R1_cov)) #THIS IS ALSO WRONG
-#        if cov_T.any()!=0 and (J1!=eye(9)).any() and (J2!=eye(9)).any(): import pdb; pdb.set_trace()
-
-        #THIS ERROR PROPOGATION IS WRONG
-#        if T.all()==R1.all(): cov_T=R1_cov #R2 is null rot
-#        elif T.all()==R2.all(): cov_T=R2_cov #R1 is null rot
-#        else: cov_T = (diag(list(map(lambda x: x**2 if x!=0 else 0, T.flatten())))) * ((diag(list(map(lambda x: x**-2 if x!=0 else 0, R1.flatten())))) @ R1_cov + (diag(list(map(lambda x: x**-2 if x!=0 else 0, R2.flatten())))) @ R2_cov)
         return matrix2rot(T,self.age_i,other_rot.age_f,cov=cov_T)
 
     @staticmethod
@@ -517,8 +542,7 @@ class Rot(object):
         return self+-other_rot
 
     def __neg__(self):
-        ncov = self.inv_wcovs(self.cov)
-        return Rot(self.lat, self.lon, -self.w, self.age_i, self.age_f, s1age_f=sqrt(self.vage_f), s1age_i=sqrt(self.vage_i), cov=ncov)
+        return Rot(self.lat, self.lon, -self.w, self.age_i, self.age_f, s1age_f=sqrt(self.vage_f), s1age_i=sqrt(self.vage_i), cov=self.cov)
 
     def __invert__(self):
         if self.lon>0: nlon = self.lon-180
@@ -553,11 +577,11 @@ class Rot(object):
 
     ###########Indexing & Sequencing###########
 
-    def __getitem__(self,_slice):
+    def __getitem__(self,_slice): #MAY NEED TO CONSIDER INTERPOLATION'S CONTRIBUTIN TO ERROR
         #check types and parse input
         if isinstance(_slice,slice): start,stop,step = _slice.start,_slice.stop,_slice.step
-        elif isinstance(_slice,float) or isinstance(_slice,int): start,stop,step = _slice,None,None
-        elif isinstance(_slice,list) or isinstance(_slice,tuple) or isinstance(_slice,ndarray):
+        elif isnum(_slice): start,stop,step = float(_slice),None,None
+        elif isiter(_slice):
             return [self.__getitem__(start) for start in _slice]
         else: raise TypeError("A slice of a rotation is not defined for %s"%str(_slice))
 
@@ -620,7 +644,7 @@ def matrix2rot(R,age_i,age_f,cov=None):
     w_den = R[0,0]+R[1,1]+R[2,2]-1
     w = rad2deg(arctan2(w_num,w_den))
 
-    if R.all()==0 or (R==eye(3)).all(): J=eye(3,9)
+    if R.all()==0 or (R==eye(3)).all() or (lat==0 and lon==0 and w==0): J=eye(3,9)
     else:
         lon_arg = (R[0,2]-R[2,0])/(R[2,1]-R[1,2])
         der_asin = lambda x: 1/sqrt(1-x**2)
@@ -637,11 +661,46 @@ def matrix2rot(R,age_i,age_f,cov=None):
                     -der_atan(w_num/w_den)*((R[1,0]-R[0,1])/(w_den*w_num)),der_atan(w_num/w_den)*(w_num/(w_den**2)),der_atan(w_num/w_den)*((R[2,1]-R[1,2])/(w_den*w_num)),
                     der_atan(w_num/w_den)*((R[0,2]-R[2,0])/(w_den*w_num)),-der_atan(w_num/w_den)*((R[2,1]-R[1,2])/(w_den*w_num)),der_atan(w_num/w_den)*(w_num/(w_den**2))]])
 
-    new_cov = (J @ (((180/pi)**2)*cov) @ J.T)
+    new_cov = (((180/pi)**2)*(J @ cov @ J.T))
 
     if isnan(new_cov).any(): print("ERROR IN COVARIANCE CALCULATION CAUSED BY THAT DAMN NULL ROTATION, CALL DEV")
 
     return Rot(lat,lon,w,age_i,age_f,cov=new_cov)
+
+def latlonrot2cart(lat,lon,w,cov):
+    radlat = deg2rad(lat)
+    radlon = deg2rad(lon)
+    radw = deg2rad(w)
+
+    wx = radw*cos(radlat)*cos(radlon)
+    wy = radw*cos(radlat)*sin(radlon)
+    wz = radw*sin(radlat)
+
+    J = array([[-radw*sin(radlat)*cos(radlon),-radw*sin(radlon)*cos(radlat),cos(radlat)*cos(radlon)], #wx
+               [-radw*sin(radlat)*sin(radlon),radw*cos(radlon)*cos(radlat),cos(radlat)*sin(radlon)], #wy
+               [radw*cos(radlat),0,sin(radlat)]]) #wz
+
+    cart_cov = J @ (((pi/180)**2)*cov) @ J.T
+
+    return [wx,wy,wz],cart_cov
+
+def cart2latlonrot(wx,wy,wz,cart_cov):
+    lat = rad2deg(arctan2(wz,sqrt(wx**2 + wy**2)))
+    lon = rad2deg(arctan2(wy,wx))
+    w = rad2deg(sqrt(wx**2 + wy**2 + wz**2))
+
+    if wx==0 and wy==0 and wz==0:
+        J = zeros([3,3])
+    else:
+        J = array([[(-wx*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
+               (-wy*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
+               sqrt(wx**2 + wy**2)/(wx**2 + wy**2 + wz**2)], #lat derivatives
+               [-wy/(wx**2+wy**2),(wx)/(wx**2+wy**2),0], #lon derivatives
+               [wx/deg2rad(w),wy/deg2rad(w),wz/deg2rad(w)]]) #w derivatives
+
+    latlonrot_cov = (((180/pi)**2)*(J @ cart_cov @ J.T))
+
+    return [lat,lon,w],latlonrot_cov
 
 def latlon2cart(lat,lon,cov):
     radlat = deg2rad(lat)
@@ -669,75 +728,76 @@ def cart2latlon(wx,wy,wz,cart_cov):
     lon = rad2deg(arctan2(wy,wx))
     lat = rad2deg(arctan2(wz,sqrt(wx**2 + wy**2)))
 
-    J = array([[-wy/(wx**2+wy**2),(wx)/(wx**2+wy**2),0],
-              [(-wx*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
+    J = array([[(-wx*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
                (-wy*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
-               sqrt(wx**2 + wy**2)/(wx**2 + wy**2 + wz**2)]])
+               sqrt(wx**2 + wy**2)/(wx**2 + wy**2 + wz**2)],
+               [-wy/(wx**2+wy**2),(wx)/(wx**2+wy**2),0]])
 
-    latlon_cov = J @ (((180/pi)**2)*cart_cov) @ J.T
+    latlon_cov = (((180/pi)**2)*(J @ cart_cov @ J.T))
 
     return [lat,lon],latlon_cov
 
-def vs_to_cov(vs):
-    return array([[vs[0],vs[3],vs[4]],
-                     [vs[3],vs[1],vs[5]],
-                     [vs[4],vs[5],vs[2]]])
+def change_lon_to_GCD_metric(lat,lon,cov):
+    cov = array(list(cov)) #prevent mutation of rotation cov
+    C = cos(deg2rad(lat))
+    #you can prove that if gcd_lon=C*lon than you can convert both variance and covariance this way from Bevington 3.14
+    cov[1,1] = C*C*cov[1,1]
+    cov[1,0] = C*cov[0,1]
+    cov[0,1] = C*cov[0,1]
+    if len(cov[:,0])>2: cov[2,1] = C*cov[2,1]; cov[1,2] = C*cov[1,2]
+    return cov
 
-def cov_to_vs(cov):
+def change_GCD_to_lon_metric(lat,lon,cov):
+    cov = array(list(cov)) #prevent mutation of rotation cov
+    C = 1/cos(deg2rad(lat))
+    #you can prove that if gcd_lon=C*lon than you can convert both variance and covariance this way from Bevington 3.14
+    #Also as Chengzu showed me this is in apendix B of Gordon and Cox 1980
+    cov[1,1] = C*C*cov[1,1]
+    cov[1,0] = C*cov[0,1]
+    cov[0,1] = C*cov[0,1]
+    if len(cov[:,0])>2: cov[2,1] = C*cov[2,1]; cov[1,2] = C*cov[1,2]
+    return cov
+
+def ellipse_to_cov(lat,lon,sa,sb,phi):
+    rphi = deg2rad(phi)
+    var1 = sa**2 * cos(rphi)**2 + sb**2 * sin(rphi)**2 #vxx
+    var2 = sa**2 * sin(rphi)**2 + sb**2 * cos(rphi)**2 #vyy
+    covar12 = (sa**2 - sb**2) * sin(rphi) * cos(rphi)
+    return change_GCD_to_lon_metric(lat,lon,array([[var1,covar12],[covar12,var2]]))
+
+def cov_to_ellipse(lat,lon,cov):
+    if len(cov)==0: return
+    if len(cov[:,0])>2: cov=cov[:2,:]
+    if len(cov[0,:])>2: cov=cov[:,:2]
+    cov = change_lon_to_GCD_metric(lat,lon,cov)
+    w,v = linalg.eig(cov)
+    w = abs(w)
+    vmax = v[:,list(w).index(max(w))]
+    phi = rad2deg(arctan2(vmax[1],vmax[0]))
+    return tuple((*sorted(sqrt(w),reverse=True),phi))
+
+def vs_to_cov(wx,wy,wz,vs): #I NEED TO CHANGE THE DATA READ WRITE FORMAT RIGHT NOW IT IS KOI SPECIFIC
+    return cart2latlonrot(wx,wy,wz,array([[vs[0],vs[3],vs[4]],
+                     [vs[3],vs[1],vs[5]],
+                     [vs[4],vs[5],vs[2]]]))[-1]
+
+def cov_to_vs(lat,lon,w,cov):
+    _,cov = latlonrot2cart(lat,lon,w,cov)
     return [cov[0,0],cov[1,1],cov[2,2],cov[0,1],cov[0,2],cov[1,2]]
 
-def nullspace(A, atol=1e-13, rtol=0):
-    """Compute an approximate basis for the nullspace of A.
+def isnum(obj):
+    try:
+        float(obj)
+        return True
+    except (ValueError,TypeError) as e:
+        return False
 
-    The algorithm used by this function is based on the singular value
-    decomposition of `A`.
-
-    Parameters
-    ----------
-    A : ndarray
-        A should be at most 2-D.  A 1-D array with length k will be treated
-        as a 2-D with shape (1, k)
-    atol : float
-        The absolute tolerance for a zero singular value.  Singular values
-        smaller than `atol` are considered to be zero.
-    rtol : float
-        The relative tolerance.  Singular values less than rtol*smax are
-        considered to be zero, where smax is the largest singular value.
-
-    If both `atol` and `rtol` are positive, the combined tolerance is the
-    maximum of the two; that is::
-        tol = max(atol, rtol * smax)
-    Singular values smaller than `tol` are considered to be zero.
-
-    Return value
-    ------------
-    ns : ndarray
-        If `A` is an array with shape (m, k), then `ns` will be an array
-        with shape (k, n), where n is the estimated dimension of the
-        nullspace of `A`.  The columns of `ns` are a basis for the
-        nullspace; each element in numpy.dot(A, ns) will be approximately
-        zero.
-    """
-
-    A = atleast_2d(A)
-    u, s, vh = svd(A)
-    tol = max(atol, rtol * s[0])
-    nnz = (s >= tol).sum()
-    ns = vh[nnz:].conj().T
-    return ns
-
-def get_R_star(R,p=1):
-    """
-    Returns matrix of all multiplicative combinations of the elements of R raised to a power p
-    """
-    R_star = zeros([R.shape[0]*R.shape[1],R.shape[0]*R.shape[1]])
-    for i,r1 in enumerate(R.flatten()):
-        for j,r2 in enumerate(R.flatten()):
-            if p<0 and r1*r2==0:
-                R_star[i,j] = 0
-            else:
-                R_star[i,j] = ((r1*r2)**p)
-    return R_star
+def isiter(obj):
+    try:
+        iter(obj)
+        return True
+    except TypeError:
+        return False
 
 def merge_lists_without_duplicates(l1,l2):
     in_l1 = set(l1)

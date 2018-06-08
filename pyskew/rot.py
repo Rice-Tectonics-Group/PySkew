@@ -28,6 +28,7 @@ class PlateReconstruction(object):
         if comment==None: comment = "Motion of %s relative to %s"%(mov_plate,fix_plate)
         self.comment = str(comment)
         self.sources = sources
+        self.extend_final_rot = False
         if self.sources=={}: self.sources = {rot:"" for rot in rots}
         if any(list(map(lambda x: not isinstance(x,Rot), rots))):
             raise ValueError("All values in rotsn argument must be Rot objects, was given %s"%str(rots))
@@ -37,15 +38,28 @@ class PlateReconstruction(object):
 
         self.parent = parent
         self.children = []
-        if not isinstance(parent,type(None)): self.rot,self.age = tmp_rots[0],tmp_rots[0].age_f
-        else: self.rot,self.age = None,tmp_rots[0].age_i
+        if isinstance(parent,PlateReconstruction): self.rot,self.age = tmp_rots[0],tmp_rots[0].age_f
+        elif isinstance(parent,type(None)):
+            if tmp_rots[0].age_i!=0:
+                tmp_rots.insert(0,Rot(age_i=0,age_f=tmp_rots[0].age_i))
+            self.rot,self.age = None,tmp_rots[0].age_i
+        else: raise ValueError("parent of type %s not supported for PlateReconstruction"%str(type(parent)))
         for i,rot in enumerate(tmp_rots):
             if rot.age_i!=self.age: continue
             chrots = [rot] + [chrot for chrot in tmp_rots if chrot.age_i==rot.age_f]
-            if i+1<len(tmp_rots) and (any([chrot.age_f>tmp_rots[(i+1)].age_f for chrot in chrots]) or any([chrot==tmp_rots[(i+1)] for chrot in chrots])):
+            j=i+1
+            while j<len(tmp_rots) and tmp_rots[j] in chrots: j+=1
+            if j<len(tmp_rots) and (any([chrot.age_f>tmp_rots[j].age_f for chrot in chrots]) or any([chrot==tmp_rots[j] for chrot in chrots])):
                 raise ValueError("One of your stage rotation is providing duplicate information to your reconstruction rotation\n%s"%(str(tmp_rots[i+1])))
             chsources = {self.sources[chrot]:chrot for chrot in chrots if chrot in self.sources}
             self.children.append(PlateReconstruction(self.mov_plate,self.fix_plate,chrots,comment=self.comment,sources=chsources,parent=self))
+
+    #################Modify State#################
+
+    def set_extend(self,boolean):
+        if boolean: print("rotations will now be extrapolated if indexed out of bounds")
+        else: print("no motion will be assumed if rotation is indexed out of bounds")
+        self.extend_final_rot=boolean
 
     #################I/O#################
 
@@ -55,7 +69,7 @@ class PlateReconstruction(object):
             mov_plate,fix_plate,comment = f.readline().rstrip('\n').split('\t')[:3]
         df = pd.read_csv(fin,header=1,sep='\t')
         df.fillna(0, inplace=True)
-        errors = [{'cov':vs_to_cov(*latlonrot2cart(lat,lon,w,zeros([3,3]))[0],vs),'s1age_f':s1age_f,'s1age_i':s1age_i} for lat,lon,w,vs,s1age_i,s1age_f in zip(df['lat'],df['lon'],df['rot'],df[['vlat','vlon','vrot','vlatlon','vlatrot','vlonrot']].values.tolist(),df['s1start_age'],df['s1stop_age'])]
+        errors = [{'cov':vs_to_cov(*latlonrot2cart(lat,lon,w,zeros([3,3]))[0],vs),'s1age_f':s1age_f,'s1age_i':s1age_i} for lat,lon,w,vs,s1age_i,s1age_f in zip(df['lat'],df['lon'],df['rot'],df[['vxx','vyy','vzz','vxy','vxz','vyz']].values.tolist(),df['s1start_age'],df['s1stop_age'])]
         rots_list = df[['lat','lon','rot','start_age','stop_age']].values.tolist()
         rots = [Rot(*rot,**err) for rot,err in zip(rots_list,errors)]
         sources = df['source'].tolist()
@@ -80,17 +94,17 @@ class PlateReconstruction(object):
 
     def to_df(self):
         df = pd.DataFrame([(r.backwards_rot()).to_dict(add_data={'source':(self.sources[r] if r in self.sources.keys() else "")}) for r in self.get_rots()])
-        df = df[['lat','lon','rot','rot_rate','start_age','stop_age','s1start_age','s1stop_age','vlat','vlon','vrot','vlatlon','vlatrot','vlonrot','source']]
+        df = df[['lat','lon','rot','rot_rate','start_age','stop_age','s1start_age','s1stop_age','vxx','vyy','vzz','vxy','vxz','vyz','source']]
         return df
 
     def reconst_to_df(self):
         df = pd.DataFrame([(r).to_dict(add_data={'source':'this study'}) for r in self.get_rrots()])
-        df = df[['lat','lon','rot','rot_rate','start_age','stop_age','s1start_age','s1stop_age','vlat','vlon','vrot','vlatlon','vlatrot','vlonrot','source']]
+        df = df[['lat','lon','rot','rot_rate','start_age','stop_age','s1start_age','s1stop_age','vxx','vyy','vzz','vxy','vxz','vyz','source']]
         return df
 
     def stages_to_df(self):
         df = pd.DataFrame([(r).to_dict(add_data={'source':'this study'}) for r in self.get_srots()])
-        df = df[['lat','lon','rot','rot_rate','start_age','stop_age','s1start_age','s1stop_age','vlat','vlon','vrot','vlatlon','vlatrot','vlonrot','source']]
+        df = df[['lat','lon','rot','rot_rate','start_age','stop_age','s1start_age','s1stop_age','vxx','vyy','vzz','vxy','vxz','vyz','source']]
         return df
 
     def list_ages(self):
@@ -202,36 +216,18 @@ class PlateReconstruction(object):
 
     ###########Arithmatic###########
 
-    def complex__add__(self,other_reconst):
-        if not isinstance(other_reconst,PlateReconstruction):
-            raise TypeError("addition is only defined between reconstructions, was given %s"%str(other_reconst))
-        if self.fix_plate==other_reconst.mov_plate:
-            my_rots,oth_rots = self.interpolate(other_reconst)
-            new_rots = [oth_rot+my_rot for my_rot,oth_rot in zip(my_rots,oth_rots)]
-            return PlateReconstruction(self.mov_plate,other_reconst.fix_plate,new_rots)
-        elif self.mov_plate==other_reconst.mov_plate:
-            return -self+other_reconst
-        elif self.fix_plate==other_reconst.fix_plate:
-            return self+-other_reconst
-        elif self.mov_plate==other_reconst.fix_plate:
-            raise RotationError("The fixed plate of the first reconstruction should be in common with the moving plate of the second reconstruction. There are 2 possible reconstructions given your input reverse one of your reconstructions at least so there is a uniqe solution. Was given:\n%s\n%s"%(str(self),str(other_reconst)))
-        else:
-            raise ValueError("The two reconstructions being added must have at least 1 plate in common. Recived:\nmoving -> fixed\n%s -> %s\n%s -> %s"%(self.mov_plate, self.fix_plate, other_reconst.mov_plate, other_reconst.fix_plate))
-
     def __add__(self,other_reconst):
         if not isinstance(other_reconst,PlateReconstruction):
             raise TypeError("addition is only defined between reconstructions, was given %s"%str(other_reconst))
         if self.fix_plate==other_reconst.mov_plate:
             my_rots,oth_rots = self.interpolate(other_reconst)
-            new_rots = [oth_rot+my_rot for my_rot,oth_rot in zip(my_rots,oth_rots)]
+            new_rots = [my_rot+oth_rot for my_rot,oth_rot in zip(my_rots,oth_rots)]
             return PlateReconstruction(self.mov_plate,other_reconst.fix_plate,new_rots)
-        elif self.mov_plate==other_reconst.mov_plate or self.fix_plate==other_reconst.fix_plate or self.mov_plate==other_reconst.fix_plate:
-            raise RotationError("The fixed plate of the first reconstruction must be the same as the moving plate of the second reconstruction. Was given:\n%s\n%s"%(str(self),str(other_reconst)))
         else:
-            raise ValueError("The two reconstructions being added must have at least 1 plate in common. Recived:\nmoving -> fixed\n%s -> %s\n%s -> %s"%(self.mov_plate, self.fix_plate, other_reconst.mov_plate, other_reconst.fix_plate))
+            raise RotationError("The fixed plate of the first reconstruction must be the same as the moving plate of the second reconstruction. Was given:\n%s\n%s"%(str(self),str(other_reconst)))
 
     def __sub__(self,other_reconst):
-        return -self+-other_reconst
+        return self+-other_reconst
 
     def __neg__(self):
         new_rots = [-r for r in self.get_rots()]
@@ -245,7 +241,7 @@ class PlateReconstruction(object):
 
     def __len__(self):
         return len(self.children)
-######################################################THIS SECTION NEEDS OVERHAUL##################################
+
     def __getitem__(self,_slice):
         #check types and parse input
         if isinstance(_slice,slice): start,stop,step = _slice.start,_slice.stop,_slice.step
@@ -257,20 +253,31 @@ class PlateReconstruction(object):
         #check boundedness of problem
         min_age,max_age = self.get_age_bounds()
         if start < min_age:
-            raise ValueError("Start age of %.3f is less than youngest reconstruction for %s relative to %s"%(float(start),self.mov_plate,self.fix_plate))
+            print("Start age of %.3f is less than youngest reconstruction for %s relative to %s, returning null rotation"%(float(start),self.mov_plate,self.fix_plate))
+            if stop==None: return Rot(age_f=start)
+            else: return Rot(age_i=start,age_f=stop)
+#            raise ValueError("Start age of %.3f is less than youngest reconstruction for %s relative to %s"%(float(start),self.mov_plate,self.fix_plate))
         if start > max_age:
-            print("Start age %.3f greater than oldest reconstruction for %s relative to %s, extending final rotation"%(float(start),self.mov_plate,self.fix_plate))
-            return self.get_rrots()[-1][start]
+            if self.extend_final_rot:
+                print("Start age %.3f greater than oldest reconstruction for %s relative to %s, extending final rotation"%(float(start),self.mov_plate,self.fix_plate))
+                return self.get_rrots()[-1][start]
+            else:
+                print("Start age %.3f greater than oldest reconstruction for %s relative to %s, returning final rotaiton"%(float(start),self.mov_plate,self.fix_plate))
+                out_rot = self.get_rrots()[-1].copy()
+                if stop==None: out_rot.age_f = start
+                else: out_rot.age_i,out_rot.age_f = start,stop
+                return out_rot
 
-        start_parent,prev=self,None
+        start_rot,start_parent,prev=None,self,None
         for child in self.children:
             if start==child.age: start_rot = child.rot; break
             elif child.age>start:
                 if prev==None: start_rot = child.rot[start]
                 else: start_rot = prev.rot+(prev.rot.reverse_time()+child.rot)[start]; break
-            elif child.get_age_bounds()[1]>start: start_rot,start_parent = child[start],child; break #will be reconsturction to child
+            elif child.get_age_bounds()[1]>=start: start_rot,start_parent = child[start],child; break #will be reconsturction to child
             else: prev=child
 
+        if start_rot==None: raise RuntimeError("Starting Rotation could not be found in Reconstruction despite being within bounds, raise issue for dev there is a bug")
         if stop==None:
             if start==self.age: return Rot()
             elif start_parent==self: return start_rot
@@ -335,12 +342,10 @@ class PlateReconstruction(object):
     def print_tree(self):
         print(self.tree_str())
 
-    def tree_str(self):
-        out_str = str(self.age)
-        if self.children: out_str += "\n|\nv\n"
+    def tree_str(self,level=0):
+        out_str = '\t'*level + str(self.age) + '\n'
         for child in self.children:
-            if child!=self.children[-1]: out_str += child.tree_str() + ","
-            else: out_str += child.tree_str()
+            out_str += child.tree_str(level=level+1)
         return out_str
 
 
@@ -386,7 +391,7 @@ class Rot(object):
         vs = cov_to_vs(self.lat,self.lon,self.w,self.cov)
         rdict = {'lat':self.lat,'lon':self.lon,'rot':self.w,'rot_rate':self.wr,'start_age':self.age_i, \
                  'stop_age':self.age_f,'s1start_age':sqrt(self.vage_i),'s1stop_age':sqrt(self.vage_f),
-                 'vlat':vs[0],'vlon':vs[1],'vrot':vs[2],'vlatlon':vs[3],'vlatrot':vs[4],'vlonrot':vs[5]}
+                 'vxx':vs[0],'vyy':vs[1],'vzz':vs[2],'vxy':vs[3],'vxz':vs[4],'vyz':vs[5]}
         return dict(rdict, **add_data)
 
     def copy(self):
@@ -639,7 +644,7 @@ def matrix2rot(R,age_i,age_f,cov=None):
     w_den = R[0,0]+R[1,1]+R[2,2]-1
     w = rad2deg(arctan2(w_num,w_den))
 
-    if R.all()==0 or (R==eye(3)).all(): J=eye(3,9)
+    if R.all()==0 or (R==eye(3)).all() or (lat==0 and lon==0 and w==0): J=eye(3,9)
     else:
         lon_arg = (R[0,2]-R[2,0])/(R[2,1]-R[1,2])
         der_asin = lambda x: 1/sqrt(1-x**2)
@@ -684,7 +689,10 @@ def cart2latlonrot(wx,wy,wz,cart_cov):
     lon = rad2deg(arctan2(wy,wx))
     w = rad2deg(sqrt(wx**2 + wy**2 + wz**2))
 
-    J = array([[(-wx*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
+    if wx==0 and wy==0 and wz==0:
+        J = zeros([3,3])
+    else:
+        J = array([[(-wx*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
                (-wy*wz)/(sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
                sqrt(wx**2 + wy**2)/(wx**2 + wy**2 + wz**2)], #lat derivatives
                [-wy/(wx**2+wy**2),(wx)/(wx**2+wy**2),0], #lon derivatives
@@ -752,8 +760,8 @@ def change_GCD_to_lon_metric(lat,lon,cov):
 
 def ellipse_to_cov(lat,lon,sa,sb,phi):
     rphi = deg2rad(phi)
-    var1 = sa**2 * cos(rphi)**2 + sb**2 * sin(rphi)**2 #vlat
-    var2 = sa**2 * sin(rphi)**2 + sb**2 * cos(rphi)**2 #vlon
+    var1 = sa**2 * cos(rphi)**2 + sb**2 * sin(rphi)**2 #vxx
+    var2 = sa**2 * sin(rphi)**2 + sb**2 * cos(rphi)**2 #vyy
     covar12 = (sa**2 - sb**2) * sin(rphi) * cos(rphi)
     return change_GCD_to_lon_metric(lat,lon,array([[var1,covar12],[covar12,var2]]))
 

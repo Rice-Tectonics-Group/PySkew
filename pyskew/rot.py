@@ -147,7 +147,7 @@ class PlateReconstruction(object):
         """
         reads .fin file and does the same opperations as mpfin
         """
-        raise NotImplementedError("This is a feature in progress for now you can manually manipulate the reconstructions")
+        raise NotImplementedError("This is a feature in progress and may be placed in the circuit object for now you can manually manipulate the reconstructions")
 
     #################Calculation Functions#################
 
@@ -364,7 +364,8 @@ class Rot(object):
         self.vage_i = s1age_i**2
         self.vage_f = s1age_f**2
         if self.w==0 or (self.age_i==0 and self.age_f==0): self.vwr=0
-        else: self.vwr = (self.wr**2)*((self.cov[2,2]/(self.w**2)) + ((self.vage_f+self.vage_i)/(self.age_f+self.age_i)**2)) #IGNORES COVARIANCE HERE
+        #Assumes ages and rotation rate are uncorrelated
+        else: self.vwr = (self.wr**2)*((self.cov[2,2]/(self.w**2)) + ((self.vage_f+self.vage_i)/(self.age_f+self.age_i)**2))
 
         self.calc_matrix()
 
@@ -439,9 +440,13 @@ class Rot(object):
         self.R_cov = J @ cart_cov @ J.T
 
     def vel_point(self,lat,lon):
-        arc_dis = Geodesic.WGS84.Inverse(lat,lon,self.lat,self.lon)['a12'] #SHOULD HAVE ARCDIS ERROR AS LENGTH OF ELLIPSE AROUND POLE IN AZI DIRECTION
+        geo_dict = Geodesic.WGS84.Inverse(lat,lon,self.lat,self.lon) #SHOULD HAVE ARCDIS ERROR AS LENGTH OF ELLIPSE AROUND POLE IN AZI DIRECTION/sqrt(2)
+        arc_dis = geo_dict['a12']
+        azi = geo_dict['azi1']
+        a,b,phi = cov_to_ellipse(self.lat,self.lon,self.cov) #get uncertainty in rotation pole geographic position
+        s1_arcdis = sqrt(((a*b)**2)/((cos(phi-azi)*b)**2 + (sin(phi-azi)*a)**2))/sqrt(2) #univariate 1sigma error in direction of site
         if arc_dis>90: arc_dis = 180-arc_dis
-        return self.wr*sin(deg2rad(arc_dis))
+        return self.wr*sin(deg2rad(arc_dis)),self.vwr*sin(deg2rad(arc_dis)) + (s1_arcdis**2)*self.wr*cos(deg2rad(arc_dis))
 
     #NEED TO CHANGE THE METHOD HERE AZI AND PHI REDUNDANT NOW ERROR PROP "WORKS" WE SHOULDN'T NEED AZI
     def rotate(self,lat,lon,azi=0,a=None,b=None,phi=None,cov=None,d=1):
@@ -488,7 +493,8 @@ class Rot(object):
     #################Visualizing#################
 
     def plot_pole(self,m=None,**kwargs):
-        return psk.plot_pole(self.lon,self.lat,0.0,sqrt(self.v1lon),sqrt(self.v1lat),m=m,**kwargs)
+        a,b,phi = cov_to_ellipse(self.lat,self.lon,self.cov)
+        return psk.plot_pole(self.lon,self.lat,phi,2*a,2*b,m=m,**kwargs) #full axes
 
     #################Magic Functions#################
 
@@ -507,21 +513,6 @@ class Rot(object):
                 col.append(eye(3)*r)
             rows.append(col)
         return hstack([vstack(col) for col in rows])
-
-    @staticmethod
-    def old_get_R1J(R2):
-        Js = []
-        for r in R2.T:
-            Js.append(hstack([vstack([r,zeros([2,3])]),vstack([zeros([1,3]),r,zeros([1,3])]),vstack([zeros([2,3]),r])]))
-        return vstack(Js)
-
-    @staticmethod
-    def old_get_R2J(R1):
-        Js = []
-        for r in R1.T:
-            r = array([r])
-            Js.append(vstack([hstack([r.T,zeros([3,2])]),hstack([zeros([3,1]),r.T,zeros([3,1])]),hstack([zeros([3,2]),r.T])]))
-        return hstack(Js)
 
     def __add__(self,other_rot):
         if not isinstance(other_rot, Rot): raise TypeError("Rotation addition is only defined with other Rot objects was given %s"%str(other_rot))
@@ -546,7 +537,6 @@ class Rot(object):
         return self+-other_rot
 
     def __neg__(self):
-#        ncov = self.inv_wcovs(self.cov)
         return Rot(self.lat, self.lon, -self.w, self.age_i, self.age_f, s1age_f=sqrt(self.vage_f), s1age_i=sqrt(self.vage_i), cov=self.cov)
 
     def __invert__(self):
@@ -740,10 +730,7 @@ def cart2latlon(wx,wy,wz,cart_cov):
     return [lat,lon],latlon_cov
 
 def change_lon_to_GCD_metric(lat,lon,cov):
-    cov = array(list(cov))
-    R = 6371.2 #km
-    gcd2km = 111.113 #km in a gcd
-#    C = ((2*pi*R*cos(deg2rad(lat))/gcd2km)/360) #metric conversion factor
+    cov = array(list(cov)) #prevent mutation of rotation cov
     C = cos(deg2rad(lat))
     #you can prove that if gcd_lon=C*lon than you can convert both variance and covariance this way from Bevington 3.14
     cov[1,1] = C*C*cov[1,1]
@@ -753,12 +740,10 @@ def change_lon_to_GCD_metric(lat,lon,cov):
     return cov
 
 def change_GCD_to_lon_metric(lat,lon,cov):
-    cov = array(list(cov))
-    R = 6371.2 #km
-    gcd2km = 111.113 #km in a gcd
-#    C = ((2*pi*R*cos(deg2rad(lat))/gcd2km)/360) #metric conversion factor
+    cov = array(list(cov)) #prevent mutation of rotation cov
     C = 1/cos(deg2rad(lat))
     #you can prove that if gcd_lon=C*lon than you can convert both variance and covariance this way from Bevington 3.14
+    #Also as Chengzu showed me this is in apendix B of Gordon and Cox 1980
     cov[1,1] = C*C*cov[1,1]
     cov[1,0] = C*cov[0,1]
     cov[0,1] = C*cov[0,1]
@@ -773,8 +758,6 @@ def ellipse_to_cov(lat,lon,sa,sb,phi):
     return change_GCD_to_lon_metric(lat,lon,array([[var1,covar12],[covar12,var2]]))
 
 def cov_to_ellipse(lat,lon,cov):
-    # NEED TO ACCOUNT FOR THE FACT THAT LAT AND LON HAVE DIFFERENT METRICS BAISED ON POSITION
-    # THIS FORMULA ONLY WORKS FOR EQUAL METRIC SPACES
     if len(cov)==0: return
     if len(cov[:,0])>2: cov=cov[:2,:]
     if len(cov[0,:])>2: cov=cov[:,:2]

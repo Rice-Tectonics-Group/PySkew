@@ -743,22 +743,26 @@ def change_lon_to_GCD_metric(lat,lon,cov):
     cov = array(list(cov))
     R = 6371.2 #km
     gcd2km = 111.113 #km in a gcd
-    C = ((2*pi*R*cos(deg2rad(lat))/gcd2km)/360) #metric conversion factor
+#    C = ((2*pi*R*cos(deg2rad(lat))/gcd2km)/360) #metric conversion factor
+    C = cos(deg2rad(lat))
     #you can prove that if gcd_lon=C*lon than you can convert both variance and covariance this way from Bevington 3.14
-    cov[1,:] = C*cov[1,:]
+    cov[1,1] = C*C*cov[1,1]
+    cov[1,0] = C*cov[0,1]
     cov[0,1] = C*cov[0,1]
-    if len(cov[:,0])>2: cov[2,1] = C*cov[2,1]
+    if len(cov[:,0])>2: cov[2,1] = C*cov[2,1]; cov[1,2] = C*cov[1,2]
     return cov
 
 def change_GCD_to_lon_metric(lat,lon,cov):
     cov = array(list(cov))
     R = 6371.2 #km
     gcd2km = 111.113 #km in a gcd
-    C = ((2*pi*R*cos(deg2rad(lat))/gcd2km)/360) #metric conversion factor
+#    C = ((2*pi*R*cos(deg2rad(lat))/gcd2km)/360) #metric conversion factor
+    C = 1/cos(deg2rad(lat))
     #you can prove that if gcd_lon=C*lon than you can convert both variance and covariance this way from Bevington 3.14
-    cov[1,:] = (1/C)*cov[1,:]
-    cov[0,1] = (1/C)*cov[0,1]
-    if len(cov[:,0])>2: cov[2,1] = (1/C)*cov[2,1]
+    cov[1,1] = C*C*cov[1,1]
+    cov[1,0] = C*cov[0,1]
+    cov[0,1] = C*cov[0,1]
+    if len(cov[:,0])>2: cov[2,1] = C*cov[2,1]; cov[1,2] = C*cov[1,2]
     return cov
 
 def ellipse_to_cov(lat,lon,sa,sb,phi):

@@ -1,7 +1,7 @@
 import os,sys,glob
 import pandas as pd
 import numpy as np
-from .utilities import open_mag_file,convert_to_180_180,check_dir
+from pyskew.utilities import open_mag_file,convert_to_180_180,check_dir
 
 def make_tabs(directory):
     ship_cut_tracks = glob.glob(os.path.join(directory,'**','**','*.lp'))

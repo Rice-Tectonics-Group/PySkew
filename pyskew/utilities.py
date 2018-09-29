@@ -221,7 +221,7 @@ def polyfit(x,y,degree,err=None,full=False):
 
 def polyerr(pols,sds,x,xerr=None):
     if isinstance(xerr,type(None)): xerr = np.zeros(len(x))
-    pols,sds,x,xerr = np.array(pols)[::-1],np.array(sds)[::-1],np.array(x),np.array(xerr)
+    pols,sds,x,xerr = np.array(pols)[::-1],np.array(sds)[::-1],np.array([e if e!=0 else .01 for e in x]),np.array(xerr)
     return np.sqrt(sum(np.array([((pols[i]*(x**i))**2) * ( ((i*(x**(i-1))*xerr)**2)/(x**2) + (sds[i]**2)/(pols[i]**2) ) for i in range(len(pols))])))
 
 def polyenv(pols,x,yerr,xerr=None,center=None):

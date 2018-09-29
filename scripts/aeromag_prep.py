@@ -2,7 +2,7 @@ import os,sys
 import numpy as np
 import pandas as pd
 import pmagpy.ipmag as ipmag
-from .utilities import check_dir,dt_to_dec
+from pyskew.utilities import check_dir,dt_to_dec
 from datetime import datetime
 from geographiclib.geodesic import Geodesic
 

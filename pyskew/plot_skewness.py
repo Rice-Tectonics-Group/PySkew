@@ -78,6 +78,50 @@ def plot_all_lunes_seperate(deskew_path):
             fig.savefig(plot_path)
             plt.close(fig)
 
+def plot_gc_from_pole(slat,slon,plat,plon,length=360,error=None,m=None,spacing=1,**kwargs):
+    geodict = Geodesic.WGS84.Inverse(slat,slon,plat,plon)
+    azi_mean = geodict["azi1"]
+    geodict = Geodesic.WGS84.ArcDirect(plat,plon,geodict['azi2']-90,error)
+    geodict = Geodesic.WGS84.Inverse(slat,slon,geodict['lat2'],geodict['lon2'])
+    azi_se = (azi_mean-geodict['azi1'])/np.sqrt(2)
+
+    m = plot_great_circle(slon,slat,azi_mean,error=1.96*azi_se,length=length,m=m,spacing=spacing,**kwargs)
+    return m
+
+def plot_great_circle(plon,plat,azimuth,length=360,error=None,m=None,spacing=1,**kwargs):
+
+    if m==None:
+        # Create figure
+        fig = plt.figure(figsize=(16,9), dpi=200)
+        ax = fig.add_subplot(111)
+        # Create map
+        m = create_basic_map(projection='npstere', lat_0=90, boundinglat=60, ax=ax)
+
+    lats,lons = [],[]
+    for dis in np.arange(0,length,spacing):
+        geodict = Geodesic.WGS84.ArcDirect(plat,plon,azimuth,dis)
+        lons.append(geodict["lon2"])
+        lats.append(geodict["lat2"])
+    m.plot(lons,lats,latlon=True,**kwargs)
+
+    if isinstance(error,int) or isinstance(error,float):
+        if "linestyle" in kwargs.keys(): kwargs.pop("linestyle")
+        lats,lons = [],[]
+        for dis in np.arange(0,length,spacing):
+            geodict = Geodesic.WGS84.ArcDirect(plat,plon,azimuth+error,dis)
+            lons.append(geodict["lon2"])
+            lats.append(geodict["lat2"])
+        m.plot(lons,lats,latlon=True,linestyle='--',**kwargs)
+
+        lats,lons = [],[]
+        for dis in np.arange(0,length,spacing):
+            geodict = Geodesic.WGS84.ArcDirect(plat,plon,azimuth-error,dis)
+            lons.append(geodict["lon2"])
+            lats.append(geodict["lat2"])
+        m.plot(lons,lats,latlon=True,linestyle='--',**kwargs)
+
+    return m
+
 def plot_small_circles(plon,plat,m=None,range_arcdis=(10,180,10),range_azis=(-180,180,1),**kwargs):
     if m==None:
         # Create figure
@@ -178,7 +222,7 @@ def plot_north_pole(m):
     m.scatter(0, 90, facecolor='black', edgecolor='black', marker='+', s=30, latlon=True, zorder=120)
     return m
 
-def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=None,pole_text_pos=None,**kwargs):
+def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=None,pole_text_pos=None,alpha_all=False,**kwargs):
     #a and b should be full axes of the ellipse not semi-axes
 
     if m==None:
@@ -186,7 +230,7 @@ def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=Non
         fig = plt.figure(figsize=(16,9), dpi=200)
         ax = fig.add_subplot(111)
         # Create map
-        m = create_basic_map(projection='npstere', lat_0=90, boundinglat=60, ax=ax)
+        m = create_basic_map(projection='npstere', lat_0=0, lon_0=0, boundinglat=60, ax=ax)
         m.drawparallels(np.arange(0,90,10),labels=[0,0,0,0])
         m.drawmeridians(np.arange(0,360,10),labels=[1,1,0,1])
 
@@ -195,15 +239,16 @@ def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=Non
     if kwargs.get("edgecolors") == "black" and kwargs.get("facecolors") != color: color = kwargs.get("facecolors")
     elif kwargs.get("facecolors") == "white" and kwargs.get("edgecolors") != color: color = kwargs.get("edgecolors")
 
-    m.scatter(lon, lat, latlon=True, zorder=zorder, **kwargs)
+    if alpha_all: m.scatter(lon, lat, latlon=True, zorder=zorder, alpha=alpha, **kwargs)
+    else: m.scatter(lon, lat, latlon=True, zorder=zorder, **kwargs)
     if pole_text!=None:
         if pole_text_pos!=None: plt.text(*m(*pole_text_pos),pole_text,zorder=500)
         else:
 #            np.random.seed(int(abs(1e5*lat+1e5*lon+1e5*a+1e5*b+3))) #just need it to be determanistic
 #            azi = 360.0*np.random.random()
-            azi = 180
-            geodict=Geodesic.WGS84.ArcDirect(lat,lon,azi,1.5)
-            plt.text(*m(geodict["lon2"],geodict["lat2"]),pole_text,zorder=500,va='top',ha='left')
+            tazi = 90
+            geodict=Geodesic.WGS84.ArcDirect(lat,lon,tazi,1)
+            plt.text(*m(geodict["lon2"],geodict["lat2"]),pole_text,zorder=500,va='top',ha='center')
     ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=True, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
 
     return m

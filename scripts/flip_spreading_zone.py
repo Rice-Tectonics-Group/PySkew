@@ -1,6 +1,6 @@
 import sys,os,shutil
 import pandas as pd
-from .utilities import open_deskew_file,open_mag_file,write_mag_file_df
+from pyskew.utilities import open_deskew_file,open_mag_file,write_mag_file_df
 
 def flip_spreading_zone(deskew_path,spreading_zone):
     dskf = open_deskew_file(deskew_path)

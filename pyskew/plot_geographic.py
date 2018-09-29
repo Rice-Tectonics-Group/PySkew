@@ -56,14 +56,16 @@ def plot_chron_info(chrons_info, m, coord_0_360=False, chron_dir=os.path.join("r
                 if len(XYM[0])!=len(XYM[1]): print("error plotting chron %s on map, skipping this sz"%str(chron)); continue
                 m.plot(XYM[0],XYM[1],color=chron_color,**kwargs)
 
-def create_basic_map(projection='ortho',resolution='l',lat_0=0,lon_0=180, llcrnrlon=-190, llcrnrlat=-30, urcrnrlon=-90, urcrnrlat=40, meridians_args=[], parallels_args=[],boundinglat=30,ax=None):
+def create_basic_map(projection='ortho',resolution='l',lat_0=0,lon_0=0, llcrnrlon=-190, llcrnrlat=-30, urcrnrlon=-90, urcrnrlat=40, meridians_args=[], parallels_args=[],boundinglat=30,ax=None):
     #Create Map
     if projection=='ortho':
         m = Basemap(projection=projection,lat_0=lat_0, lon_0=lon_0, resolution = resolution, ax=ax)
     elif projection=='merc':
         m = Basemap(projection=projection, llcrnrlon=llcrnrlon, llcrnrlat=llcrnrlat, urcrnrlon=urcrnrlon, urcrnrlat=urcrnrlat, resolution = resolution, ax=ax)
     elif projection=='npstere':
-        m = Basemap(projection=projection, lon_0=0, boundinglat=boundinglat, resolution=resolution, ax=ax)
+        m = Basemap(projection=projection, lon_0=lon_0, boundinglat=boundinglat, resolution=resolution, ax=ax)
+    elif projection=='stere':
+        m = Basemap(projection=projection, llcrnrlon=llcrnrlon, llcrnrlat=llcrnrlat, urcrnrlon=urcrnrlon, urcrnrlat=urcrnrlat, resolution=resolution, ax=ax)
     else: print("the create_basic_map function is very basic and may need to be expanded to handle this projection"); return
     m.drawcoastlines(linewidth=.25)
     m.fillcontinents(color='grey',lake_color='white',zorder=1)

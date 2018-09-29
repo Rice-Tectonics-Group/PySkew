@@ -7,8 +7,8 @@ import statistics as stat
 import pmagpy.ipmag as ipmag
 from multiprocessing import Process
 from geographiclib.geodesic import Geodesic
-from .geographic_preprocessing import *
-from .utilities import *
+from pyskew.geographic_preprocessing import *
+from pyskew.utilities import *
 
 def filter_deskew_and_calc_aei(deskew_path,spreading_rate_model_path=None,anomalous_skewness_model_path=None):
     """Creates Datatable"""
@@ -731,4 +731,5 @@ def create_deskewed_data_file(deskew_path):
         #save deskewed mag data as $DATAFILE.deskew
         print("writing %s"%(data_path+'.deskewed'))
         data_df[['lon','lat','deskewed_mag']].to_csv(data_path+'.deskewed',sep=',',header=False,index=False)
+
 

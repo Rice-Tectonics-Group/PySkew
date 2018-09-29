@@ -14,7 +14,7 @@ Download or clone the repository above and install Python3 as well as these libr
 - rdp (can be installed with pip)
 - qt (can be installed with pip, anaconda, or aptitude) (optional: if installed this backend will be used on mac for data visuals)
 
-It is suggested if you are using a Mac or Windows PC that you install python using the [Anaconda framework](https://www.anaconda.com/download/#linux) if you are using a linux PC you should be able to handle python with your native package manager or whatever other method you usually use.
+If you are new to Python it is suggested that you install python using the [Anaconda framework](https://www.anaconda.com/download)
 
 ## Magnetic Track Data Source
 
@@ -34,7 +34,7 @@ python track_processing.py -h
 
 ## Licensing
 
-This code can be freely used, modified, and shared. It is licensed under a 3-clause BSD license. See [LICENSE](https://github.com/Caoimhinmg/PySkew/blob/master/LICENSE) for details.
+This code can be freely used, modified, and shared. It is licensed under a 3-clause BSD license. See [LICENSE](https://github.com/Rice-Tectonics-Group/PySkew/blob/master/LICENSE) for details.
 
 ## References
 

@@ -732,4 +732,81 @@ def create_deskewed_data_file(deskew_path):
         print("writing %s"%(data_path+'.deskewed'))
         data_df[['lon','lat','deskewed_mag']].to_csv(data_path+'.deskewed',sep=',',header=False,index=False)
 
+def config_synthetic(synth_config_path,timescale_path,spreading_rate_model_path,length=4096,buff=.2):
+    sconf = pd.read_csv(synth_config_path,sep='\t',header=0)
+    synth_and_domains = []
+    for i,row in sconf.iterrows():
+        synth_and_domains.append(make_synthetic(*row.values,timescale_path,spreading_rate_model_path,length=length,buff=buff))
+    return synth_and_domains
+
+def make_synthetic(age_min,age_max,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,timescale_path,spreading_rate=None,sz_name=None,spreading_rate_model_path=None,length=4096,buff=.2):
+
+    tdf = pd.read_csv(timescale_path,sep='\t',header=0)
+    if spreading_rate_model_path!=None and sz_name!=None:
+        srf = generate_spreading_rate_model(spreading_rate_model_path)[0]
+    elif spreading_rate!=None:
+        srf = lambda x,y: spreading_rate
+    else:
+        raise ValueError("Either a constant spreading rate must be given or a spreading rate model file and a spreading zone name in that file")
+
+    #Construct Domains and Square Wave
+    tot_dis,age_step = 0,(age_max-age_min)/(length-1) #time sampling rate
+    mag_sig,time_domain,dis_domain = [],np.arange(age_min,age_max+age_step,age_step),[]
+    for age in time_domain:
+        tot_dis += age_step*srf(sz_name,age)
+        dis_domain.append(tot_dis)
+        idx = tdf[(abs(age)>=tdf["top"]) & (abs(age)<=tdf["base"])].index[0]
+        if idx%2==0: pol = layer_mag
+        else: pol = -layer_mag
+        mag_sig.append(pol) #Square Wave
+    samp_dis = tot_dis/(length-1) #Distance sampling rate
+
+    #Pad Signal before processing
+    if not fix_sta: lbuff = mag_sig[0]*np.ones([int(buff*length)])
+    else: lbuff = np.zeros([int(buff*length)])
+    if not fix_sta: rbuff = mag_sig[-1]*np.ones([int(buff*length)])
+    else: rbuff = np.zeros([int(buff*length)])
+
+    mag_sig = np.hstack((lbuff,mag_sig,rbuff))
+
+    #Calc effective inclination
+    a_ei = np.rad2deg(np.arctan2(np.tan(np.deg2rad(ai)),np.cos(np.deg2rad(ad-azi)))) #Apparent Effective Inc
+    r_ei = np.rad2deg(np.arctan2(np.tan(np.deg2rad(ri)),np.cos(np.deg2rad(rd-azi)))) #Remanent Effective Inc
+    rtheta = np.deg2rad(a_ei+r_ei+180) #Remanent Phase shift
+    afac = (np.sin(np.deg2rad(ai))*np.sin(np.deg2rad(ri)))/(np.sin(np.deg2rad(a_ei))*np.sin(np.deg2rad(r_ei))) #Remanent Amplitude Factor
+
+    ft_mag_sig = np.fft.fft(mag_sig) #Transform to freq domain
+
+    dis_nyquist = np.pi/samp_dis #We're really concerned with distance domain so consider sampling in that space
+    #This is the important step where we convolve with the earth's response
+    fte_mag_sig = mag_earth_filter(ft_mag_sig,length+2*buff*length,layer_depth,layer_depth+layer_thickness,rtheta,afac,dis_nyquist)
+
+    if twf: #Guess what this does.
+        fte_mag_sig = transition_width_filter(fte_mag_sig,length,dis_nyquist,twf/4)
+
+    synth = np.fft.ifft(fte_mag_sig)
+
+    return synth[int(buff*length):-int(buff*length)],dis_domain,samp_dis
+
+def mag_earth_filter(ft_mag_sig,length,top,bot,rtheta,afac,dis_nyquist):
+    z = np.cos(rtheta)+1j*np.sin(rtheta)
+    ft_mag_sig[0] = np.imag(ft_mag_sig[0])
+    sinc = dis_nyquist/(length/2)
+    for i,j in zip(range(int(length/2)),range(int(length-1),int(length/2),-1)):
+        sdis = i*sinc
+        efac = 2*np.pi*(np.exp(-top*sdis)-np.exp(-bot*sdis))*afac
+        ft_mag_sig[i] = efac*z*ft_mag_sig[i]
+        ft_mag_sig[j] = efac*np.conjugate(z)*ft_mag_sig[j]
+    return ft_mag_sig
+
+
+def transition_width_filter(sig,length,nyquest,sigma):
+    for i,j in zip(range(int(length/2)),range(int(length-1),int(length/2),-1)):
+        sdis = i*(nyquest/(length/2))
+        gfac = np.exp(-(np.pi*sigma*sdis)**2)
+        sig[i] = sig[i]*gfac
+        sig[j] = sig[j]*gfac
+    return sig
+
+
 

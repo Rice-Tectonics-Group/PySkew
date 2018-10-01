@@ -354,13 +354,13 @@ class SynthMagGUI(wx.Frame):
 
     def on_change_dir_button(self,event):
         currentDirectory = os.getcwd()
-        self.change_dir_dialog = wx.DirDialog(self.panel, "Choose Your New Working Directory:", defaultPath=currentDirectory, style=wx.DD_DEFAULT_STYLE | wx.DD_NEW_DIR_BUTTON | wx.DD_CHANGE_DIR)
-        if self.change_dir_dialog.ShowModal() == wx.ID_OK:
-            self.WD = dialog.GetPath()
+        dlg = wx.DirDialog(self.panel, "Choose Your New Working Directory:", defaultPath=currentDirectory, style=wx.DD_DEFAULT_STYLE | wx.DD_NEW_DIR_BUTTON | wx.DD_CHANGE_DIR)
+        if dlg.ShowModal() == wx.ID_OK:
+            self.WD = dlg.GetPath()
             os.chdir(self.WD)
             self.dir_path.SetValue(self.WD)
-            dialog.Destroy()
-        else: dialog.Destroy()
+            dlg.Destroy()
+        else: dlg.Destroy()
 
     def on_change_ts_button(self,event):
         dlg = wx.FileDialog(
@@ -436,7 +436,7 @@ class SynthMagGUI(wx.Frame):
             self.max_age = tdf.loc[max_value]["base"]
         else:
             try: self.max_age = float(max_value)
-            except ValueError: self.user_warning("%s is not a valid minimum age value"%str(min_value))
+            except ValueError: self.user_warning("%s is not a valid minimum age value"%str(max_value))
         if self.min_age>self.max_age: self.min_age,self.max_age = self.swap(self.min_age,self.max_age)
         self.update(event)
 

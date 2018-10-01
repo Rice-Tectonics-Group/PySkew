@@ -199,7 +199,7 @@ class SynthMagGUI(wx.Frame):
         self.toolbar = NavigationToolbar(self.canvas)
         self.ax = self.fig.add_subplot(111)
         psk.remove_axis_lines_and_ticks(self.ax)
-#        self.toolbar1.Hide()
+        self.toolbar.Hide()
         self.plot_setting = "Zoom"
         self.toolbar.zoom()
         self.canvas.Bind(wx.EVT_MIDDLE_DOWN,self.on_middle_click_plot)
@@ -298,9 +298,10 @@ class SynthMagGUI(wx.Frame):
         self.dsk_row["phase_shift"] = phase_shift
 
         #Center Synthetic
-        center_dis=(abs(self.dsk_row["age_min"]*spreading_rate)+abs(self.dsk_row["age_max"]*spreading_rate))/2
-        dis_synth = np.array(synth[1])-center_dis
         anom_width = abs(self.dsk_row["age_max"]*spreading_rate-self.dsk_row["age_min"]*spreading_rate)/2
+        center_dis=((self.dsk_row["age_max"]-self.min_age)*spreading_rate+(self.dsk_row["age_max"]-self.min_age)*spreading_rate)/2 - anom_width
+        neg_anom=((-self.dsk_row["age_min"]-self.dsk_row["age_max"]))*spreading_rate
+        dis_synth = np.array(synth[1])-center_dis
 
         ylim,xlim = self.ax.get_ylim(),self.ax.get_xlim()
         self.ax.clear()
@@ -322,6 +323,7 @@ class SynthMagGUI(wx.Frame):
         self.ax.plot(dis_synth,synth[0],'r-',alpha=.4,zorder=1)
         self.ax.plot(dis_synth,np.zeros(len(dis_synth)),'k--')
         self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
+        if self.min_age<0: self.ax.axvspan(neg_anom-anom_width,neg_anom+anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
 #        psk.plot_scale_bars(self.ax,offset_of_bars = .05)
         self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5))
         if not xlim==(0.0,1.0):

@@ -61,6 +61,7 @@ def open_ellipse_file(ellipse_path):
 
 def open_deskew_file(deskew_path):
     deskew_df = pd.read_csv(deskew_path,sep='\t')
+    deskew_df = deskew_df[deskew_df["comp_name"].notnull()]
     deskew_df = deskew_df[~deskew_df["comp_name"].str.startswith('#')]
     cols = deskew_df.columns
     return deskew_df.reset_index()[cols]

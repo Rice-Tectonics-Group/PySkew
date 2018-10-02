@@ -203,6 +203,7 @@ class SynthMagGUI(wx.Frame):
         self.plot_setting = "Zoom"
         self.toolbar.zoom()
         self.canvas.Bind(wx.EVT_MIDDLE_DOWN,self.on_middle_click_plot)
+        self.canvas.Bind(wx.EVT_MOTION,self.on_move_mouse_plot)
 
         #------------------------------------Finish Building UI---------------------------------------------------
 
@@ -230,7 +231,35 @@ class SynthMagGUI(wx.Frame):
         """
         Generates Menu
         """
-        pass
+        self.menubar = wx.MenuBar()
+
+        #-----------------
+        # File Menu
+        #-----------------
+
+        menu_file = wx.Menu()
+
+        submenu_save_plots = wx.Menu()
+
+        m_save_deskew = submenu_save_plots.Append(-1, "&Save Deskew File", "")
+        self.Bind(wx.EVT_MENU, self.on_save_deskew, m_save_deskew,"save-deskew")
+
+        m_save_max_file = submenu_save_plots.Append(-1, "&Save Max File", "")
+        self.Bind(wx.EVT_MENU, self.on_save_max_file, m_save_max_file,"save-max")
+
+        m_save_plot = submenu_save_plots.Append(-1, "&Save Plot", "")
+        self.Bind(wx.EVT_MENU, self.on_save_plot, m_save_plot,"save-plot")
+
+        m_new_sub_plots = menu_file.Append(-1, "&Save Result", submenu_save_plots)
+
+        menu_file.AppendSeparator()
+        m_exit = menu_file.Append(-1, "&Exit\tCtrl-Q", "Exit")
+        self.Bind(wx.EVT_MENU, self.on_close_main, m_exit)
+
+        #-----------------
+
+        self.menubar.Append(menu_file, "&File")
+        self.SetMenuBar(self.menubar)
 
     #########################Update UI Funcions#############################
 
@@ -296,6 +325,8 @@ class SynthMagGUI(wx.Frame):
         #Update Data
         self.dsk_row["strike"] = (azi+90)%360
         self.dsk_row["phase_shift"] = phase_shift
+        self.deskew_df[self.dsk_idx]["strike"] = (azi+90)%360
+        self.deskew_df[self.dsk_idx]["phase_shift"] = phase_shift
 
         #Center Synthetic
         anom_width = abs(self.dsk_row["age_max"]*spreading_rate-self.dsk_row["age_min"]*spreading_rate)/2
@@ -366,11 +397,11 @@ class SynthMagGUI(wx.Frame):
 
     def on_change_ts_button(self,event):
         dlg = wx.FileDialog(
-            self, message="No measurements found. Please choose a measurement file",
+            self, message="Choose Timescale File",
             defaultDir=self.WD,
             defaultFile="timescale.txt",
-            wildcard="*.txt",
-            style=wx.FD_OPEN | wx.FD_CHANGE_DIR
+            wildcard="Files (*.txt)|*.txt|All Files (*.*)|*.*",
+            style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST
             )
         if dlg.ShowModal() == wx.ID_OK:
             self.timescale_path = dlg.GetPath()
@@ -384,8 +415,8 @@ class SynthMagGUI(wx.Frame):
             self, message="Choose Deskew File",
             defaultDir=self.WD,
             defaultFile="chron*.txt",
-            wildcard="*.deskew",
-            style=wx.FD_OPEN | wx.FD_CHANGE_DIR
+            wildcard="Files (*.deskew)|*.deskew|All Files (*.*)|*.*",
+            style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST
             )
         if dlg.ShowModal() == wx.ID_OK:
             self.deskew_path = dlg.GetPath()
@@ -399,6 +430,7 @@ class SynthMagGUI(wx.Frame):
     def on_select_track(self,event):
         self.track = self.track_box.GetValue()
         self.dsk_row = self.deskew_df[self.deskew_df["comp_name"]==self.track].iloc[0]
+        self.dsk_idx = self.deskew_df.index[self.deskew_df["comp_name"]==self.track]
         try:
             if "strike" in self.dsk_row and not np.isnan(float(self.dsk_row["strike"])):
                 self.azi_box.SetValue("%.1f"%(float(self.dsk_row["strike"])-90))
@@ -506,6 +538,54 @@ class SynthMagGUI(wx.Frame):
         elif self.plot_setting == "Pan":
             self.plot_setting = "Zoom"
             self.toolbar.zoom()
+
+    def on_move_mouse_plot(self,event):
+        pos=event.GetPosition()
+        try: self.point_annotation.remove()
+        except (AttributeError,ValueError) as e: pass
+        pos = self.ax.transData.inverted().transform(pos)
+        self.point_annotation = self.ax.annotate("x = %.2f\ny = %.2f"%(float(pos[0]),float(pos[1])),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5))
+        self.canvas.draw()
+        event.Skip()
+
+    ##########################Plot Functions################################
+
+    def on_save_deskew(self,event):
+        dlg = wx.FileDialog(
+            self, message="Save Deskew File",
+            defaultDir=self.WD,
+            defaultFile=os.path.basename(self.deskew_path),
+            wildcard="Files (*.deskew)|*.deskew|All Files (*.*)|*.*",
+            style=wx.FD_SAVE
+            )
+        if dlg.ShowModal() == wx.ID_OK:
+            outfile = dlg.GetPath()
+            self.deskew_df.to_csv(outfile,sep="\t",index=False)
+        dlg.Destroy()
+
+    def on_save_plot(self,event):
+        try: self.point_annotation.remove()
+        except (AttributeError,ValueError) as e: pass
+        self.canvas.draw()
+        self.toolbar.save_figure()
+
+    def on_save_max_file(self,event):
+        avg_age = (self.deskew_df.iloc[0]["age_min"]+self.deskew_df.iloc[0]["age_max"])/2
+        tdf = pd.read_csv(self.timescale_path,sep='\t',header=0)
+        chron = tdf[(tdf["top"]<=avg_age) & (tdf["base"]>=avg_age)].iloc[0]["chron"]
+
+        dlg = wx.FileDialog(
+            self, message="Save Max File",
+            defaultDir=self.WD,
+            defaultFile="%s.max"%chron,
+            wildcard="Files (*.max)|*.max|All Files (*.*)|*.*",
+            style=wx.FD_SAVE
+            )
+        if dlg.ShowModal() == wx.ID_OK:
+            outfile = dlg.GetPath()
+            self.deskew_df.to_csv(".tmp.deskew",sep="\t",index=False)
+            sk.create_maxtab_file(".tmp.deskew",chron,outfile=outfile)
+        dlg.Destroy()
 
 
     ##########################Utility Dialogs and Functions################

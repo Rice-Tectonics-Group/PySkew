@@ -99,11 +99,15 @@ class SynthMagGUI(wx.Frame):
         self.show_component_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Show Other Component", size=(200,25))
         self.Bind(wx.EVT_TEXT_ENTER, self.on_show_component, self.show_component_button)
 
+#        self.show_adjacent_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Show Adjacent Components", size=(200,25))
+#        self.Bind(wx.EVT_TEXT_ENTER, self.on_show_adjacent, self.show_adjacent_button)
+
         inner_sizer.AddMany([(self.track_box, 3, wx.ALIGN_CENTER|wx.EXPAND|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.TOP,side_bar_h_space),
                              (self.phase_shift_box, 1, wx.ALIGN_LEFT|wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND|wx.TOP,side_bar_h_space)])
 
         track_sizer.AddMany([(inner_sizer, 1, wx.ALIGN_CENTER|wx.EXPAND),
                              (self.show_component_button, 1, wx.ALIGN_LEFT|wx.ALIGN_BOTTOM|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND,side_bar_h_space)])
+#                             (self.show_adjacent_button, 1, wx.ALIGN_LEFT|wx.ALIGN_BOTTOM|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND,side_bar_h_space)])
 
         #----------------Age bounds sand Spreading Rate Box-----------------
 
@@ -323,16 +327,18 @@ class SynthMagGUI(wx.Frame):
         self.samp_dis_box.SetValue("%.2f"%float(synth[2]))
 
         #Update Data
-        self.dsk_row["strike"] = (azi+90)%360
-        self.dsk_row["phase_shift"] = phase_shift
-        self.deskew_df[self.dsk_idx]["strike"] = (azi+90)%360
-        self.deskew_df[self.dsk_idx]["phase_shift"] = phase_shift
+        try:
+            self.dsk_row["strike"] = (azi+90)%360
+            self.dsk_row["phase_shift"] = phase_shift
+            self.deskew_df.loc[self.dsk_idx]["strike"] = (azi+90)%360
+            self.deskew_df.loc[self.dsk_idx]["phase_shift"] = phase_shift
 
-        #Center Synthetic
-        anom_width = abs(self.dsk_row["age_max"]*spreading_rate-self.dsk_row["age_min"]*spreading_rate)/2
-        center_dis=((self.dsk_row["age_max"]-self.min_age)*spreading_rate+(self.dsk_row["age_max"]-self.min_age)*spreading_rate)/2 - anom_width
-        neg_anom=((-self.dsk_row["age_min"]-self.dsk_row["age_max"]))*spreading_rate
-        dis_synth = np.array(synth[1])-center_dis
+            #Center Synthetic
+            anom_width = abs(self.dsk_row["age_max"]*spreading_rate-self.dsk_row["age_min"]*spreading_rate)/2
+            center_dis=((self.dsk_row["age_max"]-self.min_age)*spreading_rate+(self.dsk_row["age_max"]-self.min_age)*spreading_rate)/2 - anom_width
+            neg_anom=((-self.dsk_row["age_min"]-self.dsk_row["age_max"]))*spreading_rate
+            dis_synth = np.array(synth[1])-center_dis
+        except AttributeError: dis_synth=np.array(synth[1])-((max(synth[1])+min(synth[1]))/2)
 
         ylim,xlim = self.ax.get_ylim(),self.ax.get_xlim()
         self.ax.clear()
@@ -350,13 +356,15 @@ class SynthMagGUI(wx.Frame):
                 other_dsk_row["strike"] = (azi+90)%360
                 psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7)
             else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.deskew_df["track_type"]))
-        psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,color='k',zorder=3,picker=True)
+        try:
+            psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,color='k',zorder=3,picker=True)
+            self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
+            if self.min_age<0: self.ax.axvspan(neg_anom-anom_width,neg_anom+anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
+            self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5))
+        except AttributeError: pass
         self.ax.plot(dis_synth,synth[0],'r-',alpha=.4,zorder=1)
         self.ax.plot(dis_synth,np.zeros(len(dis_synth)),'k--')
-        self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
-        if self.min_age<0: self.ax.axvspan(neg_anom-anom_width,neg_anom+anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
 #        psk.plot_scale_bars(self.ax,offset_of_bars = .05)
-        self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5))
         if not xlim==(0.0,1.0):
             self.ax.set_xlim(xlim)
             self.ax.set_ylim(ylim)
@@ -519,6 +527,9 @@ class SynthMagGUI(wx.Frame):
         pass
 
     def on_show_component(self,event):
+        pass
+
+    def on_show_adjacent(self,event):
         pass
 
     ##########################Buttons!!!!!!################################

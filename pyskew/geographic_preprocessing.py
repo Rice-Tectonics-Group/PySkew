@@ -102,7 +102,7 @@ def shipmag_preprocess(shipmag_files):
         latlon_file = shipmag_file + ".latlon"
         latlon_df.to_csv(latlon_file, sep=' ', index=False, header=False)
 
-def aeromag_preprocess(aeromag_files,date_file=os.path.join('raw_data','dates.aeromag')):
+def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dates.aeromag')):
     for aeromag_file in aeromag_files: #iterate over all aeromag files
 
         track,extension = os.path.basename(aeromag_file).split('.') #segment the name into parts

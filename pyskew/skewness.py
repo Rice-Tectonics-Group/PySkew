@@ -35,13 +35,13 @@ def filter_deskew_and_calc_aei(deskew_path,spreading_rate_model_path=None,anomal
 
 def get_asf_srf(spreading_rate_model_path=None,anomalous_skewness_model_path=None):
     if spreading_rate_model_path==None:
-        if os.path.isfile(os.path.join('raw_data','spreading_rate_model.txt')):
-            spreading_rate_model_path = os.path.join('raw_data','spreading_rate_model.txt')
+        if os.path.isfile(os.path.join('..','raw_data','spreading_rate_model.txt')):
+            spreading_rate_model_path = os.path.join('..','raw_data','spreading_rate_model.txt')
         else:
             spreading_rate_model_path = input("spreading rate model file could not be found in raw_data/spreading_rate_model.txt please provide a path to a spreading rate model file here: ")
     if anomalous_skewness_model_path==None:
         if os.path.isfile(os.path.join('raw_data','anomalous_skewness_model.txt')):
-            anomalous_skewness_model_path = os.path.join('raw_data','anomalous_skewness_model.txt')
+            anomalous_skewness_model_path = os.path.join('..','raw_data','anomalous_skewness_model.txt')
         else:
             anomalous_skewness_model_path = input("anomalous skewness model file could not be found in raw_data/anomalous_skewness_model.txt please provide a path to a anomalous skewness model file here: ")
 
@@ -82,7 +82,7 @@ def phase_shift_data(mag_data,phase_shift):
     #   Truncate the head and the tail and return the data
     return NewMag[100:N1+100]
 
-def correct_site(site_cor_path,deskew_path,spreading_rate_path=os.path.join('raw_data','spreading_rate_model.txt'),dist_e=.75):
+def correct_site(site_cor_path,deskew_path,spreading_rate_path=os.path.join('..','raw_data','spreading_rate_model.txt'),dist_e=.75):
     #backup the .deskew file
     if not os.path.isfile(deskew_path+'.ccbak'):
         print("backing up %s to %s"%(deskew_path,deskew_path+'.ccbak'))
@@ -105,16 +105,16 @@ def correct_site(site_cor_path,deskew_path,spreading_rate_path=os.path.join('raw
 #        avg_age = (drow['age_max']+drow['age_min'])/2
 #        half_dis = half_age*spreading_rate_func(drow['sz_name'],avg_age)
         sz = drow['sz_name']
-        try: dis_span = np.loadtxt(os.path.join('SynthData','dis_span_%s.txt'%sz),delimiter=',')
+        try: dis_span = np.loadtxt(os.path.join('..','raw_data','SynthData','dis_span_%s.txt'%sz),delimiter=',')
         except (IOError,OSError) as e:
             try:
 
                 default_name = ''
-                if os.path.isfile(os.path.join('SynthData','dis_span_Default.txt')): default_name = 'Default'
-                elif os.path.isfile(os.path.join('SynthData','dis_span_default.txt')): default_name = 'default'
+                if os.path.isfile(os.path.join('..','raw_data','SynthData','dis_span_Default.txt')): default_name = 'Default'
+                elif os.path.isfile(os.path.join('..','raw_data','SynthData','dis_span_default.txt')): default_name = 'default'
                 else: sz = 'default'; raise IOError
 
-                dis_span = np.loadtxt(os.path.join('SynthData','dis_span_%s.txt'%default_name),delimiter=',')
+                dis_span = np.loadtxt(os.path.join('..','raw_data','SynthData','dis_span_%s.txt'%default_name),delimiter=',')
 
             except (IOError,OSError) as e:
                 raise IOError("No synthetic found for %s, please generate a new synthetic which contains a spreading rate model for this spreading zone"%sz)
@@ -167,16 +167,15 @@ def get_lon_lat_from_plot_pick(deskew_row,plot_pick,dist_e=.01):
 
     return picked_lon,picked_lat,picked_distance
 
-def create_maxtab_file(deskew_path,anomoly_name):
+def create_maxtab_file(deskew_path,anomoly_name,outfile=None):
     deskew_df = open_deskew_file(deskew_path)
-    dates_file = open("raw_data/aeromagCDinfo.txt",'r')
-    dates_data = {line.split('\t')[0]:line.split('\t')[3] for line in dates_file.readlines()}
+    dates_data = pd.read_csv("../raw_data/dates.aeromag",sep='\t',header=0,index_col=0)
     out_str = ""
     for i,row in deskew_df.iterrows():
         if '#' in row['comp_name']: continue
         track_name = row['comp_name'].split('.')[0]
         if row['track_type']=='ship': date = "%.2f"%get_shipmag_decimal_year(row)
-        else: date = "%.2f"%float(dates_data[track_name])
+        else: date = "%.2f"%float(dates_data.loc[track_name]["decimal_year"])
         phase_shift = "%.2f"%convert_to_0_360(float(row['phase_shift']))
         out_str += ' '*(17-len(row['comp_name']))+ row['comp_name'] + ' '
         out_str += 'V' if 'Vd' in row['comp_name'] else 'E'
@@ -187,16 +186,17 @@ def create_maxtab_file(deskew_path,anomoly_name):
         out_str += ' '*(8-len("%.2f"%(float(row['strike'])))) + "%.2f"%(float(row['strike']))
         out_str += ' '*(7-len(phase_shift)) + phase_shift
         out_str += ' '*(11-len('10.000')) + '10.000' + '\n'
-    print("saving to maxtab.%s"%anomoly_name)
-    out_file = open("maxtab.%s"%anomoly_name,'w+')
+    if outfile==None: outfile = "maxtab.%s"%anomoly_name
+    print("saving to %s"%outfile)
+    out_file = open(outfile,'w+')
     out_file.write(out_str)
     out_file.close()
 
 def generate_synth(ship_or_aero,age_min,age_max,spreading_rate_path,age_path=None,synth_age_lb=-83.64,synth_age_ub=83.64):
     if ship_or_aero=='aero':
-        synth_age_path = os.path.join('raw_data','synout_aero')
+        synth_age_path = os.path.join('..','raw_data','synout_aero')
     elif ship_or_aero=='ship':
-        synth_age_path = os.path.join('raw_data','synout_ship')
+        synth_age_path = os.path.join('..','raw_data','synout_ship')
     elif os.path.isfile(ship_or_aero):
         synth_age_path = ship_or_aero; ship_or_aero = 'ship' #default calls it a ship synthetic
     else: print("generate synth wasn't told which synthetic to generate ship or aero default or path to raw data file, was given %s instead"%str(ship_or_aero)); return
@@ -233,12 +233,12 @@ def generate_synth(ship_or_aero,age_min,age_max,spreading_rate_path,age_path=Non
         dis_syn=dis_syn-center_dis
         dis_span=np.array([dis_min,dis_max])
 
-        check_dir('SynthData')
-        np.savetxt(os.path.join('SynthData','dis_syn_%s_%s.txt'%(sz,ship_or_aero)),dis_syn,delimiter=',')
-        np.savetxt(os.path.join('SynthData','mag_syn_%s_%s.txt'%(sz,ship_or_aero)),mag_syn,delimiter=',')
-        np.savetxt(os.path.join('SynthData','dis_span_%s.txt'%sz),dis_span,delimiter=',')
+        check_dir(os.path.join('..','raw_data','SynthData'))
+        np.savetxt(os.path.join('..','raw_data','SynthData','dis_syn_%s_%s.txt'%(sz,ship_or_aero)),dis_syn,delimiter=',')
+        np.savetxt(os.path.join('..','raw_data','SynthData','mag_syn_%s_%s.txt'%(sz,ship_or_aero)),mag_syn,delimiter=',')
+        np.savetxt(os.path.join('..','raw_data','SynthData','dis_span_%s.txt'%sz),dis_span,delimiter=',')
 
-        if age_path==None: age_path=os.path.join('raw_data','timescale_gradstein2012.txt')
+        if age_path==None: age_path=os.path.join('..','raw_data','timescale_gradstein2012.txt')
         if os.path.isfile(age_path):
             ages_df = pd.read_csv(age_path,sep='\t',header=0,index_col=0)
 
@@ -271,7 +271,7 @@ def generate_synth(ship_or_aero,age_min,age_max,spreading_rate_path,age_path=Non
 
         [ages_df.set_value(anom,'dist',(max(ages_df['dist'].tolist())-dist)-center_dis) for anom,dist in ages_df['dist'].iteritems()]
 
-        ages_df['dist'].to_csv(os.path.join('SynthData','anom_spans_%s.txt'%sz),sep=',')
+        ages_df['dist'].to_csv(os.path.join('..','raw_data','SynthData','anom_spans_%s.txt'%sz),sep=',')
 
 def check_generate_synth(sz_to_check,age_min,age_max,ship_or_aero="both",matlab=False,spreading_rate_path=None,synth_data_location='.'):
 
@@ -284,8 +284,8 @@ def check_generate_synth(sz_to_check,age_min,age_max,ship_or_aero="both",matlab=
            not os.path.isfile(os.path.join(synth_data_location,'SynthData/dis_syn_%s_aero.txt'%sz_to_check)) or \
            not os.path.isfile(os.path.join(synth_data_location,'SynthData/mag_syn_%s_aero.txt'%sz_to_check)):
             if spreading_rate_path==None:
-                if os.path.isfile(os.path.join('raw_data','spreading_rate_model.txt')):
-                    spreading_rate_path = os.path.join('raw_data','spreading_rate_model.txt')
+                if os.path.isfile(os.path.join('..','raw_data','spreading_rate_model.txt')):
+                    spreading_rate_path = os.path.join('..','raw_data','spreading_rate_model.txt')
                 else:
                     spreading_rate_path = input("couldn't find spreading rate model file, please provide a path here: ")
             generate_synth('aero',float(age_min),float(age_max),spreading_rate_path)
@@ -297,8 +297,8 @@ def check_generate_synth(sz_to_check,age_min,age_max,ship_or_aero="both",matlab=
            not os.path.isfile(os.path.join(synth_data_location,'SynthData/dis_syn_%s_ship.txt'%sz_to_check)) or \
            not os.path.isfile(os.path.join(synth_data_location,'SynthData/mag_syn_%s_ship.txt'%sz_to_check)):
             if spreading_rate_path==None:
-                if os.path.isfile(os.path.join('raw_data','spreading_rate_model.txt')):
-                    spreading_rate_path = os.path.join('raw_data','spreading_rate_model.txt')
+                if os.path.isfile(os.path.join('..','raw_data','spreading_rate_model.txt')):
+                    spreading_rate_path = os.path.join('..','raw_data','spreading_rate_model.txt')
                 else:
                     spreading_rate_path = input("couldn't find spreading rate model file, please provide a path here: ")
             generate_synth('ship',float(age_min),float(age_max),spreading_rate_path)
@@ -670,7 +670,7 @@ def read_and_fit_ridge_data(ridge_loc_path):
 
     return get_ridge_loc
 
-def read_and_fit_fz_data(fz_directory=os.path.join('raw_data','fracture_zones')):
+def read_and_fit_fz_data(fz_directory=os.path.join('..','raw_data','fracture_zones')):
     fzs = glob.glob(os.path.join(fz_directory,'*'))
     lfz = []
     for fz in fzs:
@@ -691,7 +691,7 @@ def read_and_fit_fz_data(fz_directory=os.path.join('raw_data','fracture_zones'))
 
     return get_fz_loc
 
-def find_fz_crossings(deskew_path,fz_directory=os.path.join('raw_data','fracture_zones')):
+def find_fz_crossings(deskew_path,fz_directory=os.path.join('..','raw_data','fracture_zones')):
     deskew_df = open_deskew_file(deskew_path)
     get_fz_loc = read_and_fit_fz_data(fz_directory)
 

@@ -261,8 +261,21 @@ class SynthMagGUI(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_close_main, m_exit)
 
         #-----------------
+        # View Menu
+        #-----------------
+
+        menu_view = wx.Menu()
+
+        self.m_show_anoms = menu_view.AppendCheckItem(-1, "&Show Anomaly Names\tCtrl-A", "")
+        self.Bind(wx.EVT_MENU, self.on_show_anoms, self.m_show_anoms)
+
+        self.m_show_major_anoms = menu_view.AppendCheckItem(-1, "&Show Major Anomaly Names Only\tCtrl-Shift-A", "")
+        self.Bind(wx.EVT_MENU, self.on_show_major_anoms, self.m_show_major_anoms)
+
+        #-----------------
 
         self.menubar.Append(menu_file, "&File")
+        self.menubar.Append(menu_view, "&View")
         self.SetMenuBar(self.menubar)
 
     #########################Update UI Funcions#############################
@@ -342,7 +355,11 @@ class SynthMagGUI(wx.Frame):
 
         ylim,xlim = self.ax.get_ylim(),self.ax.get_xlim()
         self.ax.clear()
+
 #        psk.remove_axis_lines_and_ticks(self.ax)
+
+        if self.m_show_anoms.IsChecked() or self.m_show_major_anoms.IsChecked(): self.plot_anomaly_names(major_anomolies_only=self.m_show_major_anoms.IsChecked())
+
         if self.show_component_button.GetValue():
             if self.dsk_row["track_type"]=="aero":
                 if "Ed.lp" in self.track:
@@ -356,15 +373,19 @@ class SynthMagGUI(wx.Frame):
                 other_dsk_row["strike"] = (azi+90)%360
                 psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7)
             else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.deskew_df["track_type"]))
+
         try:
             psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,color='k',zorder=3,picker=True)
             self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
             if self.min_age<0: self.ax.axvspan(neg_anom-anom_width,neg_anom+anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
-            self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5))
+            self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.15),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5))
         except AttributeError: pass
+
         self.ax.plot(dis_synth,synth[0],'r-',alpha=.4,zorder=1)
         self.ax.plot(dis_synth,np.zeros(len(dis_synth)),'k--')
+
 #        psk.plot_scale_bars(self.ax,offset_of_bars = .05)
+
         if not xlim==(0.0,1.0):
             self.ax.set_xlim(xlim)
             self.ax.set_ylim(ylim)
@@ -386,7 +407,7 @@ class SynthMagGUI(wx.Frame):
 #        if any(not os.path.isfile(abs_data_paths)): abs_data_paths = [self.deskew_df["data_dir"][i] if self.deskew_df["data_dir"][i]==os.path.abspath(self.deskew_df["data_dir"][i]) else os.path.abspath(os.path.join(os.path.dirname(self.deskew_path),self.deskew_df["data_dir"][i])) for i in self.deskew_df.index]
         self.deskew_df["data_dir"] = abs_data_paths
         self.track_box.Clear()
-        self.track_box.SetItems(self.deskew_df["comp_name"].tolist())
+        self.track_box.SetItems([""]+self.deskew_df["comp_name"].tolist())
 
     def on_close_main(self,event):
         self.Destroy()
@@ -555,11 +576,11 @@ class SynthMagGUI(wx.Frame):
         try: self.point_annotation.remove()
         except (AttributeError,ValueError) as e: pass
         pos = self.ax.transData.inverted().transform(pos)
-        self.point_annotation = self.ax.annotate("x = %.2f\ny = %.2f"%(float(pos[0]),float(pos[1])),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5))
+        self.point_annotation = self.ax.annotate("x = %.2f\ny = %.2f"%(float(pos[0]),float(pos[1])),xy=(1-0.12,1-0.11),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5))
         self.canvas.draw()
         event.Skip()
 
-    ##########################Plot Functions################################
+    ##########################Menu Functions################################
 
     def on_save_deskew(self,event):
         dlg = wx.FileDialog(
@@ -598,6 +619,41 @@ class SynthMagGUI(wx.Frame):
             sk.create_maxtab_file(".tmp.deskew",chron,outfile=outfile)
         dlg.Destroy()
 
+    def on_show_anoms(self,event):
+        self.update(event)
+
+    def on_show_major_anoms(self,event):
+        self.update(event)
+
+    ##########################Additional Plotting and Backend Functions################
+
+    def plot_anomaly_names(self,major_anomolies_only=False):
+        tdf = pd.read_csv(self.timescale_path,sep='\t',header=0,index_col=0)
+        sr = float(self.sr_box.GetValue())
+        anom_width = abs(self.dsk_row["age_max"]*sr-self.dsk_row["age_min"]*sr)/2
+        central_center = (-self.min_age*sr) - (((self.dsk_row["age_max"]-self.min_age)*sr+(self.dsk_row["age_max"]-self.min_age)*sr)/2 - anom_width)
+        major_anomolies_composed_of_subchrons = []
+        for j,(i,row) in enumerate(tdf.iterrows()):
+            try: i,base,top = str(i),float(row["base"]),float(row["top"])
+            except ValueError: self.user_warning("Non-Numeric Chron Age for %s in %s"%(str(i),self.timescale_path)); return
+            if major_anomolies_only and i.count('.')!=0:
+                major_chron = i.split('.')[0]
+                if major_chron in major_anomolies_composed_of_subchrons: continue
+                else:
+                    idxs = tdf.index[tdf.index.str.contains(major_chron)]
+                    base = max(tdf.loc[idxs]["base"])
+                    top = min(tdf.loc[idxs]["top"])
+                    i = major_chron
+                    major_anomolies_composed_of_subchrons.append(major_chron)
+            elif base>self.max_age or top<self.min_age: continue
+            anom_dis = base*sr
+            self.ax.axvline(central_center+anom_dis,linestyle='--',color='blue',alpha=.5)
+            self.ax.axvline(central_center-anom_dis,linestyle='--',color='blue',alpha=.5)
+            if j==0: self.ax.annotate(i,xy=(central_center,0),va="bottom",ha="center")
+            else:
+                anom_center = (anom_dis+(top*sr))/2
+                self.ax.annotate(i,xy=(central_center+anom_center,0),va="bottom",ha="center")
+                self.ax.annotate(i,xy=(central_center-anom_center,0),va="bottom",ha="center")
 
     ##########################Utility Dialogs and Functions################
 

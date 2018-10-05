@@ -243,6 +243,9 @@ class SynthMagGUI(wx.Frame):
 
         menu_file = wx.Menu()
 
+        m_open_sr_file = menu_file.Append(-1, "&Open Spreading Rate File\tCtrl-R", "open-sr")
+        self.Bind(wx.EVT_MENU, self.on_open_sr_file, m_open_sr_file)
+
         submenu_save_plots = wx.Menu()
 
         m_save_deskew = submenu_save_plots.Append(-1, "&Save Deskew File", "")
@@ -261,6 +264,15 @@ class SynthMagGUI(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_close_main, m_exit)
 
         #-----------------
+        # Edit Menu
+        #-----------------
+
+        menu_edit = wx.Menu()
+
+        self.m_use_sr_model = menu_edit.AppendCheckItem(-1, "&Toggle Spreading Rate Model\tCtrl-Shift-R", "")
+        self.Bind(wx.EVT_MENU, self.on_use_sr_model, self.m_use_sr_model)
+
+        #-----------------
         # View Menu
         #-----------------
 
@@ -275,6 +287,7 @@ class SynthMagGUI(wx.Frame):
         #-----------------
 
         self.menubar.Append(menu_file, "&File")
+        self.menubar.Append(menu_edit, "&Edit")
         self.menubar.Append(menu_view, "&View")
         self.SetMenuBar(self.menubar)
 
@@ -343,8 +356,8 @@ class SynthMagGUI(wx.Frame):
         try:
             self.dsk_row["strike"] = (azi+90)%360
             self.dsk_row["phase_shift"] = phase_shift
-            self.deskew_df.loc[self.dsk_idx]["strike"] = (azi+90)%360
-            self.deskew_df.loc[self.dsk_idx]["phase_shift"] = phase_shift
+            self.deskew_df.set_value(self.dsk_idx,"strike",(azi+90)%360)
+            self.deskew_df.set_value(self.dsk_idx,"phase_shift",phase_shift)
 
             #Center Synthetic
             anom_width = abs(self.dsk_row["age_max"]*spreading_rate-self.dsk_row["age_min"]*spreading_rate)/2
@@ -582,6 +595,17 @@ class SynthMagGUI(wx.Frame):
 
     ##########################Menu Functions################################
 
+    def on_open_sr_file(self,event):
+        dlg = wx.FileDialog(
+            self, message="Choose SR Model File",
+            defaultDir=self.WD,
+            wildcard="Files (*.txt)|*.txt|All Files (*.*)|*.*",
+            style=wx.FD_OPEN
+            )
+        if dlg.ShowModal() == wx.ID_OK:
+            pass #TODO
+        dlg.Destroy()
+
     def on_save_deskew(self,event):
         dlg = wx.FileDialog(
             self, message="Save Deskew File",
@@ -624,6 +648,9 @@ class SynthMagGUI(wx.Frame):
 
     def on_show_major_anoms(self,event):
         self.update(event)
+
+    def on_use_sr_model(self,event):
+        pass #TODO
 
     ##########################Additional Plotting and Backend Functions################
 

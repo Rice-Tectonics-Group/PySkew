@@ -9,7 +9,6 @@ Download or clone the repository above and install Python3 as well as these libr
 - matplotlib (can be installed with pip, anaconda, or aptitude)
 - mpl\_toolkits.basemap (can be installed with pip, anaconda, or aptitude)
 - geographiclib (can be installed with pip, anaconda, or aptitude)
-- nvector (can be installed with pip)
 - pmagpy (can be installed with pip or at their github repository [here](https://github.com/PmagPy))
 - rdp (can be installed with pip)
 - wx (can be installed with pip, anaconda, or aptitude) (optional: required for use of the GUIs) 

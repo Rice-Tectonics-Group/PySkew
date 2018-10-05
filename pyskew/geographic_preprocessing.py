@@ -3,7 +3,6 @@ import shutil
 import rdp
 import pandas as pd
 import numpy as np
-import nvector as nv
 from geographiclib.geodesic import Geodesic
 from functools import reduce
 from .plot_geographic import *

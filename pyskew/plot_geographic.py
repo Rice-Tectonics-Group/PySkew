@@ -1,9 +1,9 @@
 import os
 import numpy as np
-import nvector as nv
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from mpl_toolkits.basemap import Basemap
+from geographiclib.geodesic import Geodesic
 from .utilities import *
 
 def plot_chron_info(chrons_info, m, coord_0_360=False, chron_dir=os.path.join("raw_data","chrons","cande"), barckhausen_path=os.path.join('raw_data','chrons','Barckhausen2013','GSFML.Barckhausen++_2013_MGR.picks.gmt'),**kwargs):
@@ -263,17 +263,13 @@ def plot_az_strike(track,spreading_zone_file,idx,az,strike,chron_color,chron_nam
     XYM[0],XYM[1] = gcm(at[idx[1][0]][0],at[idx[1][0]][1])
     gcm.scatter(XYM[0],XYM[1],color='g',marker='o',s=10,zorder=3,label='nearest intercept')
 
-    frame = nv.FrameE(a=6371e3, f=0)
-    pointA = frame.GeoPoint(latitude=float(at[idx[1][0]][1]), longitude=float(at[idx[1][0]][0]), degrees=True)
-    pointB, _azimuthb = pointA.geo_point(distance=1000000, azimuth=float(az), degrees=True)
-    b_lon,b_lat = 360+pointB.longitude_deg if pointB.longitude_deg<0 else pointB.longitude_deg, pointB.latitude_deg
+    geodict = Geodesic.WGS84.Direct(float(at[idx[1][0]][1]), float(at[idx[1][0]][0]), float(az), distance=1000000)
+    b_lon,b_lat = (360+geodict["lon2"])%360, geodict["lat2"]
     DXY = gcm(b_lon,b_lat)
     plt.arrow(XYM[0], XYM[1], XYM[0]-DXY[0], XYM[1]-DXY[1], fc="white", ec="r", linewidth=1, head_width=100000, head_length=100000, label='azimuth')
 
-    frame = nv.FrameE(a=6371e3, f=0)
-    pointA = frame.GeoPoint(latitude=float(at[idx[1][0]][1]), longitude=float(at[idx[1][0]][0]), degrees=True)
-    pointB, _azimuthb = pointA.geo_point(distance=1000000, azimuth=float(strike), degrees=True)
-    b_lon,b_lat = 360+pointB.longitude_deg if pointB.longitude_deg<0 else pointB.longitude_deg, pointB.latitude_deg
+    geodict = Geodesic.WGS84.Direct(float(at[idx[1][0]][1]), float(at[idx[1][0]][0]), float(strike), distance=1000000)
+    b_lon,b_lat = (360+geodict["lon2"])%360, geodict["lat2"]
     DXY = gcm(b_lon,b_lat)
     plt.arrow(XYM[0], XYM[1], XYM[0]-DXY[0], XYM[1]-DXY[1], fc="white", ec="pink", linewidth=1, head_width=100000, head_length=100000, label='strike')
 

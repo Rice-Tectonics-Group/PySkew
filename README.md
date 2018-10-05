@@ -10,12 +10,22 @@ Download or clone the repository above and install Python3 as well as these libr
 - mpl\_toolkits.basemap (can be installed with pip, anaconda, or aptitude)
 - geographiclib (can be installed with pip, anaconda, or aptitude)
 - nvector (can be installed with pip)
-- pmagpy (can be installed with pip or at their github repository [here](https://github.com/PmagPy)
+- pmagpy (can be installed with pip or at their github repository [here](https://github.com/PmagPy))
 - rdp (can be installed with pip)
 - wx (can be installed with pip, anaconda, or aptitude) (optional: required for use of the GUIs) 
 - qt (can be installed with pip, anaconda, or aptitude) (optional: if installed this backend will be used on mac for data visuals)
 
 If you are new to Python it is suggested that you install python using the [Anaconda framework](https://www.anaconda.com/download)
+
+Once everything is installed you will need to add the main PySkew directory to your PYTHONPATH environment variable (scripts to automate this process are in development). So if you are running a Mac or Linux based operating system add:
+```bash
+export PYTHONPATH="$PYTHONPATH:$PATHTOPYSKEW"
+```
+to your .bashrc file or other init file. If you are running Windows you will need to open a terminal and type:
+```dos
+setx PYTHONPATH $PATHTOPYSKEW
+```
+Note that you need to replace $PATHTOPYSKEW with the actual path to the main PySkew directory on your disk not simply copy and paste the above.
 
 ## Magnetic Track Data Source
 

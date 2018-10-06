@@ -1,4 +1,4 @@
-import wx, os, sys
+import wx, os, sys, pdb
 import numpy as np
 import pandas as pd
 import wx.lib.buttons as buttons
@@ -18,7 +18,7 @@ class SynthMagGUI(wx.Frame):
         """Constructor"""
         #call init of super class
         default_style = wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.RESIZE_BORDER | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN | wx.NO_FULL_REPAINT_ON_RESIZE | wx.WS_EX_CONTEXTHELP | wx.FRAME_EX_CONTEXTHELP
-        wx.Frame.__init__(self, None, title="SynthMagGUI V0.0.1",style=default_style, size=(400*2,300*2))
+        wx.Frame.__init__(self, None, title="SynthMagGUI V0.0.1",style=default_style, size=(400*3,300*3))
         self.Bind(wx.EVT_CLOSE, self.on_close_main)
 
         #Save input variables
@@ -27,10 +27,10 @@ class SynthMagGUI(wx.Frame):
         self.track = None #default no data
         self.syn_buff = .2
         self.min_age,self.max_age = 0,0
-        self.timescale_path,self.deskew_path = None,None
+        self.spreading_rate_path,self.anomalous_skewness_path,self.timescale_path,self.deskew_path = None,None,None,None
 
         #make the Panel
-        self.panel = wx.Panel(self,-1,size=(700,450))
+        self.panel = wx.Panel(self,-1,size=(1200,900))
 
         #Populate UI and Menu
         self.init_UI()
@@ -47,43 +47,72 @@ class SynthMagGUI(wx.Frame):
 
         side_bar_h_space = 10
         side_bar_v_space = 10
-        v_bar_v_space = 10
+        v_bar_v_space = 8
 
         #----------------Build Directory and File Buttons-----------------
-        wd_sizer = wx.StaticBoxSizer(wx.StaticBox(self.panel, wx.ID_ANY, "Choose Working Directory"), wx.HORIZONTAL)
+        # (176, 29) is the size of the largest button this way everything is nicely spaced
+        wd_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.dir_path = wx.TextCtrl(self.panel, id=-1, size=(600,25), style=wx.TE_READONLY)
-        self.change_dir_button = buttons.GenButton(self.panel, id=-1, label="change directory",size=(-1, -1))
+        self.change_dir_button = buttons.GenButton(self.panel, id=-1, label="change directory",size=(176, 29))
         self.change_dir_button.SetBackgroundColour("#F8F8FF")
         self.change_dir_button.InitColours()
         self.Bind(wx.EVT_BUTTON, self.on_change_dir_button, self.change_dir_button)
         wd_sizer.Add(self.change_dir_button, wx.ALIGN_LEFT)
-        wd_sizer.AddSpacer(40)
+        wd_sizer.AddSpacer(20)
         wd_sizer.Add(self.dir_path,wx.ALIGN_CENTER_VERTICAL|wx.EXPAND)
 
-        ts_sizer = wx.StaticBoxSizer(wx.StaticBox(self.panel, wx.ID_ANY, "Choose Timescale File"), wx.HORIZONTAL)
-        self.ts_path = wx.TextCtrl(self.panel, id=-1, size=(600,25), style=wx.TE_READONLY)
-        self.change_ts_button = buttons.GenButton(self.panel, id=-1, label="change timescale",size=(-1, -1))
+        ts_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.ts_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY)
+        self.change_ts_button = buttons.GenButton(self.panel, id=-1, label="change timescale",size=(176, 29))
         self.change_ts_button.SetBackgroundColour("#F8F8FF")
         self.change_ts_button.InitColours()
-        self.Bind(wx.EVT_BUTTON, self.on_change_ts_button, self.change_ts_button)
+        self.Bind(wx.EVT_BUTTON, self.on_open_ts_button, self.change_ts_button)
         ts_sizer.Add(self.change_ts_button, wx.ALIGN_LEFT)
-        ts_sizer.AddSpacer(40)
+        ts_sizer.AddSpacer(20)
         ts_sizer.Add(self.ts_path,wx.ALIGN_CENTER_VERTICAL|wx.EXPAND)
 
-        dsk_sizer = wx.StaticBoxSizer(wx.StaticBox(self.panel, wx.ID_ANY, "Choose Deskew File"), wx.HORIZONTAL)
-        self.dsk_path = wx.TextCtrl(self.panel, id=-1, size=(600,25), style=wx.TE_READONLY)
-        self.change_dsk_button = buttons.GenButton(self.panel, id=-1, label="change deskew file",size=(-1, -1))
+        dsk_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.dsk_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY)
+        self.change_dsk_button = buttons.GenButton(self.panel, id=-1, label="change deskew file",size=(176, 29))
         self.change_dsk_button.SetBackgroundColour("#F8F8FF")
         self.change_dsk_button.InitColours()
-        self.Bind(wx.EVT_BUTTON, self.on_change_dsk_button, self.change_dsk_button)
+        self.Bind(wx.EVT_BUTTON, self.on_open_dsk_button, self.change_dsk_button)
         dsk_sizer.Add(self.change_dsk_button, wx.ALIGN_LEFT)
-        dsk_sizer.AddSpacer(40)
+        dsk_sizer.AddSpacer(20)
         dsk_sizer.Add(self.dsk_path,wx.ALIGN_CENTER_VERTICAL|wx.EXPAND)
+
+        sr_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.sr_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY)
+        self.change_sr_button = buttons.GenButton(self.panel, id=-1, label="change spreading rate",size=(176, 29))
+        self.change_sr_button.SetBackgroundColour("#F8F8FF")
+        self.change_sr_button.InitColours()
+        self.Bind(wx.EVT_BUTTON, self.on_open_sr_file, self.change_sr_button)
+        sr_sizer.Add(self.change_sr_button, wx.ALIGN_LEFT)
+        sr_sizer.AddSpacer(20)
+        sr_sizer.Add(self.sr_path,wx.ALIGN_CENTER_VERTICAL|wx.EXPAND)
+
+        as_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.as_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY)
+        self.change_as_button = buttons.GenButton(self.panel, id=-1, label="change anomalous skewness",size=(176, 29))
+        self.change_as_button.SetBackgroundColour("#F8F8FF")
+        self.change_as_button.InitColours()
+        self.Bind(wx.EVT_BUTTON, self.on_open_as_file, self.change_as_button)
+        as_sizer.Add(self.change_as_button, wx.ALIGN_LEFT)
+        as_sizer.AddSpacer(20)
+        as_sizer.Add(self.as_path,wx.ALIGN_CENTER_VERTICAL|wx.EXPAND)
+
+        indir1_files_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        indir1_files_sizer.AddMany([(ts_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND|wx.RIGHT, v_bar_v_space),
+                                    (sr_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND)])
+
+        indir2_files_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        indir2_files_sizer.AddMany([(dsk_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND|wx.RIGHT, v_bar_v_space),
+                                    (as_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND)])
 
         dir_files_sizer = wx.BoxSizer(wx.VERTICAL)
         dir_files_sizer.AddMany([(wd_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT, v_bar_v_space),
-                          (ts_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT, v_bar_v_space),
-                          (dsk_sizer, 1, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER|wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT, v_bar_v_space)])
+                          (indir1_files_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT, v_bar_v_space),
+                          (indir2_files_sizer, 1, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER|wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT, v_bar_v_space)])
 
         #----------------Track Selection Box-----------------
 
@@ -243,9 +272,19 @@ class SynthMagGUI(wx.Frame):
 
         menu_file = wx.Menu()
 
+        m_open_ts_file = menu_file.Append(-1, "&Open Timescale File\tCtrl-T", "open-ts")
+        self.Bind(wx.EVT_MENU, self.on_open_ts_button, m_open_ts_file)
+
+        m_open_dskew_file = menu_file.Append(-1, "&Open Deskew File\tCtrl-D", "open-deskew")
+        self.Bind(wx.EVT_MENU, self.on_open_dsk_button, m_open_dskew_file)
+
         m_open_sr_file = menu_file.Append(-1, "&Open Spreading Rate File\tCtrl-R", "open-sr")
         self.Bind(wx.EVT_MENU, self.on_open_sr_file, m_open_sr_file)
 
+        m_open_as_file = menu_file.Append(-1, "&Open Anomalous Skewness File\tCtrl-M", "open-as")
+        self.Bind(wx.EVT_MENU, self.on_open_as_file, m_open_as_file)
+
+        menu_file.AppendSeparator()
         submenu_save_plots = wx.Menu()
 
         m_save_deskew = submenu_save_plots.Append(-1, "&Save Deskew File", "")
@@ -253,6 +292,9 @@ class SynthMagGUI(wx.Frame):
 
         m_save_max_file = submenu_save_plots.Append(-1, "&Save Max File", "")
         self.Bind(wx.EVT_MENU, self.on_save_max_file, m_save_max_file,"save-max")
+
+        m_save_maxtab_file = submenu_save_plots.Append(-1, "&Save Maxtab File", "")
+        self.Bind(wx.EVT_MENU, self.on_save_maxtab_file, m_save_maxtab_file,"save-maxtab")
 
         m_save_plot = submenu_save_plots.Append(-1, "&Save Plot", "")
         self.Bind(wx.EVT_MENU, self.on_save_plot, m_save_plot,"save-plot")
@@ -272,6 +314,9 @@ class SynthMagGUI(wx.Frame):
         self.m_use_sr_model = menu_edit.AppendCheckItem(-1, "&Toggle Spreading Rate Model\tCtrl-Shift-R", "")
         self.Bind(wx.EVT_MENU, self.on_use_sr_model, self.m_use_sr_model)
 
+        self.m_use_as_model = menu_edit.AppendCheckItem(-1, "&Toggle Anomalous Skewness Correction\tCtrl-Shift-M", "")
+        self.Bind(wx.EVT_MENU, self.on_use_as_model, self.m_use_as_model)
+
         #-----------------
         # View Menu
         #-----------------
@@ -285,10 +330,20 @@ class SynthMagGUI(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_show_major_anoms, self.m_show_major_anoms)
 
         #-----------------
+        # Help Menu
+        #-----------------
+
+        menu_help = wx.Menu()
+
+        m_open_debug = menu_help.AppendCheckItem(-1, "&Open Debugger\tCtrl-Shift-D", "")
+        self.Bind(wx.EVT_MENU, self.on_open_debug, m_open_debug)
+
+        #-----------------
 
         self.menubar.Append(menu_file, "&File")
         self.menubar.Append(menu_edit, "&Edit")
         self.menubar.Append(menu_view, "&View")
+        self.menubar.Append(menu_help, "&Help")
         self.SetMenuBar(self.menubar)
 
     #########################Update UI Funcions#############################
@@ -328,7 +383,7 @@ class SynthMagGUI(wx.Frame):
 
     def update(self,event):
 
-        if self.timescale_path==None or self.deskew_path==None: return
+        if self.timescale_path==None: return
 
         #Update Synthetic
         try:
@@ -346,8 +401,16 @@ class SynthMagGUI(wx.Frame):
             syn_length = int(self.samp_n_box.GetValue())
         except ValueError: self.user_warning("At least one value is not numeric"); return
         fix_sta,fix_end = self.zero_start_button.GetValue(),self.zero_end_button.GetValue()
-        try: synth = psk.make_synthetic(self.min_age,self.max_age,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,self.timescale_path,spreading_rate=spreading_rate,length=syn_length,buff=self.syn_buff)
-        except: synth=[[0],[0],0]
+        try:
+            if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None:
+                synth = psk.make_synthetic(self.min_age,self.max_age,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,self.timescale_path,spreading_rate_path=self.spreading_rate_path,sz_name=self.dsk_row["sz_name"],length=syn_length,buff=self.syn_buff)
+                srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
+            else:
+                synth = psk.make_synthetic(self.min_age,self.max_age,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,self.timescale_path,spreading_rate=spreading_rate,length=syn_length,buff=self.syn_buff)
+                srf = lambda x,y: spreading_rate
+        except: #Be wary of Errors here this is done so you can plot just the data and not have a million errors but it can mask true behavior be ready to need to debug this
+            synth = [[0],[0],0]
+            srf = lambda x,y: 0
 
         #Update Readouts on synthetic
         self.samp_dis_box.SetValue("%.2f"%float(synth[2]))
@@ -360,9 +423,13 @@ class SynthMagGUI(wx.Frame):
             self.deskew_df.set_value(self.dsk_idx,"phase_shift",phase_shift)
 
             #Center Synthetic
-            anom_width = abs(self.dsk_row["age_max"]*spreading_rate-self.dsk_row["age_min"]*spreading_rate)/2
-            center_dis=((self.dsk_row["age_max"]-self.min_age)*spreading_rate+(self.dsk_row["age_max"]-self.min_age)*spreading_rate)/2 - anom_width
-            neg_anom=((-self.dsk_row["age_min"]-self.dsk_row["age_max"]))*spreading_rate
+            step = (self.max_age-self.min_age)/(syn_length-1)
+            srf_sz = lambda x: step*srf(self.dsk_row["sz_name"],x)
+            dis_anom_min = sum(map(srf_sz,np.arange(0,self.dsk_row["age_min"]+step,step)))
+            dis_anom_max = sum(map(srf_sz,np.arange(0,self.dsk_row["age_max"]+step,step)))
+            anom_width = abs(dis_anom_max-dis_anom_min)/2
+            center_dis = dis_anom_max - anom_width
+            neg_anom= (-dis_anom_min - anom_width) - center_dis
             dis_synth = np.array(synth[1])-center_dis
         except AttributeError: dis_synth=np.array(synth[1])-((max(synth[1])+min(synth[1]))/2)
 
@@ -371,7 +438,7 @@ class SynthMagGUI(wx.Frame):
 
 #        psk.remove_axis_lines_and_ticks(self.ax)
 
-        if self.m_show_anoms.IsChecked() or self.m_show_major_anoms.IsChecked(): self.plot_anomaly_names(major_anomolies_only=self.m_show_major_anoms.IsChecked())
+        if self.m_show_anoms.IsChecked() or self.m_show_major_anoms.IsChecked(): self.plot_anomaly_names(major_anomolies_only=self.m_show_major_anoms.IsChecked(),anom_width=anom_width)
 
         if self.show_component_button.GetValue():
             if self.dsk_row["track_type"]=="aero":
@@ -390,7 +457,7 @@ class SynthMagGUI(wx.Frame):
         try:
             psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,color='k',zorder=3,picker=True)
             self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
-            if self.min_age<0: self.ax.axvspan(neg_anom-anom_width,neg_anom+anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
+            if self.min_age<=-self.dsk_row["age_min"]: self.ax.axvspan(neg_anom-anom_width,neg_anom+anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
             self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.15),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5))
         except AttributeError: pass
 
@@ -437,7 +504,7 @@ class SynthMagGUI(wx.Frame):
             dlg.Destroy()
         else: dlg.Destroy()
 
-    def on_change_ts_button(self,event):
+    def on_open_ts_button(self,event):
         dlg = wx.FileDialog(
             self, message="Choose Timescale File",
             defaultDir=self.WD,
@@ -452,7 +519,7 @@ class SynthMagGUI(wx.Frame):
             dlg.Destroy()
         else: dlg.Destroy()
 
-    def on_change_dsk_button(self,event):
+    def on_open_dsk_button(self,event):
         dlg = wx.FileDialog(
             self, message="Choose Deskew File",
             defaultDir=self.WD,
@@ -467,6 +534,36 @@ class SynthMagGUI(wx.Frame):
             dlg.Destroy()
         else: dlg.Destroy()
 
+    def on_open_sr_file(self,event):
+        dlg = wx.FileDialog(
+            self, message="Choose SR Model File",
+            defaultDir=self.WD,
+            wildcard="Files (*.txt)|*.txt|All Files (*.*)|*.*",
+            style=wx.FD_OPEN
+            )
+        if dlg.ShowModal() == wx.ID_OK:
+            self.spreading_rate_path=dlg.GetPath()
+            self.sr_path.SetValue(self.spreading_rate_path)
+            srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
+            try: self.sr_box.SetValue("%.1f"%((srf(self.dsk_row["sz_name"],self.dsk_row["age_min"])+srf(self.dsk_row["sz_name"],self.dsk_row["age_max"]))/2))
+            except AttributeError: pass
+            if not self.m_use_sr_model.IsChecked(): self.m_use_sr_model.Check()
+        dlg.Destroy()
+
+    def on_open_as_file(self,event):
+        dlg = wx.FileDialog(
+            self, message="Choose AS Model File",
+            defaultDir=self.WD,
+            wildcard="Files (*.txt)|*.txt|All Files (*.*)|*.*",
+            style=wx.FD_OPEN
+            )
+        if dlg.ShowModal() == wx.ID_OK:
+            self.anomalous_skewness_path=dlg.GetPath()
+            self.as_path.SetValue(self.anomalous_skewness_path)
+            if not self.m_use_as_model.IsChecked(): self.m_use_as_model.Check()
+        dlg.Destroy()
+
+
     ##########################Drop Down Boxes################################
 
     def on_select_track(self,event):
@@ -479,6 +576,9 @@ class SynthMagGUI(wx.Frame):
             if "phase_shift" in self.dsk_row and not np.isnan(float(self.dsk_row["phase_shift"])):
                 self.phase_shift_box.SetValue("%.1f"%float(self.dsk_row["phase_shift"]))
         except TypeError: self.user_warning("Invalid Strike or Phase Shift in deskew file for %s"%self.track)
+        if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None:
+            srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
+            self.sr_box.SetValue("%.1f"%((srf(self.dsk_row["sz_name"],self.dsk_row["age_min"])+srf(self.dsk_row["sz_name"],self.dsk_row["age_max"]))/2))
 
     def on_select_age_min(self,event):
         min_chron = self.age_min_box.GetValue()
@@ -595,17 +695,6 @@ class SynthMagGUI(wx.Frame):
 
     ##########################Menu Functions################################
 
-    def on_open_sr_file(self,event):
-        dlg = wx.FileDialog(
-            self, message="Choose SR Model File",
-            defaultDir=self.WD,
-            wildcard="Files (*.txt)|*.txt|All Files (*.*)|*.*",
-            style=wx.FD_OPEN
-            )
-        if dlg.ShowModal() == wx.ID_OK:
-            pass #TODO
-        dlg.Destroy()
-
     def on_save_deskew(self,event):
         dlg = wx.FileDialog(
             self, message="Save Deskew File",
@@ -639,8 +728,32 @@ class SynthMagGUI(wx.Frame):
             )
         if dlg.ShowModal() == wx.ID_OK:
             outfile = dlg.GetPath()
+            if self.spreading_rate_path==None:
+                sr_value = self.sr_box.GetValue()
+                srf = lambda x,y: sr_value
+            else: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
+            if self.anomalous_skewness_path==None: asf = lambda x: 0
+            else: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
+            sk.create_max_file(self.deskew_df,srf,asf,outfile=outfile)
+        dlg.Destroy()
+
+    def on_save_maxtab_file(self,event):
+        avg_age = (self.deskew_df.iloc[0]["age_min"]+self.deskew_df.iloc[0]["age_max"])/2
+        tdf = pd.read_csv(self.timescale_path,sep='\t',header=0)
+        chron = tdf[(tdf["top"]<=avg_age) & (tdf["base"]>=avg_age)].iloc[0]["chron"]
+
+        dlg = wx.FileDialog(
+            self, message="Save Max File",
+            defaultDir=self.WD,
+            defaultFile="%s.max"%chron,
+            wildcard="Files (*.max)|*.max|All Files (*.*)|*.*",
+            style=wx.FD_SAVE
+            )
+        if dlg.ShowModal() == wx.ID_OK:
+            outfile = dlg.GetPath()
             self.deskew_df.to_csv(".tmp.deskew",sep="\t",index=False)
             sk.create_maxtab_file(".tmp.deskew",chron,outfile=outfile)
+            os.remove(".tmp.deskew")
         dlg.Destroy()
 
     def on_show_anoms(self,event):
@@ -650,15 +763,30 @@ class SynthMagGUI(wx.Frame):
         self.update(event)
 
     def on_use_sr_model(self,event):
-        pass #TODO
+        self.update(event)
+
+    def on_use_as_model(self,event):
+        self.update(event)
+
+    def on_open_debug(self,event):
+        pdb.set_trace()
 
     ##########################Additional Plotting and Backend Functions################
 
-    def plot_anomaly_names(self,major_anomolies_only=False):
+    def plot_anomaly_names(self,major_anomolies_only=False,anom_width=None):
         tdf = pd.read_csv(self.timescale_path,sep='\t',header=0,index_col=0)
-        sr = float(self.sr_box.GetValue())
-        anom_width = abs(self.dsk_row["age_max"]*sr-self.dsk_row["age_min"]*sr)/2
-        central_center = (-self.min_age*sr) - (((self.dsk_row["age_max"]-self.min_age)*sr+(self.dsk_row["age_max"]-self.min_age)*sr)/2 - anom_width)
+        if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None:
+            srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
+        else:
+            sr = float(self.sr_box.GetValue())
+            srf = lambda x,y: sr
+        step = (self.max_age-self.min_age)/(syn_length-1)
+        srf_sz = lambda x: step*srf(self.dsk_row["sz_name"],x)
+        if anom_width==None:
+            dis_anom_min = sum(map(srf_sz,np.arange(0,self.dsk_row["age_min"]+step,step)))
+            dis_anom_max = sum(map(srf_sz,np.arange(0,self.dsk_row["age_max"]+step,step)))
+            anom_width = abs(dis_anom_max-dis_anom_min)/2
+        central_center = 0
         major_anomolies_composed_of_subchrons = []
         for j,(i,row) in enumerate(tdf.iterrows()):
             try: i,base,top = str(i),float(row["base"]),float(row["top"])
@@ -673,12 +801,12 @@ class SynthMagGUI(wx.Frame):
                     i = major_chron
                     major_anomolies_composed_of_subchrons.append(major_chron)
             elif base>self.max_age or top<self.min_age: continue
-            anom_dis = base*sr
+            anom_dis = sum(map(srf_sz,np.arange(0,base+step,step)))
             self.ax.axvline(central_center+anom_dis,linestyle='--',color='blue',alpha=.5)
             self.ax.axvline(central_center-anom_dis,linestyle='--',color='blue',alpha=.5)
             if j==0: self.ax.annotate(i,xy=(central_center,0),va="bottom",ha="center")
             else:
-                anom_center = (anom_dis+(top*sr))/2
+                anom_center = (anom_dis+(sum(map(srf_sz,np.arange(0,top+step,step)))))/2
                 self.ax.annotate(i,xy=(central_center+anom_center,0),va="bottom",ha="center")
                 self.ax.annotate(i,xy=(central_center-anom_center,0),va="bottom",ha="center")
 

@@ -10,12 +10,15 @@ from geographiclib.geodesic import Geodesic
 from pyskew.geographic_preprocessing import *
 from pyskew.utilities import *
 
-def filter_deskew_and_calc_aei(deskew_path,spreading_rate_model_path=None,anomalous_skewness_model_path=None):
+def filter_deskew_and_calc_aei(deskew_path,spreading_rate_path=None,anomalous_skewness_model_path=None):
     """Creates Datatable"""
 
-    asf,srf,sz_list = get_asf_srf(spreading_rate_model_path,anomalous_skewness_model_path)
-
     deskew_df = open_deskew_file(deskew_path)
+    asf,srf,sz_list = get_asf_srf(spreading_rate_path,anomalous_skewness_model_path)
+
+    filter_deskew_and_calc_aei(deskew_path,srf,asf)
+
+def calc_aei(deskew_df,srf,asf):
 
     deskew_df["ei"] = [(90 if ".Vd." in comp else 0) for ps,comp in zip(deskew_df["phase_shift"],deskew_df["comp_name"])]
 
@@ -33,19 +36,19 @@ def filter_deskew_and_calc_aei(deskew_path,spreading_rate_model_path=None,anomal
 
     return deskew_df
 
-def get_asf_srf(spreading_rate_model_path=None,anomalous_skewness_model_path=None):
-    if spreading_rate_model_path==None:
+def get_asf_srf(spreading_rate_path=None,anomalous_skewness_model_path=None):
+    if spreading_rate_path==None:
         if os.path.isfile(os.path.join('..','raw_data','spreading_rate_model.txt')):
-            spreading_rate_model_path = os.path.join('..','raw_data','spreading_rate_model.txt')
+            spreading_rate_path = os.path.join('..','raw_data','spreading_rate_model.txt')
         else:
-            spreading_rate_model_path = input("spreading rate model file could not be found in raw_data/spreading_rate_model.txt please provide a path to a spreading rate model file here: ")
+            spreading_rate_path = input("spreading rate model file could not be found in raw_data/spreading_rate_model.txt please provide a path to a spreading rate model file here: ")
     if anomalous_skewness_model_path==None:
         if os.path.isfile(os.path.join('raw_data','anomalous_skewness_model.txt')):
             anomalous_skewness_model_path = os.path.join('..','raw_data','anomalous_skewness_model.txt')
         else:
             anomalous_skewness_model_path = input("anomalous skewness model file could not be found in raw_data/anomalous_skewness_model.txt please provide a path to a anomalous skewness model file here: ")
 
-    srf,sz_list = generate_spreading_rate_model(spreading_rate_model_path)
+    srf,sz_list = generate_spreading_rate_model(spreading_rate_path)
     asf = generate_anomalous_skewness_model(anomalous_skewness_model_path)
 
     return asf,srf,sz_list
@@ -191,6 +194,23 @@ def create_maxtab_file(deskew_path,anomoly_name,outfile=None):
     out_file = open(outfile,'w+')
     out_file.write(out_str)
     out_file.close()
+
+def create_max_file(deskew_df,srf,asf,outfile="deskew.max"):
+    #Open Out File
+    with open(outfile,'w+') as fout:
+        #Write Max Header
+        fout.write("Max File\n")
+        fout.write("80.0,0.0,1.0,0,0,%d,0,0,0,1,1.0\n"%(len(deskew_df.index)))
+        #Write Each Track
+        deskew_df = calc_aei(deskew_df,srf,asf)
+        for i,row in deskew_df.iterrows():
+            fout.write(row["comp_name"]+"\n")
+            if row["track_type"]=="ship": s1aei = 36.2/(row["age_max"]-row["age_min"])
+            else: s1aei = 19.3/(row["age_max"]-row["age_min"])
+            fout.write("%.2f,%.2f,%.2f,%.2f,%.2f\n"%(row["aei"],s1aei,row["inter_lat"],row["inter_lon"],row["strike"]))
+        #Write Fake Remanent Amp Factor to prevent singularity in old Max
+        fout.write("Fake Amplitude")
+        fout.write("1.0,0.1,0.0,180.0,90.0")
 
 def generate_synth(ship_or_aero,age_min,age_max,spreading_rate_path,age_path=None,synth_age_lb=-83.64,synth_age_ub=83.64):
     if ship_or_aero=='aero':
@@ -379,9 +399,9 @@ def new_get_shipmag_decimal_year(row,deg_e=.01):
             decimal_year=float(datarow['decimal_year'])
     return decimal_year
 
-def reduce_to_pole(deskew_path, pole_lon, pole_lat, spreading_rate_model_path=None, anomalous_skewness_model_path=None):
+def reduce_to_pole(deskew_path, pole_lon, pole_lat, spreading_rate_path=None, anomalous_skewness_model_path=None):
 
-    asf,srf,sz_list = get_asf_srf(spreading_rate_model_path,anomalous_skewness_model_path)
+    asf,srf,sz_list = get_asf_srf(spreading_rate_path,anomalous_skewness_model_path)
 
     deskew_df = filter_deskew_and_calc_aei(deskew_path)
 
@@ -732,34 +752,38 @@ def create_deskewed_data_file(deskew_path):
         print("writing %s"%(data_path+'.deskewed'))
         data_df[['lon','lat','deskewed_mag']].to_csv(data_path+'.deskewed',sep=',',header=False,index=False)
 
-def config_synthetic(synth_config_path,timescale_path,spreading_rate_model_path,length=4096,buff=.2):
+def config_synthetic(synth_config_path,timescale_path,spreading_rate_path,length=4096,buff=.2):
     sconf = pd.read_csv(synth_config_path,sep='\t',header=0)
     synth_and_domains = []
     for i,row in sconf.iterrows():
-        synth_and_domains.append(make_synthetic(*row.values,timescale_path,spreading_rate_model_path,length=length,buff=buff))
+        synth_and_domains.append(make_synthetic(*row.values,timescale_path,spreading_rate_path,length=length,buff=buff))
     return synth_and_domains
 
-def make_synthetic(age_min,age_max,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,timescale_path,spreading_rate=None,sz_name=None,spreading_rate_model_path=None,length=4096,buff=.2):
+def make_synthetic(age_min,age_max,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,timescale_path,spreading_rate=None,sz_name=None,spreading_rate_path=None,length=4096,buff=.2):
 
     tdf = pd.read_csv(timescale_path,sep='\t',header=0)
-    if spreading_rate_model_path!=None and sz_name!=None:
-        srf = generate_spreading_rate_model(spreading_rate_model_path)[0]
+    if spreading_rate_path!=None and sz_name!=None:
+        srf = generate_spreading_rate_model(spreading_rate_path)[0]
     elif spreading_rate!=None:
         srf = lambda x,y: spreading_rate
     else:
         raise ValueError("Either a constant spreading rate must be given or a spreading rate model file and a spreading zone name in that file")
 
     #Construct Domains and Square Wave
-    tot_dis,age_step = 0,(age_max-age_min)/(length-1) #time sampling rate
-    mag_sig,time_domain,dis_domain = [],np.arange(age_min,age_max+age_step,age_step),[]
+    age_step = (age_max-age_min)/(length-1) #time sampling rate
+    #Start total distance at min_distance from central
+    if age_min>0: min_dis = sum(map(lambda x: age_step*srf(sz_name,x),np.arange(0,age_min,age_step)))
+    else: min_dis = -sum(map(lambda x: age_step*srf(sz_name,x),np.arange(age_min,0,age_step)))
+    tot_dis,mag_sig,time_domain,dis_domain = 0,[],np.linspace(age_min,age_max,length),[]
     for age in time_domain:
         tot_dis += age_step*srf(sz_name,age)
-        dis_domain.append(tot_dis)
-        idx = tdf[(abs(age)>=tdf["top"]) & (abs(age)<=tdf["base"])].index[0]
+        dis_domain.append(tot_dis+min_dis)
+        try: idx = tdf[(abs(round(age,2))>=tdf["top"]) & (abs(round(age,2))<=tdf["base"])].index[0]
+        except: import pdb; pdb.set_trace()
         if idx%2==0: pol = layer_mag
         else: pol = -layer_mag
         mag_sig.append(pol) #Square Wave
-    samp_dis = tot_dis/(length-1) #Distance sampling rate
+    samp_dis = (tot_dis)/(length-1) #Distance sampling rate
 
     #Pad Signal before processing
     if not fix_sta: lbuff = mag_sig[0]*np.ones([int(buff*length)])
@@ -782,7 +806,7 @@ def make_synthetic(age_min,age_max,layer_depth,layer_thickness,layer_mag,azi,rd,
     fte_mag_sig = mag_earth_filter(ft_mag_sig,length+2*buff*length,layer_depth,layer_depth+layer_thickness,rtheta,afac,dis_nyquist)
 
     if twf: #Guess what this does.
-        fte_mag_sig = transition_width_filter(fte_mag_sig,length,dis_nyquist,twf/4)
+        fte_mag_sig = transition_width_filter(fte_mag_sig,length+2*buff*length,dis_nyquist,twf/4)
 
     synth = np.fft.ifft(fte_mag_sig)
 

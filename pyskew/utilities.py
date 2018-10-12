@@ -5,7 +5,7 @@ from scipy.linalg import invpascal
 from datetime import datetime
 from geographiclib.geodesic import Geodesic
 from multiprocessing import Process
-from functools import reduce
+from functools import reduce,cmp_to_key
 
 def check_dir(d):
     if not os.path.isdir(d):
@@ -50,9 +50,31 @@ def read_idx_from_string(idx_str):
 def calc_projected_distance(inter_lon,inter_lat,lons,lats,strike):
     geodesic_solutions = [Geodesic.WGS84.Inverse(float(inter_lat),convert_to_0_360(inter_lon),lat,convert_to_0_360(lon)) for lat,lon in zip(lats,lons)]
 
-    projected_distances = pd.DataFrame([{'lat':gs['lat2'],'lon':gs['lon2'],'dist':(gs['s12']*np.sin(np.deg2rad(float(strike)-gs['azi2'])))/1000} for gs in geodesic_solutions])
+    projected_distances = pd.DataFrame([{'lat':gs['lat2'],'lon':gs['lon2'],'dist':(gs['s12']*np.sin(-np.deg2rad(float(strike)-gs['azi2'])))/1000} for gs in geodesic_solutions])
 
     return projected_distances
+
+def open_sr_model_file(sr_path):
+    sr_file = open(sr_path,'r')
+    sr_lines = sr_file.readlines()
+    sr_dict,header = {},""
+    for line in sr_lines:
+        entries = line.split("\t")
+        try:
+            sr_dict[header].append(list(map(float,entries)))
+        except (ValueError,KeyError) as e:
+            header = line.strip("\n")
+            if header=="": continue
+            sr_dict[header] = []
+    return sr_dict
+
+def write_sr_model_file(sr_dict,sr_path):
+    with open(sr_path,'w+') as fout:
+        for key in sr_dict.keys():
+            fout.write(key+"\n")
+            sr_data = sr_dict[key]
+            for sr_datum in sorted(sr_data,key=cmp_to_key(lambda x,y: y[0]-x[0])):
+                fout.write("%.3f\t%.3f\n"%(sr_datum))
 
 def open_ellipse_file(ellipse_path):
     elipse_file = open(ellipse_path,"r")
@@ -63,11 +85,12 @@ def open_deskew_file(deskew_path):
     deskew_df = pd.read_csv(deskew_path,sep='\t')
     deskew_df = deskew_df[deskew_df["comp_name"].notnull()]
     deskew_df = deskew_df[~deskew_df["comp_name"].str.startswith('#')]
-    cols = deskew_df.columns
-    return deskew_df.reset_index()[cols]
+#    cols = deskew_df.columns
+#    return deskew_df.reset_index()[cols]
+    return deskew_df
 
-def write_deskew_file(deskew_path): #need to impleent with , float_format="%.3f" for prettyness
-    pass
+def write_deskew_file(deskew_path,deskew_df): #need to impleent with , float_format="%.3f" for prettyness
+    deskew_df.to_csv(deskew_path,sep="\t",index=False,float_format="%.3f")
 
 def open_mag_file(mag_file):
     dfin = open_aeromag_file(mag_file)
@@ -157,10 +180,10 @@ def format_coord(x, y):
 
 def run_in_parallel(target,args=[],kwargs={}):
         if 'darwin' in sys.platform:
-            target(*args,**kwargs)
+            return target(*args,**kwargs)
         else:
             process = Process(target = target,args=args,kwargs=kwargs)
-            process.start()
+            return process.start()
 
 def polyfit(x,y,degree,err=None,full=False):
     """

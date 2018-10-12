@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 import statistics as stat
 import pmagpy.ipmag as ipmag
-from multiprocessing import Process
 from geographiclib.geodesic import Geodesic
 from pyskew.geographic_preprocessing import *
 from pyskew.utilities import *
@@ -16,7 +15,7 @@ def filter_deskew_and_calc_aei(deskew_path,spreading_rate_path=None,anomalous_sk
     deskew_df = open_deskew_file(deskew_path)
     asf,srf,sz_list = get_asf_srf(spreading_rate_path,anomalous_skewness_model_path)
 
-    filter_deskew_and_calc_aei(deskew_path,srf,asf)
+    return calc_aei(deskew_df,srf,asf)
 
 def calc_aei(deskew_df,srf,asf):
 
@@ -43,7 +42,7 @@ def get_asf_srf(spreading_rate_path=None,anomalous_skewness_model_path=None):
         else:
             spreading_rate_path = input("spreading rate model file could not be found in raw_data/spreading_rate_model.txt please provide a path to a spreading rate model file here: ")
     if anomalous_skewness_model_path==None:
-        if os.path.isfile(os.path.join('raw_data','anomalous_skewness_model.txt')):
+        if os.path.isfile(os.path.join('..','raw_data','anomalous_skewness_model.txt')):
             anomalous_skewness_model_path = os.path.join('..','raw_data','anomalous_skewness_model.txt')
         else:
             anomalous_skewness_model_path = input("anomalous skewness model file could not be found in raw_data/anomalous_skewness_model.txt please provide a path to a anomalous skewness model file here: ")
@@ -85,7 +84,7 @@ def phase_shift_data(mag_data,phase_shift):
     #   Truncate the head and the tail and return the data
     return NewMag[100:N1+100]
 
-def correct_site(site_cor_path,deskew_path,spreading_rate_path=os.path.join('..','raw_data','spreading_rate_model.txt'),dist_e=.75):
+def correct_site(site_cor_path,deskew_path,dist_e=.5):
     #backup the .deskew file
     if not os.path.isfile(deskew_path+'.ccbak'):
         print("backing up %s to %s"%(deskew_path,deskew_path+'.ccbak'))
@@ -94,7 +93,6 @@ def correct_site(site_cor_path,deskew_path,spreading_rate_path=os.path.join('..'
     #read in the deskew and site_cor file
     deskew_df = open_deskew_file(deskew_path)
     site_cor_df = pd.read_csv(site_cor_path,sep="\t")
-    spreading_rate_func,sz_list = generate_spreading_rate_model(spreading_rate_path)
 
     #copy the deskew df so I can change it and save the corrected latitudes and longitudes
     new_deskew_df = deskew_df.copy()
@@ -103,25 +101,6 @@ def correct_site(site_cor_path,deskew_path,spreading_rate_path=os.path.join('..'
 
         if drow['comp_name'].startswith('#'): continue #commented lines check
         if crow.empty: print("no correction found for component %s"%drow["comp_name"]); continue #no correction for this component check
-
-#        half_age = (drow['age_max']-drow['age_min'])/2
-#        avg_age = (drow['age_max']+drow['age_min'])/2
-#        half_dis = half_age*spreading_rate_func(drow['sz_name'],avg_age)
-        sz = drow['sz_name']
-        try: dis_span = np.loadtxt(os.path.join('..','raw_data','SynthData','dis_span_%s.txt'%sz),delimiter=',')
-        except (IOError,OSError) as e:
-            try:
-
-                default_name = ''
-                if os.path.isfile(os.path.join('..','raw_data','SynthData','dis_span_Default.txt')): default_name = 'Default'
-                elif os.path.isfile(os.path.join('..','raw_data','SynthData','dis_span_default.txt')): default_name = 'default'
-                else: sz = 'default'; raise IOError
-
-                dis_span = np.loadtxt(os.path.join('..','raw_data','SynthData','dis_span_%s.txt'%default_name),delimiter=',')
-
-            except (IOError,OSError) as e:
-                raise IOError("No synthetic found for %s, please generate a new synthetic which contains a spreading rate model for this spreading zone"%sz)
-        half_dis = abs(float(dis_span[0]))
 
         if drow['track_type'] == 'aero':
             #Find other component direction so we can average the shift between components
@@ -133,9 +112,9 @@ def correct_site(site_cor_path,deskew_path,spreading_rate_path=os.path.join('..'
             #check that the intersept distance correction between E and V are not more than 3 deg different
             if abs(float(crow['correction']) - float(other_crow['correction']))>3:
                 print("correction for %s is >3 km different from the other componenet's correction, and the average may be off"%(drow['comp_name']))
-            correction = (float(crow['correction'])+float(other_crow['correction']))/2 + half_dis
+            correction = (float(crow['correction'])+float(other_crow['correction']))/2
         elif drow['track_type'] == 'ship':
-            correction = float(crow['correction']) + half_dis
+            correction = float(crow['correction'])
         else:
             print("could not determine the track type for %s please check your deskew file, skipping"%drow["comp_name"]); continue
 
@@ -209,7 +188,7 @@ def create_max_file(deskew_df,srf,asf,outfile="deskew.max"):
             else: s1aei = 19.3/(row["age_max"]-row["age_min"])
             fout.write("%.2f,%.2f,%.2f,%.2f,%.2f\n"%(row["aei"],s1aei,row["inter_lat"],row["inter_lon"],row["strike"]))
         #Write Fake Remanent Amp Factor to prevent singularity in old Max
-        fout.write("Fake Amplitude")
+        fout.write("Fake Amplitude\n")
         fout.write("1.0,0.1,0.0,180.0,90.0")
 
 def generate_synth(ship_or_aero,age_min,age_max,spreading_rate_path,age_path=None,synth_age_lb=-83.64,synth_age_ub=83.64):
@@ -300,9 +279,9 @@ def check_generate_synth(sz_to_check,age_min,age_max,ship_or_aero="both",matlab=
 
     if ship_or_aero=="aero" or ship_or_aero=="both":
 
-        if not os.path.isfile(os.path.join(synth_data_location,'SynthData/dis_span_%s.txt'%sz_to_check)) or \
-           not os.path.isfile(os.path.join(synth_data_location,'SynthData/dis_syn_%s_aero.txt'%sz_to_check)) or \
-           not os.path.isfile(os.path.join(synth_data_location,'SynthData/mag_syn_%s_aero.txt'%sz_to_check)):
+        if not os.path.isfile(os.path.join(synth_data_location,os.path.join('..','raw_data','SynthData','dis_span_%s.txt'%sz_to_check))) or \
+           not os.path.isfile(os.path.join(synth_data_location,os.path.join('..','raw_data','SynthData','dis_syn_%s_aero.txt'%sz_to_check))) or \
+           not os.path.isfile(os.path.join(synth_data_location,os.path.join('..','raw_data','SynthData','mag_syn_%s_aero.txt'%sz_to_check))):
             if spreading_rate_path==None:
                 if os.path.isfile(os.path.join('..','raw_data','spreading_rate_model.txt')):
                     spreading_rate_path = os.path.join('..','raw_data','spreading_rate_model.txt')
@@ -313,9 +292,9 @@ def check_generate_synth(sz_to_check,age_min,age_max,ship_or_aero="both",matlab=
 
     if ship_or_aero=="ship" or ship_or_aero=="both":
 
-        if not os.path.isfile(os.path.join(synth_data_location,'SynthData/dis_span_%s.txt'%sz_to_check)) or \
-           not os.path.isfile(os.path.join(synth_data_location,'SynthData/dis_syn_%s_ship.txt'%sz_to_check)) or \
-           not os.path.isfile(os.path.join(synth_data_location,'SynthData/mag_syn_%s_ship.txt'%sz_to_check)):
+        if not os.path.isfile(os.path.join(synth_data_location,os.path.join('..','raw_data','SynthData','dis_span_%s.txt'%sz_to_check))) or \
+           not os.path.isfile(os.path.join(synth_data_location,os.path.join('..','raw_data','SynthData','dis_syn_%s_ship.txt'%sz_to_check))) or \
+           not os.path.isfile(os.path.join(synth_data_location,os.path.join('..','raw_data','SynthData','mag_syn_%s_ship.txt'%sz_to_check))):
             if spreading_rate_path==None:
                 if os.path.isfile(os.path.join('..','raw_data','spreading_rate_model.txt')):
                     spreading_rate_path = os.path.join('..','raw_data','spreading_rate_model.txt')

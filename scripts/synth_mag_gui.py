@@ -4,6 +4,7 @@ import pandas as pd
 import wx.lib.buttons as buttons
 import pyskew.plot_skewness as psk
 import pyskew.skewness as sk
+from pyskew.srm_window import SRMWindow
 import pyskew.utilities as utl
 import matplotlib
 from matplotlib.figure import Figure
@@ -14,7 +15,7 @@ class SynthMagGUI(wx.Frame):
 
     #########################Init Funcions#############################
 
-    def __init__(self,config_file=None,dpi=200):
+    def __init__(self,config_file=None,fontsize=8,dpi=200):
         """Constructor"""
         #call init of super class
         default_style = wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.RESIZE_BORDER | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN | wx.NO_FULL_REPAINT_ON_RESIZE | wx.WS_EX_CONTEXTHELP | wx.FRAME_EX_CONTEXTHELP
@@ -31,6 +32,7 @@ class SynthMagGUI(wx.Frame):
 
         #make the Panel
         self.panel = wx.Panel(self,-1,size=(1200,900))
+        self.fontsize = fontsize
 
         #Populate UI and Menu
         self.init_UI()
@@ -47,14 +49,14 @@ class SynthMagGUI(wx.Frame):
 
         side_bar_h_space = 10
         side_bar_v_space = 10
-        v_bar_v_space = 8
+        v_bar_v_space = 10
 
         #----------------Build Directory and File Buttons-----------------
         # (176, 29) is the size of the largest button this way everything is nicely spaced
         wd_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.dir_path = wx.TextCtrl(self.panel, id=-1, size=(600,25), style=wx.TE_READONLY)
         self.change_dir_button = buttons.GenButton(self.panel, id=-1, label="change directory",size=(176, 29))
-        self.change_dir_button.SetBackgroundColour("#F8F8FF")
+#        self.change_dir_button.SetBackgroundColour("#F8F8FF")
         self.change_dir_button.InitColours()
         self.Bind(wx.EVT_BUTTON, self.on_change_dir_button, self.change_dir_button)
         wd_sizer.Add(self.change_dir_button, wx.ALIGN_LEFT)
@@ -64,7 +66,7 @@ class SynthMagGUI(wx.Frame):
         ts_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.ts_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY)
         self.change_ts_button = buttons.GenButton(self.panel, id=-1, label="change timescale",size=(176, 29))
-        self.change_ts_button.SetBackgroundColour("#F8F8FF")
+#        self.change_ts_button.SetBackgroundColour("#F8F8FF")
         self.change_ts_button.InitColours()
         self.Bind(wx.EVT_BUTTON, self.on_open_ts_button, self.change_ts_button)
         ts_sizer.Add(self.change_ts_button, wx.ALIGN_LEFT)
@@ -74,7 +76,7 @@ class SynthMagGUI(wx.Frame):
         dsk_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.dsk_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY)
         self.change_dsk_button = buttons.GenButton(self.panel, id=-1, label="change deskew file",size=(176, 29))
-        self.change_dsk_button.SetBackgroundColour("#F8F8FF")
+#        self.change_dsk_button.SetBackgroundColour("#F8F8FF")
         self.change_dsk_button.InitColours()
         self.Bind(wx.EVT_BUTTON, self.on_open_dsk_button, self.change_dsk_button)
         dsk_sizer.Add(self.change_dsk_button, wx.ALIGN_LEFT)
@@ -84,7 +86,7 @@ class SynthMagGUI(wx.Frame):
         sr_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.sr_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY)
         self.change_sr_button = buttons.GenButton(self.panel, id=-1, label="change spreading rate",size=(176, 29))
-        self.change_sr_button.SetBackgroundColour("#F8F8FF")
+#        self.change_sr_button.SetBackgroundColour("#F8F8FF")
         self.change_sr_button.InitColours()
         self.Bind(wx.EVT_BUTTON, self.on_open_sr_file, self.change_sr_button)
         sr_sizer.Add(self.change_sr_button, wx.ALIGN_LEFT)
@@ -94,7 +96,7 @@ class SynthMagGUI(wx.Frame):
         as_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.as_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY)
         self.change_as_button = buttons.GenButton(self.panel, id=-1, label="change anomalous skewness",size=(176, 29))
-        self.change_as_button.SetBackgroundColour("#F8F8FF")
+#        self.change_as_button.SetBackgroundColour("#F8F8FF")
         self.change_as_button.InitColours()
         self.Bind(wx.EVT_BUTTON, self.on_open_as_file, self.change_as_button)
         as_sizer.Add(self.change_as_button, wx.ALIGN_LEFT)
@@ -330,6 +332,15 @@ class SynthMagGUI(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_show_major_anoms, self.m_show_major_anoms)
 
         #-----------------
+        # Tools Menu
+        #-----------------
+
+        menu_tools = wx.Menu()
+
+        self.m_srm_edit = menu_tools.Append(-1, "&Spreading Rate Model\tAlt-R", "")
+        self.Bind(wx.EVT_MENU, self.on_srm_edit, self.m_srm_edit)
+
+        #-----------------
         # Help Menu
         #-----------------
 
@@ -343,6 +354,7 @@ class SynthMagGUI(wx.Frame):
         self.menubar.Append(menu_file, "&File")
         self.menubar.Append(menu_edit, "&Edit")
         self.menubar.Append(menu_view, "&View")
+        self.menubar.Append(menu_tools, "&Tools")
         self.menubar.Append(menu_help, "&Help")
         self.SetMenuBar(self.menubar)
 
@@ -431,7 +443,7 @@ class SynthMagGUI(wx.Frame):
             center_dis = dis_anom_max - anom_width
             neg_anom= (-dis_anom_min - anom_width) - center_dis
             dis_synth = np.array(synth[1])-center_dis
-        except AttributeError: dis_synth=np.array(synth[1])-((max(synth[1])+min(synth[1]))/2)
+        except AttributeError: dis_synth,anom_width=synth[1],0
 
         ylim,xlim = self.ax.get_ylim(),self.ax.get_xlim()
         self.ax.clear()
@@ -458,7 +470,7 @@ class SynthMagGUI(wx.Frame):
             psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,color='k',zorder=3,picker=True)
             self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
             if self.min_age<=-self.dsk_row["age_min"]: self.ax.axvspan(neg_anom-anom_width,neg_anom+anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
-            self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.15),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5))
+            self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.15),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize)
         except AttributeError: pass
 
         self.ax.plot(dis_synth,synth[0],'r-',alpha=.4,zorder=1)
@@ -488,6 +500,7 @@ class SynthMagGUI(wx.Frame):
         self.deskew_df["data_dir"] = abs_data_paths
         self.track_box.Clear()
         self.track_box.SetItems([""]+self.deskew_df["comp_name"].tolist())
+        self.on_select_track(event)
 
     def on_close_main(self,event):
         self.Destroy()
@@ -689,7 +702,7 @@ class SynthMagGUI(wx.Frame):
         try: self.point_annotation.remove()
         except (AttributeError,ValueError) as e: pass
         pos = self.ax.transData.inverted().transform(pos)
-        self.point_annotation = self.ax.annotate("x = %.2f\ny = %.2f"%(float(pos[0]),float(pos[1])),xy=(1-0.12,1-0.11),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5))
+        self.point_annotation = self.ax.annotate("x = %.2f\ny = %.2f"%(float(pos[0]),float(pos[1])),xy=(1-0.12,1-0.11),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize)
         self.canvas.draw()
         event.Skip()
 
@@ -728,11 +741,11 @@ class SynthMagGUI(wx.Frame):
             )
         if dlg.ShowModal() == wx.ID_OK:
             outfile = dlg.GetPath()
-            if self.spreading_rate_path==None:
+            if not self.m_use_sr_model.IsChecked() or self.spreading_rate_path==None:
                 sr_value = self.sr_box.GetValue()
                 srf = lambda x,y: sr_value
             else: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
-            if self.anomalous_skewness_path==None: asf = lambda x: 0
+            if not self.m_use_as_model.IsChecked() or self.anomalous_skewness_path==None: asf = lambda x: 0
             else: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
             sk.create_max_file(self.deskew_df,srf,asf,outfile=outfile)
         dlg.Destroy()
@@ -768,6 +781,11 @@ class SynthMagGUI(wx.Frame):
     def on_use_as_model(self,event):
         self.update(event)
 
+    def on_srm_edit(self,event):
+        self.srmw = SRMWindow(self.spreading_rate_path,parent=self,fontsize=self.fontsize,dpi=self.dpi)
+        self.srmw.Center()
+        self.srmw.Show()
+
     def on_open_debug(self,event):
         pdb.set_trace()
 
@@ -780,8 +798,9 @@ class SynthMagGUI(wx.Frame):
         else:
             sr = float(self.sr_box.GetValue())
             srf = lambda x,y: sr
-        step = (self.max_age-self.min_age)/(syn_length-1)
-        srf_sz = lambda x: step*srf(self.dsk_row["sz_name"],x)
+        step = (self.max_age-self.min_age)/(float(self.samp_n_box.GetValue())-1)
+        try: sz_name,srf_sz = self.dsk_row["sz_name"],lambda x: step*srf(sz_name,x)
+        except (AttributeError,KeyError) as e: srf_sz = lambda x: step*srf("",x)
         if anom_width==None:
             dis_anom_min = sum(map(srf_sz,np.arange(0,self.dsk_row["age_min"]+step,step)))
             dis_anom_max = sum(map(srf_sz,np.arange(0,self.dsk_row["age_max"]+step,step)))
@@ -804,11 +823,11 @@ class SynthMagGUI(wx.Frame):
             anom_dis = sum(map(srf_sz,np.arange(0,base+step,step)))
             self.ax.axvline(central_center+anom_dis,linestyle='--',color='blue',alpha=.5)
             self.ax.axvline(central_center-anom_dis,linestyle='--',color='blue',alpha=.5)
-            if j==0: self.ax.annotate(i,xy=(central_center,0),va="bottom",ha="center")
+            if j==0: self.ax.annotate(i,xy=(central_center,0),va="bottom",ha="center",fontsize=self.fontsize)
             else:
                 anom_center = (anom_dis+(sum(map(srf_sz,np.arange(0,top+step,step)))))/2
-                self.ax.annotate(i,xy=(central_center+anom_center,0),va="bottom",ha="center")
-                self.ax.annotate(i,xy=(central_center-anom_center,0),va="bottom",ha="center")
+                self.ax.annotate(i,xy=(central_center+anom_center,0),va="bottom",ha="center",fontsize=self.fontsize)
+                self.ax.annotate(i,xy=(central_center-anom_center,0),va="bottom",ha="center",fontsize=self.fontsize)
 
     ##########################Utility Dialogs and Functions################
 

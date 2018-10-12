@@ -435,7 +435,8 @@ class SynthMagGUI(wx.Frame):
             self.deskew_df.set_value(self.dsk_idx,"phase_shift",phase_shift)
 
             #Center Synthetic
-            step = (self.max_age-self.min_age)/(syn_length-1)
+            if self.max_age!=self.min_age: step = (self.max_age-self.min_age)/(syn_length-1)
+            else: step = .01
             srf_sz = lambda x: step*srf(self.dsk_row["sz_name"],x)
             dis_anom_min = sum(map(srf_sz,np.arange(0,self.dsk_row["age_min"]+step,step)))
             dis_anom_max = sum(map(srf_sz,np.arange(0,self.dsk_row["age_max"]+step,step)))

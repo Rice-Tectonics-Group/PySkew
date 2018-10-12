@@ -73,8 +73,8 @@ def write_sr_model_file(sr_dict,sr_path):
         for key in sr_dict.keys():
             fout.write(key+"\n")
             sr_data = sr_dict[key]
-            for sr_datum in sorted(sr_data,key=cmp_to_key(lambda x,y: y[0]-x[0])):
-                fout.write("%.3f\t%.3f\n"%(sr_datum))
+            for sr_datum in sorted(sr_data,key=cmp_to_key(lambda x,y: x[0]-y[0])):
+                fout.write("%.3f\t%.3f\n"%(float(sr_datum[0]),float(sr_datum[1])))
 
 def open_ellipse_file(ellipse_path):
     elipse_file = open(ellipse_path,"r")

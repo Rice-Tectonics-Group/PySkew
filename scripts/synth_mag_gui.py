@@ -19,7 +19,7 @@ class SynthMagGUI(wx.Frame):
         """Constructor"""
         #call init of super class
         default_style = wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.RESIZE_BORDER | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN | wx.NO_FULL_REPAINT_ON_RESIZE | wx.WS_EX_CONTEXTHELP | wx.FRAME_EX_CONTEXTHELP
-        wx.Frame.__init__(self, None, title="SynthMagGUI V0.0.1",style=default_style, size=(400*3,300*3))
+        wx.Frame.__init__(self, None, title="SynthMagGUI V0.1.1",style=default_style, size=(400*3,300*3))
         self.Bind(wx.EVT_CLOSE, self.on_close_main)
 
         #Save input variables
@@ -501,7 +501,7 @@ class SynthMagGUI(wx.Frame):
         self.deskew_df["data_dir"] = abs_data_paths
         self.track_box.Clear()
         self.track_box.SetItems([""]+self.deskew_df["comp_name"].tolist())
-        self.on_select_track(event)
+        self.on_select_track(-1)
 
     def on_close_main(self,event):
         self.Destroy()
@@ -562,6 +562,8 @@ class SynthMagGUI(wx.Frame):
             try: self.sr_box.SetValue("%.1f"%((srf(self.dsk_row["sz_name"],self.dsk_row["age_min"])+srf(self.dsk_row["sz_name"],self.dsk_row["age_max"]))/2))
             except AttributeError: pass
             if not self.m_use_sr_model.IsChecked(): self.m_use_sr_model.Check()
+            try: self.srmw.spreading_rate_path = self.spreading_rate_path; self.srmw.update()
+            except AttributeError: pass
         dlg.Destroy()
 
     def on_open_as_file(self,event):
@@ -582,6 +584,7 @@ class SynthMagGUI(wx.Frame):
 
     def on_select_track(self,event):
         self.track = self.track_box.GetValue()
+        if self.track=="" or self.track==None or self.track=="None": return
         self.dsk_row = self.deskew_df[self.deskew_df["comp_name"]==self.track].iloc[0]
         self.dsk_idx = self.deskew_df.index[self.deskew_df["comp_name"]==self.track]
         try:
@@ -593,6 +596,8 @@ class SynthMagGUI(wx.Frame):
         if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None:
             srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
             self.sr_box.SetValue("%.1f"%((srf(self.dsk_row["sz_name"],self.dsk_row["age_min"])+srf(self.dsk_row["sz_name"],self.dsk_row["age_max"]))/2))
+        try: self.srmw.sz_box.SetValue(self.dsk_row["sz_name"]); self.srmw.on_select_sz(event)
+        except AttributeError: pass
 
     def on_select_age_min(self,event):
         min_chron = self.age_min_box.GetValue()
@@ -783,7 +788,9 @@ class SynthMagGUI(wx.Frame):
         self.update(event)
 
     def on_srm_edit(self,event):
-        self.srmw = SRMWindow(self.spreading_rate_path,parent=self,fontsize=self.fontsize,dpi=self.dpi)
+        try: starting_sz = self.dsk_row["sz_name"]
+        except (AttributeError,KeyError) as e: starting_sz = ""
+        self.srmw = SRMWindow(self.spreading_rate_path,parent=self,starting_sz=starting_sz,fontsize=self.fontsize,dpi=self.dpi)
         self.srmw.Center()
         self.srmw.Show()
 

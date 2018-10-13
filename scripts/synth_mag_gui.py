@@ -562,7 +562,7 @@ class SynthMagGUI(wx.Frame):
             try: self.sr_box.SetValue("%.1f"%((srf(self.dsk_row["sz_name"],self.dsk_row["age_min"])+srf(self.dsk_row["sz_name"],self.dsk_row["age_max"]))/2))
             except AttributeError: pass
             if not self.m_use_sr_model.IsChecked(): self.m_use_sr_model.Check()
-            try: self.srmw.spreading_rate_path = self.spreading_rate_path; self.srmw.update()
+            try: self.srmw.update()
             except AttributeError: pass
         dlg.Destroy()
 

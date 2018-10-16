@@ -244,12 +244,60 @@ def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=Non
     if pole_text!=None:
         if pole_text_pos!=None: plt.text(*m(*pole_text_pos),pole_text,zorder=500)
         else:
-#            np.random.seed(int(abs(1e5*lat+1e5*lon+1e5*a+1e5*b+3))) #just need it to be determanistic
-#            azi = 360.0*np.random.random()
             tazi = 90
             geodict=Geodesic.WGS84.ArcDirect(lat,lon,tazi,1)
             plt.text(*m(geodict["lon2"],geodict["lat2"]),pole_text,zorder=500,va='top',ha='center')
-    ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=True, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
+    ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=True, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
+
+    return m
+
+
+def ellipse(m, centerlon, centerlat, major_axis, minor_axis, angle, n=360, filled=False, **kwargs):
+    """
+    This function enables general error ellipses to be drawn on the basemap projection of the input map m
+    using a center and a set of major and minor axes and a rotation angle east of north.
+    (Adapted from equi).
+    Parameters
+    -----------
+    m : initalized Basemap object
+    centerlon : longitude of the center of the ellipse
+    centerlat : latitude of the center of the ellipse
+    major_axis : Major axis of ellipse
+    minor_axis : Minor axis of ellipse
+    angle : angle of major axis in degrees east of north
+    n : number of points with which to apporximate the ellipse
+    filled : boolean specifying if the ellipse should be plotted as a filled polygon or
+             as a set of line segments
+    kwargs : any other key word arguments for the Polygon function of matplotlib.patches
+             if filled = True. Else any key word arguments for the basemap.plot function
+    Returns
+    ---------
+    The map object with the ellipse plotted on it
+    """
+    angle = angle*(np.pi/180)
+    glon1 = centerlon
+    glat1 = centerlat
+    X = []
+    Y = []
+    for azimuth in np.linspace(0,360,n):
+        az_rad = azimuth*(np.pi/180)
+        radius = ((major_axis*minor_axis)/(((minor_axis*np.cos(az_rad-angle))**2 + (major_axis*np.sin(az_rad-angle))**2)**.5))
+        glon2, glat2, baz = ipmag.shoot(glon1, glat1, azimuth, radius)
+        X.append(glon2)
+        Y.append(glat2)
+    X.append(X[0])
+    Y.append(Y[0])
+
+    if filled:
+        ax = m._check_ax()
+        X, Y = m(X, Y)
+        ellip = np.array((X,Y)).T
+        poly = Polygon(ellip, **kwargs)
+        ax.add_patch(poly)
+        m.set_axes_limits(ax=ax)
+    else:
+        X, Y = m(X, Y)
+        m.plot(X, Y, **kwargs)
 
     return m
 

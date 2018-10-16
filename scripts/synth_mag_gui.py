@@ -5,6 +5,7 @@ import wx.lib.buttons as buttons
 import pyskew.plot_skewness as psk
 import pyskew.skewness as sk
 from pyskew.srm_window import SRMWindow
+from pyskew.tv_window import TVWindow
 import pyskew.utilities as utl
 import matplotlib
 from matplotlib.figure import Figure
@@ -29,6 +30,7 @@ class SynthMagGUI(wx.Frame):
         self.syn_buff = .2
         self.min_age,self.max_age = 0,0
         self.spreading_rate_path,self.anomalous_skewness_path,self.timescale_path,self.deskew_path = None,None,None,None
+        self.srmw_open,self.tvw_open = False,False
 
         #make the Panel
         self.panel = wx.Panel(self,-1,size=(1200,900))
@@ -239,6 +241,7 @@ class SynthMagGUI(wx.Frame):
         self.toolbar.zoom()
         self.canvas.Bind(wx.EVT_MIDDLE_DOWN,self.on_middle_click_plot)
         self.canvas.Bind(wx.EVT_MOTION,self.on_move_mouse_plot)
+        self.canvas.Bind(wx.EVT_LEFT_DCLICK, self.on_select_dleft_click)
 
         #------------------------------------Finish Building UI---------------------------------------------------
 
@@ -340,6 +343,9 @@ class SynthMagGUI(wx.Frame):
         self.m_srm_edit = menu_tools.Append(-1, "&Spreading Rate Model\tAlt-R", "")
         self.Bind(wx.EVT_MENU, self.on_srm_edit, self.m_srm_edit)
 
+        self.m_tv = menu_tools.Append(-1, "&Track Viewer\tAlt-V", "")
+        self.Bind(wx.EVT_MENU, self.on_tv, self.m_tv)
+
         #-----------------
         # Help Menu
         #-----------------
@@ -429,6 +435,8 @@ class SynthMagGUI(wx.Frame):
 
         #Update Data
         try:
+            infile = os.path.join(self.dsk_row["data_dir"],self.dsk_row["comp_name"])
+            if not os.path.isfile(infile): self.user_warning("Data file %s could not be found"%infile)
             self.dsk_row["strike"] = (azi+90)%360
             self.dsk_row["phase_shift"] = phase_shift
             self.deskew_df.set_value(self.dsk_idx,"strike",(azi+90)%360)
@@ -465,7 +473,7 @@ class SynthMagGUI(wx.Frame):
                 other_dsk_row = self.deskew_df[self.deskew_df["comp_name"]==other_track].iloc[0]
                 other_dsk_row["strike"] = (azi+90)%360
                 psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7)
-            else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.deskew_df["track_type"]))
+            else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.dsk_row["track_type"]))
 
         try:
             psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,color='k',zorder=3,picker=True)
@@ -479,7 +487,8 @@ class SynthMagGUI(wx.Frame):
 
 #        psk.plot_scale_bars(self.ax,offset_of_bars = .05)
 
-        if not xlim==(0.0,1.0):
+        scale = np.sqrt(sum(np.array(xlim)**2))
+        if not scale<20 or scale>3000:
             self.ax.set_xlim(xlim)
             self.ax.set_ylim(ylim)
 
@@ -596,8 +605,8 @@ class SynthMagGUI(wx.Frame):
         if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None:
             srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
             self.sr_box.SetValue("%.1f"%((srf(self.dsk_row["sz_name"],self.dsk_row["age_min"])+srf(self.dsk_row["sz_name"],self.dsk_row["age_max"]))/2))
-        try: self.srmw.sz_box.SetValue(self.dsk_row["sz_name"]); self.srmw.on_select_sz(event)
-        except AttributeError: pass
+        if self.srmw_open: self.srmw.sz_box.SetValue(self.dsk_row["sz_name"]); self.srmw.on_select_sz(event)
+        if self.tvw_open: self.tvw.on_parent_select_track()
 
     def on_select_age_min(self,event):
         min_chron = self.age_min_box.GetValue()
@@ -626,7 +635,8 @@ class SynthMagGUI(wx.Frame):
 
     def on_enter_age_max(self,event):
         max_value = self.age_max_box.GetValue()
-        tdf = pd.read_csv(self.timescale_path,sep='\t',header=0,index_col=0)
+        try: tdf = pd.read_csv(self.timescale_path,sep='\t',header=0,index_col=0)
+        except AttributeError: self.user_warning("No timescale file defined")
         if max_value in tdf.index:
             self.max_age = tdf.loc[max_value]["base"]
         else:
@@ -702,15 +712,32 @@ class SynthMagGUI(wx.Frame):
         elif self.plot_setting == "Pan":
             self.plot_setting = "Zoom"
             self.toolbar.zoom()
+        event.Skip()
 
     def on_move_mouse_plot(self,event):
         pos=event.GetPosition()
-        try: self.point_annotation.remove()
-        except (AttributeError,ValueError) as e: pass
+        width, height = self.canvas.get_width_height()
+        pos = [pos[0],height-pos[1]]
         pos = self.ax.transData.inverted().transform(pos)
-        self.point_annotation = self.ax.annotate("x = %.2f\ny = %.2f"%(float(pos[0]),float(pos[1])),xy=(1-0.12,1-0.11),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize)
+
+        self.annotate_point(pos,xy=(1-0.12,1-0.11),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize)
+
+        self.plot_tracer_point(pos[0],linestyle='--',color='red',alpha=.5)
+        if self.tvw_open:
+            self.tvw.plot_tracer_point(self.dsk_row,pos[0],color="red",marker="o",s=10)
+            self.tvw.canvas.draw()
+
         self.canvas.draw()
         event.Skip()
+
+    def on_select_dleft_click(self,event):
+        pos=event.GetPosition()
+        width, height = self.canvas.get_width_height()
+        pos = [pos[0],height-pos[1]]
+        pos = self.ax.transData.inverted().transform(pos)
+        self.set_new_intercept(pos[0])
+        self.update(event)
+        if self.tvw_open: self.tvw.update()
 
     ##########################Menu Functions################################
 
@@ -788,11 +815,20 @@ class SynthMagGUI(wx.Frame):
         self.update(event)
 
     def on_srm_edit(self,event):
-        try: starting_sz = self.dsk_row["sz_name"]
-        except (AttributeError,KeyError) as e: starting_sz = ""
-        self.srmw = SRMWindow(self.spreading_rate_path,parent=self,starting_sz=starting_sz,fontsize=self.fontsize,dpi=self.dpi)
-        self.srmw.Center()
-        self.srmw.Show()
+        if not self.srmw_open:
+            try: starting_sz = self.dsk_row["sz_name"]
+            except (AttributeError,KeyError) as e: starting_sz = ""
+            self.srmw = SRMWindow(self.spreading_rate_path,parent=self,starting_sz=starting_sz,fontsize=self.fontsize,dpi=self.dpi)
+            self.srmw.Center()
+            self.srmw.Show()
+            self.srmw_open=True
+
+    def on_tv(self,event):
+        if not self.tvw_open:
+            self.tvw = TVWindow(parent=self,dpi=self.dpi)
+            self.tvw.Center()
+            self.tvw.Show()
+            self.tvw_open=True
 
     def on_open_debug(self,event):
         pdb.set_trace()
@@ -837,6 +873,16 @@ class SynthMagGUI(wx.Frame):
                 self.ax.annotate(i,xy=(central_center+anom_center,0),va="bottom",ha="center",fontsize=self.fontsize)
                 self.ax.annotate(i,xy=(central_center-anom_center,0),va="bottom",ha="center",fontsize=self.fontsize)
 
+    def plot_tracer_point(self,x,**kwargs):
+        try: self.point_on_track.remove()
+        except (AttributeError,ValueError) as e: pass
+        self.point_on_track = self.ax.axvline(x,**kwargs)
+
+    def annotate_point(self,pos,**kwargs):
+        try: self.point_annotation.remove()
+        except (AttributeError,ValueError) as e: pass
+        self.point_annotation = self.ax.annotate("x = %.2f\ny = %.2f"%(float(pos[0]),float(pos[1])),**kwargs)
+
     ##########################Utility Dialogs and Functions################
 
     def user_warning(self, message, caption = 'Warning!'):
@@ -862,6 +908,13 @@ class SynthMagGUI(wx.Frame):
 
     def swap(self,a,b):
         return b,a
+
+    def set_new_intercept(self,dis,dist_e=.5):
+        new_lon,new_lat,cor_dis = sk.get_lon_lat_from_plot_pick(self.dsk_row,dis,dist_e=dist_e)
+        if self.user_warning("Are you sure you want to correct site location by %.2f to coordinates (%.2f,%.2f)"%(cor_dis,new_lat,new_lon)):
+            self.deskew_df.set_value(self.dsk_idx,"inter_lat",new_lat)
+            self.deskew_df.set_value(self.dsk_idx,"inter_lon",new_lon)
+            self.dsk_row = self.deskew_df.loc[self.dsk_idx].iloc[0]
 
 
 

@@ -167,6 +167,7 @@ class SRMWindow(wx.Frame):
         self.canvas.draw()
 
     def on_close_main(self,event):
+        self.parent.srmw_open=False
         self.Destroy()
 
     ###################Button and Dropdown Functions#########################
@@ -197,7 +198,7 @@ class SRMWindow(wx.Frame):
                 return
         self.srm[self.sz] = new_sz_srm
 
-        self.update_self_and_parent
+        self.update_self_and_parent()
 
     def on_add_rate_btn(self,event):
 
@@ -244,6 +245,7 @@ class SRMWindow(wx.Frame):
         elif self.plot_setting == "Pan":
             self.plot_setting = "Zoom"
             self.toolbar.zoom()
+        event.Skip()
 
     ###########################Utility Funcions###############################
 

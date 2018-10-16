@@ -723,9 +723,11 @@ class SynthMagGUI(wx.Frame):
         self.annotate_point(pos,xy=(1-0.12,1-0.11),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize)
 
         self.plot_tracer_point(pos[0],linestyle='--',color='red',alpha=.5)
-        if self.tvw_open:
-            self.tvw.plot_tracer_point(self.dsk_row,pos[0],color="red",marker="o",s=10)
-            self.tvw.canvas.draw()
+        try:
+            if self.tvw_open:
+                self.tvw.plot_tracer_point(self.dsk_row,pos[0],color="red",marker="o",s=10)
+                self.tvw.canvas.draw()
+        except AttributeError: pass
 
         self.canvas.draw()
         event.Skip()

@@ -471,7 +471,7 @@ class SynthMagGUI(wx.Frame):
                     other_phase = phase_shift+90
                 else: self.user_warning("Improperly named component files should have either Ed.lp or Vd.lp got: %s"%self.track); return
                 other_dsk_row = self.deskew_df[self.deskew_df["comp_name"]==other_track].iloc[0]
-                other_dsk_row["strike"] = (azi+90)%360
+                other_dsk_row["strike"] = (azi-90)%360
                 psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7)
             else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.dsk_row["track_type"]))
 

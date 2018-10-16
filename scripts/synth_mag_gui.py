@@ -437,9 +437,9 @@ class SynthMagGUI(wx.Frame):
         try:
             infile = os.path.join(self.dsk_row["data_dir"],self.dsk_row["comp_name"])
             if not os.path.isfile(infile): self.user_warning("Data file %s could not be found"%infile)
-            self.dsk_row["strike"] = (azi+90)%360
+            self.dsk_row["strike"] = (azi-90)%360
             self.dsk_row["phase_shift"] = phase_shift
-            self.deskew_df.set_value(self.dsk_idx,"strike",(azi+90)%360)
+            self.deskew_df.set_value(self.dsk_idx,"strike",(azi-90)%360)
             self.deskew_df.set_value(self.dsk_idx,"phase_shift",phase_shift)
 
             #Center Synthetic
@@ -450,8 +450,8 @@ class SynthMagGUI(wx.Frame):
             dis_anom_max = sum(map(srf_sz,np.arange(0,self.dsk_row["age_max"]+step,step)))
             anom_width = abs(dis_anom_max-dis_anom_min)/2
             center_dis = dis_anom_max - anom_width
-            neg_anom= (-dis_anom_min - anom_width) - center_dis
-            dis_synth = np.array(synth[1])-center_dis
+            neg_anom = (-dis_anom_min + anom_width) - center_dis
+            dis_synth = np.array(synth[1]) - center_dis
         except AttributeError: dis_synth,anom_width=synth[1],0
 
         ylim,xlim = self.ax.get_ylim(),self.ax.get_xlim()

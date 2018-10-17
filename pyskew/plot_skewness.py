@@ -12,6 +12,8 @@ if 'darwin' in sys.platform:
 import matplotlib.lines as mlines
 from collections import OrderedDict
 from matplotlib.patches import Rectangle,ConnectionPatch
+from collections import OrderedDict
+import cartopy.crs as ccrs
 from geographiclib.geodesic import Geodesic
 from .skewness import *
 from .plot_geographic import *
@@ -41,10 +43,8 @@ def plot_all_lunes_seperate(deskew_path):
             # Create figure
             fig = plt.figure(figsize=(16,9), dpi=200)
 
-            # Create figure
-            gcm = create_basic_map(projection='npstere', lat_0=90, boundinglat=60)
-            gcm.drawparallels(np.arange(0,90,10),labels=[0,0,0,0])
-            gcm.drawmeridians(np.arange(0,360,10),labels=[1,1,0,1])
+            # Create map
+            gcm,gl,proj,fig = create_basic_map(projection='npstere', center_lon=0,fig=fig,return_all=True)
 
         # Find array of great semicircle azimuths (degrees)
         azi = np.linspace(float(row["strike"])-(180),float(row["strike"]),100)
@@ -66,7 +66,7 @@ def plot_all_lunes_seperate(deskew_path):
             linestyle,label=":","Ship"
 
         # Draw great circle
-        gcm.plot(gc_lon, gc_lat, color='black',latlon=True,linestyle=linestyle,label=label)
+        gcm.plot(gc_lon, gc_lat, color='black',linestyle=linestyle,label=label,transform=ccrs.Geodetic())
 
         if row["track_type"]=='ship' or last_comp_dir in row["comp_name"]:
             plt.title(track_name)
@@ -93,16 +93,16 @@ def plot_great_circle(plon,plat,azimuth,length=360,error=None,m=None,spacing=1,*
     if m==None:
         # Create figure
         fig = plt.figure(figsize=(16,9), dpi=200)
-        ax = fig.add_subplot(111)
+
         # Create map
-        m = create_basic_map(projection='npstere', lat_0=90, boundinglat=60, ax=ax)
+        m,gl,proj,fig = create_basic_map(projection='npstere', center_lon=0, fig=fig, return_all=True)
 
     lats,lons = [],[]
     for dis in np.arange(0,length,spacing):
         geodict = Geodesic.WGS84.ArcDirect(plat,plon,azimuth,dis)
         lons.append(geodict["lon2"])
         lats.append(geodict["lat2"])
-    m.plot(lons,lats,latlon=True,**kwargs)
+    m.plot(lons,lats,transform=ccrs.Geodetic(),**kwargs)
 
     if isinstance(error,int) or isinstance(error,float):
         if "linestyle" in kwargs.keys(): kwargs.pop("linestyle")
@@ -111,14 +111,14 @@ def plot_great_circle(plon,plat,azimuth,length=360,error=None,m=None,spacing=1,*
             geodict = Geodesic.WGS84.ArcDirect(plat,plon,azimuth+error,dis)
             lons.append(geodict["lon2"])
             lats.append(geodict["lat2"])
-        m.plot(lons,lats,latlon=True,linestyle='--',**kwargs)
+        m.plot(lons,lats,transform=ccrs.Geodetic(),linestyle='--',**kwargs)
 
         lats,lons = [],[]
         for dis in np.arange(0,length,spacing):
             geodict = Geodesic.WGS84.ArcDirect(plat,plon,azimuth-error,dis)
             lons.append(geodict["lon2"])
             lats.append(geodict["lat2"])
-        m.plot(lons,lats,latlon=True,linestyle='--',**kwargs)
+        m.plot(lons,lats,transform=ccrs.Geodetic(),linestyle='--',**kwargs)
 
     return m
 
@@ -126,9 +126,8 @@ def plot_small_circles(plon,plat,m=None,range_arcdis=(10,180,10),range_azis=(-18
     if m==None:
         # Create figure
         fig = plt.figure(figsize=(16,9), dpi=200)
-        ax = fig.add_subplot(111)
         # Create map
-        m = create_basic_map(projection='npstere', lat_0=90, boundinglat=60, ax=ax)
+        m,gl,proj,fig = create_basic_map(projection='npstere', center_lon=0, fig=fig, return_all=True)
 
     for arcdis in range(*range_arcdis):
         plot_small_circle(plon,plat,arcdis,m=m,range_azis=range_azis,**kwargs)
@@ -139,11 +138,8 @@ def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1)
     if m==None:
         # Create figure
         fig = plt.figure(figsize=(16,9), dpi=200)
-        ax = fig.add_subplot(111)
         # Create map
-        m = create_basic_map(projection='npstere', lat_0=90, boundinglat=60, ax=ax)
-        m.drawparallels(np.arange(0,90,10),labels=[0,0,0,0])
-        m.drawmeridians(np.arange(0,360,10),labels=[1,1,0,1])
+        m,gl,proj,fig = create_basic_map(projection='npstere', center_lon=0, fig=fig, return_all=True)
 
     sml_circ_points = []
     for azi in range(*range_azis):
@@ -162,39 +158,14 @@ def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1)
         lb_sml_circ_points.append(lb_sml_circ_points[0])
 
         ub_asml_circ_points = np.array(ub_sml_circ_points)
-        ulon,ulat = m(ub_asml_circ_points[:,0],ub_asml_circ_points[:,1])
-        ulon = remove_off_map_points(ulon)[:-1]
-        ulat = remove_off_map_points(ulat)[:-1]
 
         lb_asml_circ_points = np.array(lb_sml_circ_points)
-        llon,llat = m(lb_asml_circ_points[:,0],lb_asml_circ_points[:,1])
-        llon = remove_off_map_points(llon)[:-1]
-        llat = remove_off_map_points(llat)[:-1]
 
-        m.plot(ulon,ulat,linestyle='--',**kwargs)
-        m.plot(llon,llat,linestyle='--',**kwargs)
-
-#        if ulon!=[] and ulat!=[] and llon!=[] and llat!=[]:
-
-#            all_lons = list(set(llon).union(set(ulon)))
-#            ulats = np.interp(all_lons,ulon,ulat)
-#            llats = np.interp(all_lons,llon,llat)
-
-#            ax = m._check_ax()
-#            X, Y = m(all_lons,ulats)
-#            ub = np.array((X,Y)).T
-#            X, Y = m(all_lons,ulats)
-#            lb = np.array((X,Y)).T
-#            poly = ConnectionPatch(ub, lb, coordsA="data", coordsB="data", axesA=ax, axesB=ax, **kwargs)
-#            ax.add_artist(poly)
-#            m.set_axes_limits(ax=ax)
-#            ax.fill_between(all_lons,ulats,llats,**kwargs)
+        m.plot(ub_asml_circ_points[:,0],ub_asml_circ_points[:,1],transform=ccrs.Geodetic(),linestyle='--',**kwargs)
+        m.plot(lb_asml_circ_points[:,0],lb_asml_circ_points[:,1],transform=ccrs.Geodetic(),linestyle='--',**kwargs)
 
     asml_circ_points = np.array(sml_circ_points)
-    mlon,mlat = m(asml_circ_points[:,0],asml_circ_points[:,1])
-    mlon = remove_off_map_points(mlon)
-    mlat = remove_off_map_points(mlat)
-    m.plot(mlon[:-1],mlat[:-1],**kwargs)
+    m.plot(asml_circ_points[:,0][:-1],asml_circ_points[:,1][:-1],transform=ccrs.Geodetic(),**kwargs)
 
     return m
 
@@ -219,7 +190,7 @@ def get_alpha_func_from_ellipse_data(ellipse_data,max_alpha,min_alpha):
     return calc_alpha
 
 def plot_north_pole(m):
-    m.scatter(0, 90, facecolor='black', edgecolor='black', marker='+', s=30, latlon=True, zorder=120)
+    m.scatter(0, 90, facecolor='black', edgecolor='black', marker='+', s=30, zorder=120)
     return m
 
 def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=None,pole_text_pos=None,alpha_all=False,**kwargs):
@@ -228,77 +199,34 @@ def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=Non
     if m==None:
         # Create figure
         fig = plt.figure(figsize=(16,9), dpi=200)
-        ax = fig.add_subplot(111)
         # Create map
-        m = create_basic_map(projection='npstere', lat_0=0, lon_0=0, boundinglat=60, ax=ax)
-        m.drawparallels(np.arange(0,90,10),labels=[0,0,0,0])
-        m.drawmeridians(np.arange(0,360,10),labels=[1,1,0,1])
+        m,gl,proj,fig = create_basic_map(projection='npstere', center_lon=0, fig=fig, return_all=True)
 
     if "edgecolors" not in kwargs.keys(): kwargs["edgecolors"]="black"
     if "facecolors" not in kwargs.keys(): kwargs["facecolors"]=color
     if kwargs.get("edgecolors") == "black" and kwargs.get("facecolors") != color: color = kwargs.get("facecolors")
     elif kwargs.get("facecolors") == "white" and kwargs.get("edgecolors") != color: color = kwargs.get("edgecolors")
 
-    if alpha_all: m.scatter(lon, lat, latlon=True, zorder=zorder, alpha=alpha, **kwargs)
-    else: m.scatter(lon, lat, latlon=True, zorder=zorder, **kwargs)
+    if alpha_all: m.scatter(lon, lat,  zorder=zorder, alpha=alpha,transform=ccrs.Geodetic(), **kwargs)
+    else: m.scatter(lon, lat,  zorder=zorder,transform=ccrs.Geodetic(), **kwargs)
     if pole_text!=None:
-        if pole_text_pos!=None: plt.text(*m(*pole_text_pos),pole_text,zorder=500)
+        if pole_text_pos!=None: plt.text(*m(*pole_text_pos),pole_text,zorder=500,transform=ccrs.Geodetic())
         else:
             tazi = 90
             geodict=Geodesic.WGS84.ArcDirect(lat,lon,tazi,1)
-            plt.text(*m(geodict["lon2"],geodict["lat2"]),pole_text,zorder=500,va='top',ha='center')
-    ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=True, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
+            plt.text(geodict["lon2"],geodict["lat2"],pole_text,zorder=500,va='top',ha='center',transform=ccrs.Geodetic())
+    ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=True, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
 
     return m
 
-
-def ellipse(m, centerlon, centerlat, major_axis, minor_axis, angle, n=360, filled=False, **kwargs):
-    """
-    This function enables general error ellipses to be drawn on the basemap projection of the input map m
-    using a center and a set of major and minor axes and a rotation angle east of north.
-    (Adapted from equi).
-    Parameters
-    -----------
-    m : initalized Basemap object
-    centerlon : longitude of the center of the ellipse
-    centerlat : latitude of the center of the ellipse
-    major_axis : Major axis of ellipse
-    minor_axis : Minor axis of ellipse
-    angle : angle of major axis in degrees east of north
-    n : number of points with which to apporximate the ellipse
-    filled : boolean specifying if the ellipse should be plotted as a filled polygon or
-             as a set of line segments
-    kwargs : any other key word arguments for the Polygon function of matplotlib.patches
-             if filled = True. Else any key word arguments for the basemap.plot function
-    Returns
-    ---------
-    The map object with the ellipse plotted on it
-    """
-    angle = angle*(np.pi/180)
-    glon1 = centerlon
-    glat1 = centerlat
-    X = []
-    Y = []
-    for azimuth in np.linspace(0,360,n):
-        az_rad = azimuth*(np.pi/180)
-        radius = ((major_axis*minor_axis)/(((minor_axis*np.cos(az_rad-angle))**2 + (major_axis*np.sin(az_rad-angle))**2)**.5))
-        glon2, glat2, baz = ipmag.shoot(glon1, glat1, azimuth, radius)
-        X.append(glon2)
-        Y.append(glat2)
-    X.append(X[0])
-    Y.append(Y[0])
-
-    if filled:
-        ax = m._check_ax()
-        X, Y = m(X, Y)
-        ellip = np.array((X,Y)).T
-        poly = Polygon(ellip, **kwargs)
-        ax.add_patch(poly)
-        m.set_axes_limits(ax=ax)
-    else:
-        X, Y = m(X, Y)
-        m.plot(X, Y, **kwargs)
-
+def plot_apw_legend(m,**kwargs):
+    handles,labels = m.get_legend_handles_labels()
+    handles += [mlines.Line2D([0],[0],marker='o', markeredgecolor='k', markerfacecolor='grey', label="Normal Polarity",linestyle=''),
+                            mlines.Line2D([0],[0],marker='s', markeredgecolor='k', markerfacecolor='grey', label='Mixed Polarity',linestyle=''),
+                            mlines.Line2D([0],[0],marker='o', markeredgecolor='grey', markerfacecolor='none', label="Reversed Polarity",linestyle='')]
+    labels += ["Normal Polarity","Mixed Polarity","Reversed Polarity"]
+    by_label = OrderedDict(zip(labels, handles))
+    m.legend(by_label.values(), by_label.keys(),**kwargs)
     return m
 
 def plot_pole_track(ellipse_data, m=None,modify_alpha_with_error=True, min_alpha=0.2, max_alpha=0.8, annotations=[],annotation_positions=[], **kwargs):
@@ -306,11 +234,8 @@ def plot_pole_track(ellipse_data, m=None,modify_alpha_with_error=True, min_alpha
     if m==None:
         # Create figure
         fig = plt.figure(figsize=(16,9), dpi=200)
-        ax = fig.add_subplot(111)
         # Create map
-        m = create_basic_map(projection='npstere', lat_0=90, boundinglat=50, ax=ax)
-        m.drawparallels(np.arange(0,90,10),labels=[0,0,0,0])
-        m.drawmeridians(np.arange(0,360,10),labels=[1,1,0,1])
+        m,gl,proj,fig = create_basic_map(projection='npstere', center_lon=0, fig=fig, return_all=True)
 
     if modify_alpha_with_error:
         if len(ellipse_data)>1: calc_alpha = get_alpha_func_from_ellipse_data(ellipse_data,max_alpha,min_alpha)
@@ -328,8 +253,8 @@ def plot_pole_track(ellipse_data, m=None,modify_alpha_with_error=True, min_alpha
         m = plot_pole(lon,lat,az,a,b,m=m,zorder=zorder,pole_text=pole_text,pole_text_pos=pole_text_pos,**kwargs)
         lons.append(lon);lats.append(lat)
 
-    m.plot(lons,lats,latlon=True,label=label,zorder=zorder-1,**kwargs)
-    m.plot(lons,lats,latlon=True,color='k',zorder=zorder-2,linewidth=1.5)
+    m.plot(lons,lats,label=label,zorder=zorder-1,transform=ccrs.Geodetic(),**kwargs)
+    m.plot(lons,lats,color='k',zorder=zorder-2,linewidth=1.5,transform=ccrs.Geodetic())
 
     return m,plt.gcf()
 
@@ -360,15 +285,9 @@ def plot_pole_with_lunes(deskew_path,ellipse_path):
 
     # Create figure
     fig = plt.figure(figsize=(16,9), dpi=200)
-    ax = fig.add_subplot(111)
 
     # Create map
-    gcm = create_basic_map(projection='npstere', lat_0=90, boundinglat=60, ax=ax)
-    gcm.drawparallels(np.arange(0,90,10),labels=[0,0,0,0])
-    gcm.drawmeridians(np.arange(0,360,10),labels=[1,1,1,1])
-
-    elipse_file = open(ellipse_path,"r")
-    lon,lat,az,a,b = list(map(float,elipse_file.read().split()))
+    gcm,gl,proj,fig = create_basic_map(projection='npstere', center_lon=0,fig=fig,return_all=True)
 
     plot_lunes(comps,gcm,pole_lat=lat)
 
@@ -388,10 +307,8 @@ def plot_lunes_and_save(deskew_path):
     # Create figure
     fig = plt.figure(figsize=(16,9), dpi=200)
 
-    # Create figure
-    gcm = create_basic_map(projection='npstere', lat_0=90, boundinglat=60)
-    gcm.drawparallels(np.arange(0,90,10),labels=[0,0,0,0])
-    gcm.drawmeridians(np.arange(0,360,10),labels=[1,1,1,1])
+    # Create map
+    gcm,gl,proj,fig = create_basic_map(projection='npstere', center_lon=0,fig=fig,return_all=True)
 
     plot_lunes(comps,gcm)
 
@@ -437,8 +354,8 @@ def plot_lunes(comps,gcm,pole_lat=None):
         gc_lat = [gcd["lat2"] for gcd in gc_points_and_azis]
 
         # Draw great circle
-        gcm.scatter([gc_lon[0],gc_lon[-1]], [gc_lat[0],gc_lat[-1]], edgecolor='k', facecolor='none', latlon=True, zorder=10)
-        gcm.plot(gc_lon, gc_lat, color=(float(row["r"]),float(row["g"]),float(row["b"])), linestyle=linestyle, linewidth=linewidth, latlon=True)
+        gcm.scatter([gc_lon[0],gc_lon[-1]], [gc_lat[0],gc_lat[-1]], edgecolor='k', facecolor='none', zorder=10,transform=ccrs.Geodetic())
+        gcm.plot(gc_lon, gc_lat, color=(float(row["r"]),float(row["g"]),float(row["b"])), linestyle=linestyle, linewidth=linewidth,transform=ccrs.Geodetic())
 
     comps["inter_lat"] = comps["inter_lat"].apply(float)
     tmp_comps = comps.sort_values(by="inter_lat",ascending=False)
@@ -1107,7 +1024,7 @@ def plot_isochron_picks(deskew_path,spreading_rate_picks_path,leave_plots_open=F
         lonlats = [[convert_to_0_360(latlon['lon']),float(latlon['lat'])] for latlon in row.tolist()]
         lonlats.sort(key=sort_lonlat_key)
         lonlats = np.array(lonlats)
-        iso_line, = m.plot(lonlats[:,0], lonlats[:,1], latlon=True, label=anom, zorder=3, marker="x")
+        iso_line, = m.plot(lonlats[:,0], lonlats[:,1],  label=anom, zorder=3, marker="x")
         if anom.strip('C r n') not in list(map(lambda x: x[0], chrons_info)): chrons_info.append([anom.strip('C r n'), iso_line.get_color()])
 
     plot_chron_info(chrons_info,m,coord_0_360=True,zorder=2,alpha=.4,linestyle='--',dashes=(5,1))

@@ -598,7 +598,7 @@ class SynthMagGUI(wx.Frame):
         self.dsk_idx = self.deskew_df.index[self.deskew_df["comp_name"]==self.track]
         try:
             if "strike" in self.dsk_row and not np.isnan(float(self.dsk_row["strike"])):
-                self.azi_box.SetValue("%.1f"%(float(self.dsk_row["strike"])-90))
+                self.azi_box.SetValue("%.1f"%(float(self.dsk_row["strike"])+90))
             if "phase_shift" in self.dsk_row and not np.isnan(float(self.dsk_row["phase_shift"])):
                 self.phase_shift_box.SetValue("%.1f"%float(self.dsk_row["phase_shift"]))
         except TypeError: self.user_warning("Invalid Strike or Phase Shift in deskew file for %s"%self.track)
@@ -607,6 +607,7 @@ class SynthMagGUI(wx.Frame):
             self.sr_box.SetValue("%.1f"%((srf(self.dsk_row["sz_name"],self.dsk_row["age_min"])+srf(self.dsk_row["sz_name"],self.dsk_row["age_max"]))/2))
         if self.srmw_open: self.srmw.sz_box.SetValue(self.dsk_row["sz_name"]); self.srmw.on_select_sz(event)
         if self.tvw_open: self.tvw.on_parent_select_track()
+        self.update()
 
     def on_select_age_min(self,event):
         min_chron = self.age_min_box.GetValue()

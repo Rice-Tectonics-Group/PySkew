@@ -289,9 +289,10 @@ def plot_pole_with_lunes(deskew_path,ellipse_path):
     # Create map
     gcm,gl,proj,fig = create_basic_map(projection='npstere', center_lon=0,fig=fig,return_all=True)
 
+    lon,lat,az,a,b = open_ellipse_file(ellipse_path)
+
     plot_lunes(comps,gcm,pole_lat=lat)
 
-    lon,lat,az,a,b = open_ellipse_file(ellipse_path)
     plot_pole(lon,lat,az,a,b,m=gcm)
 
     out_path = os.path.join(comps['results_dir'].iloc[0],"poles.png")

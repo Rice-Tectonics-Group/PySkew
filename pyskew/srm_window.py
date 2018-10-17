@@ -237,8 +237,7 @@ class SRMWindow(wx.Frame):
     ###########################Figure Funcions###############################
 
     def on_middle_click_plot(self,event):
-        if event.LeftIsDown() or event.ButtonDClick():
-            return
+        if event.LeftIsDown() or event.ButtonDClick(): event.Skip(); return
         elif self.plot_setting == "Zoom":
             self.plot_setting = "Pan"
             self.toolbar.pan('off')

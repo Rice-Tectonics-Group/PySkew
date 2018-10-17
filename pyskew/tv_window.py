@@ -2,9 +2,11 @@ import wx, os, sys
 import numpy as np
 import pyskew.skewness as sk
 import pyskew.plot_skewness as psk
+import pyskew.plot_geographic as pgeo
 import pyskew.utilities as utl
 from geographiclib.geodesic import Geodesic
 import wx.lib.mixins.listctrl  as  listmix
+import matplotlib.path as mpath
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
@@ -113,8 +115,7 @@ class TVWindow(wx.Frame):
     ###########################Figure Funcions###############################
 
     def on_middle_click_plot(self,event):
-        if event.LeftIsDown() or event.ButtonDClick():
-            return
+        if event.LeftIsDown() or event.ButtonDClick(): event.Skip(); return
         elif self.plot_setting == "Zoom":
             self.plot_setting = "Pan"
             self.toolbar.pan('off')
@@ -125,7 +126,7 @@ class TVWindow(wx.Frame):
 
     def on_move_mouse_plot(self,event):
         try: dsk_row = self.parent.dsk_row
-        except AttributeError: return
+        except AttributeError: event.Skip(); return
         pos=event.GetPosition()
         width, height = self.canvas.get_width_height()
         pos = [pos[0],height-pos[1]]
@@ -138,7 +139,7 @@ class TVWindow(wx.Frame):
 
     def on_select_dleft_click(self,event):
         try: dsk_row = self.parent.dsk_row
-        except AttributeError: return
+        except AttributeError: event.Skip(); return
 
         pos=event.GetPosition()
         width, height = self.canvas.get_width_height()
@@ -164,15 +165,23 @@ class TVWindow(wx.Frame):
         if self.proj_box.GetValue() == 'North Polar Stereographic':
             self.proj = ccrs.NorthPolarStereo(central_longitude=self.center_lon,true_scale_latitude=None,globe=None)
             self.ax = self.fig.add_subplot(111,projection=self.proj)
+            self.ax.set_extent([-170,170,0,90],crs=ccrs.PlateCarree())
+            pgeo.make_circular_ax(self.ax)
         elif self.proj_box.GetValue() == 'South Polar Stereographic':
             self.proj = ccrs.SouthPolarStereo(central_longitude=self.center_lon,true_scale_latitude=None,globe=None)
             self.ax = self.fig.add_subplot(111,projection=self.proj)
+            self.ax.set_extent([-170,170,-90,0],crs=ccrs.PlateCarree())
+            pgeo.make_circular_ax(self.ax)
         elif self.proj_box.GetValue() == 'Mercator':
             self.proj = ccrs.Mercator(central_longitude=self.center_lon)
             self.ax = self.fig.add_subplot(111,projection=self.proj)
+            path = mpath.Path(np.array([[0,0],[1,0],[1,1],[0,1],[0,0]]))
+            self.ax.set_boundary(path, transform=self.ax.transAxes)
         elif self.proj_box.GetValue() == 'Mollweide':
             self.proj = ccrs.Mollweide(central_longitude=self.center_lon, globe=None)
             self.ax = self.fig.add_subplot(111,projection=self.proj)
+#            path = mpath.Path(np.array([[0.05,0.05],[0.95,0.05],[0.95,0.95],[0.05,0.95],[0.05,0.05]]))
+#            self.ax.set_boundary(path, transform=self.fig.transFigure)
         else: self.parent.user_warning("Projection %s not supported"%str(self.proj_box.GetValue()))
 
         land = cfeature.NaturalEarthFeature('physical', 'land', '110m',edgecolor="black",facecolor="bisque")
@@ -193,8 +202,7 @@ class TVWindow(wx.Frame):
 #        geodict1 = Geodesic.WGS84.ArcDirect(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']-90,20)
 #        geodict2 = Geodesic.WGS84.ArcDirect(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']+90,20)
         self.ax.plot([geodict1["lon2"],geodict2["lon2"]],[geodict1["lat2"],geodict2["lat2"]],transform=ccrs.Geodetic(),color="black",linewidth=1,linestyle='--')
-        self.fig.subplots_adjust(left=0.1, right=.9, bottom=0.1, top=.9)
-        self.ax.set_global()
+#        self.fig.subplots_adjust(left=0.1, right=.9, bottom=0.1, top=.9)
 
     def plot_tracer_on_self_and_parent(self,dsk_row,lonlat):
         proj_locs = utl.calc_projected_distance(dsk_row['inter_lon'],dsk_row['inter_lat'],[lonlat[0]],[lonlat[1]],dsk_row['strike'])

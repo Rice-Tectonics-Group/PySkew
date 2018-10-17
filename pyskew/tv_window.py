@@ -197,8 +197,9 @@ class TVWindow(wx.Frame):
         mag_data = utl.open_mag_file(infile)
         self.ax.plot(mag_data["lon"],mag_data["lat"],transform=ccrs.Geodetic(),color="black",linewidth=2)
         projected_distances = utl.calc_projected_distance(dsk_row['inter_lon'],dsk_row['inter_lat'],mag_data['lon'].tolist(),mag_data['lat'].tolist(),dsk_row['strike'])
-        geodict1 = Geodesic.WGS84.Direct(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']-90,max(projected_distances["dist"])*1000)
-        geodict2 = Geodesic.WGS84.Direct(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']+90,max(projected_distances["dist"])*1000)
+        dis = max(abs(projected_distances["dist"]))*1000
+        geodict1 = Geodesic.WGS84.DirectLine(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']-90,dis).Position(dis)
+        geodict2 = Geodesic.WGS84.DirectLine(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']+90,dis).Position(dis)
 #        geodict1 = Geodesic.WGS84.ArcDirect(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']-90,20)
 #        geodict2 = Geodesic.WGS84.ArcDirect(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']+90,20)
         self.ax.plot([geodict1["lon2"],geodict2["lon2"]],[geodict1["lat2"],geodict2["lat2"]],transform=ccrs.Geodetic(),color="black",linewidth=1,linestyle='--')
@@ -212,7 +213,7 @@ class TVWindow(wx.Frame):
     def plot_tracer_point(self,dsk_row,dis,**kwargs):
         try: self.point_on_track.remove()
         except (AttributeError,ValueError) as e: pass
-        geodict = Geodesic.WGS84.DirectLine(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']-90,-dis*1000).Position(dis*1000)
+        geodict = Geodesic.WGS84.DirectLine(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']-90,dis*1000).Position(dis*1000)
         self.point_on_track = self.ax.scatter(geodict["lon2"],geodict["lat2"],transform=ccrs.Geodetic(),**kwargs)
 
 

@@ -437,9 +437,9 @@ class SynthMagGUI(wx.Frame):
         try:
             infile = os.path.join(self.dsk_row["data_dir"],self.dsk_row["comp_name"])
             if not os.path.isfile(infile): self.user_warning("Data file %s could not be found"%infile)
-            self.dsk_row["strike"] = (azi-90)%360
+            self.dsk_row["strike"] = (azi+270)%360 #rotate an extra 90 degrees because convention here is 180 from old convention for ease of moving synthetic
             self.dsk_row["phase_shift"] = phase_shift
-            self.deskew_df.set_value(self.dsk_idx,"strike",(azi-90)%360)
+            self.deskew_df.set_value(self.dsk_idx,"strike",(azi+90)%360)
             self.deskew_df.set_value(self.dsk_idx,"phase_shift",phase_shift)
 
             #Center Synthetic
@@ -448,9 +448,12 @@ class SynthMagGUI(wx.Frame):
             srf_sz = lambda x: step*srf(self.dsk_row["sz_name"],x)
             dis_anom_min = sum(map(srf_sz,np.arange(0,self.dsk_row["age_min"]+step,step)))
             dis_anom_max = sum(map(srf_sz,np.arange(0,self.dsk_row["age_max"]+step,step)))
+            neg_anom_max = sum(map(srf_sz,np.arange(-self.dsk_row["age_max"]+step,0,step)))
+            neg_anom_min = sum(map(srf_sz,np.arange(-self.dsk_row["age_min"]+step,0,step)))
             anom_width = abs(dis_anom_max-dis_anom_min)/2
             center_dis = dis_anom_max - anom_width
-            neg_anom = (-dis_anom_min + anom_width) - center_dis
+            neg_anom_width = abs(neg_anom_max-neg_anom_min)/2
+            neg_anom = -(neg_anom_max - neg_anom_width) - center_dis
             dis_synth = np.array(synth[1]) - center_dis
         except AttributeError: dis_synth,anom_width=synth[1],0
 
@@ -471,14 +474,14 @@ class SynthMagGUI(wx.Frame):
                     other_phase = phase_shift+90
                 else: self.user_warning("Improperly named component files should have either Ed.lp or Vd.lp got: %s"%self.track); return
                 other_dsk_row = self.deskew_df[self.deskew_df["comp_name"]==other_track].iloc[0]
-                other_dsk_row["strike"] = (azi-90)%360
+                other_dsk_row["strike"] = (azi+90)%360
                 psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7)
             else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.dsk_row["track_type"]))
 
         try:
             psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,color='k',zorder=3,picker=True)
-            self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
-            if self.min_age<=-self.dsk_row["age_min"]: self.ax.axvspan(neg_anom-anom_width,neg_anom+anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
+            if self.max_age>=self.dsk_row["age_min"]: self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
+            if self.min_age<=-self.dsk_row["age_min"]: self.ax.axvspan(neg_anom-neg_anom_width,neg_anom+neg_anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
             self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.15),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize)
         except AttributeError: pass
 
@@ -598,7 +601,7 @@ class SynthMagGUI(wx.Frame):
         self.dsk_idx = self.deskew_df.index[self.deskew_df["comp_name"]==self.track]
         try:
             if "strike" in self.dsk_row and not np.isnan(float(self.dsk_row["strike"])):
-                self.azi_box.SetValue("%.1f"%(float(self.dsk_row["strike"])+90))
+                self.azi_box.SetValue("%.1f"%((float(self.dsk_row["strike"])-90)%360))
             if "phase_shift" in self.dsk_row and not np.isnan(float(self.dsk_row["phase_shift"])):
                 self.phase_shift_box.SetValue("%.1f"%float(self.dsk_row["phase_shift"]))
         except TypeError: self.user_warning("Invalid Strike or Phase Shift in deskew file for %s"%self.track)
@@ -607,7 +610,7 @@ class SynthMagGUI(wx.Frame):
             self.sr_box.SetValue("%.1f"%((srf(self.dsk_row["sz_name"],self.dsk_row["age_min"])+srf(self.dsk_row["sz_name"],self.dsk_row["age_max"]))/2))
         if self.srmw_open: self.srmw.sz_box.SetValue(self.dsk_row["sz_name"]); self.srmw.on_select_sz(event)
         if self.tvw_open: self.tvw.on_parent_select_track()
-        self.update()
+        self.update(event)
 
     def on_select_age_min(self,event):
         min_chron = self.age_min_box.GetValue()

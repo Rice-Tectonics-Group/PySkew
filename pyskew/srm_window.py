@@ -154,6 +154,7 @@ class SRMWindow(wx.Frame):
 
                 if end_age>1e3:end_age=prev_age+10
                 if i==0 and end_age>10: prev_age=end_age-10
+                if prev_age==0 and end_age<=0: prev_age=end_age-10
                 points[0].append(prev_age)
                 points[0].append(end_age)
                 points[1].append(half_rate)

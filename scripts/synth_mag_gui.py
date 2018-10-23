@@ -474,7 +474,7 @@ class SynthMagGUI(wx.Frame):
                     other_phase = phase_shift+90
                 else: self.user_warning("Improperly named component files should have either Ed.lp or Vd.lp got: %s"%self.track); return
                 other_dsk_row = self.deskew_df[self.deskew_df["comp_name"]==other_track].iloc[0]
-                other_dsk_row["strike"] = (azi+90)%360
+                other_dsk_row["strike"] = (azi+270)%360
                 psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7)
             else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.dsk_row["track_type"]))
 
@@ -740,9 +740,9 @@ class SynthMagGUI(wx.Frame):
         width, height = self.canvas.get_width_height()
         pos = [pos[0],height-pos[1]]
         pos = self.ax.transData.inverted().transform(pos)
-        self.set_new_intercept(pos[0])
-        self.update(event)
-        if self.tvw_open: self.tvw.update()
+        if self.set_new_intercept(pos[0]):
+            self.update(event)
+            if self.tvw_open: self.tvw.update()
 
     ##########################Menu Functions################################
 
@@ -920,6 +920,8 @@ class SynthMagGUI(wx.Frame):
             self.deskew_df.set_value(self.dsk_idx,"inter_lat",new_lat)
             self.deskew_df.set_value(self.dsk_idx,"inter_lon",new_lon)
             self.dsk_row = self.deskew_df.loc[self.dsk_idx].iloc[0]
+            return True
+        else: return False
 
 
 

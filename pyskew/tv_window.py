@@ -5,7 +5,9 @@ import pyskew.plot_skewness as psk
 import pyskew.plot_geographic as pgeo
 import pyskew.utilities as utl
 from geographiclib.geodesic import Geodesic
+import wx.lib.buttons as buttons
 import wx.lib.mixins.listctrl  as  listmix
+from netCDF4 import Dataset as netcdf_dataset
 import matplotlib.path as mpath
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
@@ -29,6 +31,7 @@ class TVWindow(wx.Frame):
         try: self.center_lon = self.parent.dsk_row["inter_lon"]
         except AttributeError: self.center_lon = 180
         self.dpi=dpi
+        self.grd_file = None
 
         self.panel = wx.Panel(self,-1,size=(400*2,300*2))
 
@@ -40,6 +43,17 @@ class TVWindow(wx.Frame):
 
     def init_UI(self):
         spacing = 10
+
+        #----------------Build Directory and File Buttons-----------------
+
+#        grd_sizer = wx.BoxSizer(wx.HORIZONTAL)
+#        self.grd_path = wx.TextCtrl(self.panel, id=-1, size=(100,25), style=wx.TE_READONLY)
+#        self.change_grd_btn = buttons.GenButton(self.panel, id=-1, label="Add Grid",size=(176, 29))
+#        self.change_grd_btn.InitColours()
+#        self.Bind(wx.EVT_BUTTON, self.on_change_grd_btn, self.change_grd_btn)
+#        grd_sizer.Add(self.change_grd_btn, wx.ALIGN_LEFT)
+#        grd_sizer.AddSpacer(20)
+#        grd_sizer.Add(self.grd_path,wx.ALIGN_CENTER_VERTICAL|wx.EXPAND)
 
         #------------------------------------Make DropDown Box-----------------------------------------------------#
 
@@ -68,7 +82,8 @@ class TVWindow(wx.Frame):
         #----------------------------------Build UI and Fit--------------------------------------------------------#
 
         outer_sizer = wx.BoxSizer(wx.VERTICAL)
-        outer_sizer.AddMany([(proj_sizer,1,wx.ALIGN_CENTER|wx.ALIGN_TOP|wx.EXPAND),
+        outer_sizer.AddMany([#(grd_sizer,1,wx.ALIGN_CENTER|wx.ALIGN_TOP|wx.EXPAND|wx.LEFT|wx.RIGHT,spacing),
+                             (proj_sizer,1,wx.ALIGN_CENTER|wx.ALIGN_TOP|wx.EXPAND),
                              (self.canvas,10,wx.ALIGN_CENTER|wx.ALIGN_TOP|wx.EXPAND)])
 
         self.panel.SetSizerAndFit(outer_sizer)
@@ -108,6 +123,21 @@ class TVWindow(wx.Frame):
         self.Destroy()
 
     ###################Button and Dropdown Functions#########################
+
+    def on_change_grd_btn(self,event):
+        dlg = wx.FileDialog(
+            self, message="Choose Grid File",
+            defaultDir=self.parent.WD,
+            defaultFile="",
+            wildcard="Grid Files (*.grd,*.nc,*.ncf)|*.grd;*.nc;*.ncf|All Files (*.*)|*.*",
+            style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST
+            )
+        if dlg.ShowModal() == wx.ID_OK:
+            self.grd_file = dlg.GetPath()
+            self.grd_path.SetValue(self.grd_file)
+            self.update()
+            dlg.Destroy()
+        else: dlg.Destroy()
 
     def on_select_proj(self,event):
         self.update()
@@ -184,7 +214,18 @@ class TVWindow(wx.Frame):
 #            self.ax.set_boundary(path, transform=self.fig.transFigure)
         else: self.parent.user_warning("Projection %s not supported"%str(self.proj_box.GetValue()))
 
-        land = cfeature.NaturalEarthFeature('physical', 'land', '110m',edgecolor="black",facecolor="bisque")
+#        if self.grd_file!=None:
+#            if os.path.isfile(self.grd_file):
+#                grd = netcdf_dataset(self.grd_file)
+#                for key in grd.variables.keys():
+#                    var = grd.variables[key][:]
+#                    if len(var.shape)==1 and (max(var)>90 or min(var)<-90): lon = var #must be lon as domain is large
+#                    elif len(var.shape)==2: val = var #Must be val because dimension
+#                    else: lat = var #only option left
+#                self.ax.pcolor(lon,lat,val,transform=ccrs.PlateCarree())
+#            else: self.user_warning("Grid file %s not found"%self.grd_file)
+
+        land = cfeature.NaturalEarthFeature('physical', 'land', '110m',edgecolor="black",facecolor="grey")
         self.ax.add_feature(land)
 #        if self.proj_box.GetValue() == 'Mercator': self.ax.gridlines(color='black', alpha=0.4, linestyle='--', draw_labels=True)
         self.ax.gridlines(color='black', alpha=0.4, linestyle='--',linewidth=.5)
@@ -198,8 +239,8 @@ class TVWindow(wx.Frame):
         self.ax.plot(mag_data["lon"],mag_data["lat"],transform=ccrs.Geodetic(),color="black",linewidth=2)
         projected_distances = utl.calc_projected_distance(dsk_row['inter_lon'],dsk_row['inter_lat'],mag_data['lon'].tolist(),mag_data['lat'].tolist(),dsk_row['strike'])
         dis = max(abs(projected_distances["dist"]))*1000
-        geodict1 = Geodesic.WGS84.DirectLine(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']-90,dis).Position(dis)
-        geodict2 = Geodesic.WGS84.DirectLine(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']+90,dis).Position(dis)
+        geodict1 = Geodesic.WGS84.Direct(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']-90,dis)
+        geodict2 = Geodesic.WGS84.Direct(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']+90,dis)
 #        geodict1 = Geodesic.WGS84.ArcDirect(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']-90,20)
 #        geodict2 = Geodesic.WGS84.ArcDirect(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']+90,20)
         self.ax.plot([geodict1["lon2"],geodict2["lon2"]],[geodict1["lat2"],geodict2["lat2"]],transform=ccrs.Geodetic(),color="black",linewidth=1,linestyle='--')
@@ -213,7 +254,7 @@ class TVWindow(wx.Frame):
     def plot_tracer_point(self,dsk_row,dis,**kwargs):
         try: self.point_on_track.remove()
         except (AttributeError,ValueError) as e: pass
-        geodict = Geodesic.WGS84.DirectLine(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']-90,dis*1000).Position(dis*1000)
+        geodict = Geodesic.WGS84.Direct(dsk_row['inter_lat'],dsk_row['inter_lon'],dsk_row['strike']-90,dis*1000)
         self.point_on_track = self.ax.scatter(geodict["lon2"],geodict["lat2"],transform=ccrs.Geodetic(),**kwargs)
 
 

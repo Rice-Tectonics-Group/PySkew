@@ -206,11 +206,14 @@ class SRMWindow(wx.Frame):
         try: new_end_age,new_half_rate = float(self.add_end_age_box.GetValue()),float(self.add_half_rate_box.GetValue())
         except ValueError: self.parent.user_warning("Half Rate and Age to add must be numbers got %s,%s instead"%(str(new_end_age),str(new_half_rate))); return
 
-        if new_end_age in np.array(self.srm[self.sz])[:,0]:
-            self.srm[self.sz] = [[new_end_age,new_half_rate] if self.srm[self.sz][i][0]==new_end_age else self.srm[self.sz][i] for i in range(len(self.srm[self.sz]))]
-        else:
-            self.srm[self.sz] += [[new_end_age,new_half_rate]]
-        self.srm[self.sz].sort(key=cmp_to_key(lambda x,y: x[0]-y[0]))
+        try:
+            if new_end_age in np.array(self.srm[self.sz])[:,0]:
+                self.srm[self.sz] = [[new_end_age,new_half_rate] if self.srm[self.sz][i][0]==new_end_age else self.srm[self.sz][i] for i in range(len(self.srm[self.sz]))]
+            else:
+                self.srm[self.sz] += [[new_end_age,new_half_rate]]
+            self.srm[self.sz].sort(key=cmp_to_key(lambda x,y: x[0]-y[0]))
+        except (KeyError,IndexError) as e:
+            self.srm[self.sz] = [[new_end_age,new_half_rate]]
 
         self.update_self_and_parent()
 

@@ -68,7 +68,7 @@ def create_basic_map(projection='ortho',resolution='110m',center_lat=0, center_l
     elif projection=='merc':
         proj = ccrs.Mercator(central_longitude=center_lon,min_latitude=min_lat, max_latitude=max_lat)
         m = fig.add_subplot(ax_pos,projection=proj)
-        m.set_extent([llcrnrlon,llcrnrlat,urcrnrlon,urcrnrlat], ccrs.PlateCarree())
+        m.set_extent([llcrnrlon,urcrnrlon,llcrnrlat,urcrnrlat], ccrs.PlateCarree())
     elif projection=="moll":
         proj = ccrs.Mollweide(central_longitude=center_lon)
         m = fig.add_subplot(ax_pos,projection=proj)
@@ -82,11 +82,15 @@ def create_basic_map(projection='ortho',resolution='110m',center_lat=0, center_l
         m = fig.add_subplot(ax_pos,projection=proj)
         m.set_extent([-180, 180, -90, -stereo_bound_lat], ccrs.PlateCarree())
         m = make_circular_ax(m)
+    elif projection=='stere':
+        proj = ccrs.Stereographic(central_longitude=center_lon,central_latitude=center_lat)
+        m = fig.add_subplot(ax_pos,projection=proj)
+        m.set_extent([llcrnrlon,urcrnrlon,llcrnrlat,urcrnrlat], ccrs.PlateCarree())
     else: print("the create_basic_map function is very basic and may need to be expanded to handle this projection"); return
     land = cfeature.NaturalEarthFeature('physical', 'land', resolution, edgecolor="black", facecolor=landcolor)
     m.add_feature(land)
     if label_grid and projection!="merc": label_grid=False
-    gl = m.gridlines(draw_labels=label_grid,color="k",linestyle=":")
+    gl = m.gridlines(crs=ccrs.PlateCarree(), draw_labels=label_grid, color="k", linestyle=":")
     gl.xlabels_top = False
     if return_all: return m,gl,proj,fig
     else: return m

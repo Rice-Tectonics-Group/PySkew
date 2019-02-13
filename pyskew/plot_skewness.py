@@ -142,7 +142,7 @@ def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1)
         m,gl,proj,fig = create_basic_map(projection='npstere', center_lon=0, fig=fig, return_all=True)
 
     sml_circ_points = []
-    for azi in range(*range_azis):
+    for azi in np.arange(*range_azis):
         geo_dict = Geodesic.WGS84.ArcDirect(plat,plon,azi,arcdis)
         sml_circ_points.append([geo_dict['lon2'],geo_dict['lat2']])
     sml_circ_points.append(sml_circ_points[0])
@@ -193,7 +193,7 @@ def plot_north_pole(m):
     m.scatter(0, 90, facecolor='black', edgecolor='black', marker='+', s=30, zorder=120)
     return m
 
-def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=None,pole_text_pos=None,alpha_all=False,**kwargs):
+def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=None,pole_text_pos=None,alpha_all=False,filled=True,**kwargs):
     #a and b should be full axes of the ellipse not semi-axes
 
     if m==None:
@@ -215,7 +215,8 @@ def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=Non
             tazi = 90
             geodict=Geodesic.WGS84.ArcDirect(lat,lon,tazi,1)
             plt.text(geodict["lon2"],geodict["lat2"],pole_text,zorder=500,va='top',ha='center',transform=ccrs.Geodetic())
-    ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=True, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
+    if filled: ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=filled, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
+    else: ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=filled, color=color, zorder=zorder-1,alpha=alpha)
 
     return m
 
@@ -223,8 +224,11 @@ def plot_apw_legend(m,**kwargs):
     handles,labels = m.get_legend_handles_labels()
     handles += [mlines.Line2D([0],[0],marker='o', markeredgecolor='k', markerfacecolor='grey', label="Normal Polarity",linestyle=''),
                             mlines.Line2D([0],[0],marker='s', markeredgecolor='k', markerfacecolor='grey', label='Mixed Polarity',linestyle=''),
-                            mlines.Line2D([0],[0],marker='o', markeredgecolor='grey', markerfacecolor='none', label="Reversed Polarity",linestyle='')]
-    labels += ["Normal Polarity","Mixed Polarity","Reversed Polarity"]
+                            mlines.Line2D([0],[0],marker='o', markeredgecolor='grey', markerfacecolor='w', label="Reversed Polarity",linestyle=''),
+                            mlines.Line2D([0],[0],marker='^', markeredgecolor='k', markerfacecolor='grey', label='Mixed Polarity',linestyle=''),
+                            mlines.Line2D([0],[0],marker='D', markeredgecolor='k', markerfacecolor='grey', label='Mixed Polarity',linestyle=''),
+                            mlines.Line2D([0],[0],marker='v', markeredgecolor='k', markerfacecolor='grey', label='Mixed Polarity',linestyle='')]
+    labels += ["Normal Polarity","Mixed Polarity","Reversed Polarity","Normal Colatitude/Azimuth","Mixed Colatitude/Azimuth","Reversed Colatitude/Azimuth"]
     by_label = OrderedDict(zip(labels, handles))
     m.legend(by_label.values(), by_label.keys(),**kwargs)
     return m
@@ -284,16 +288,16 @@ def plot_pole_with_lunes(deskew_path,ellipse_path):
     comps = filter_deskew_and_calc_aei(deskew_path)
 
     # Create figure
-    fig = plt.figure(figsize=(16,9), dpi=200)
+    fig = plt.figure(figsize=(16,9), dpi=300)
 
     # Create map
-    gcm,gl,proj,fig = create_basic_map(projection='npstere', center_lon=0,fig=fig,return_all=True)
+    gcm,gl,proj,fig = create_basic_map(projection='npstere', center_lon=0,fig=fig,return_all=True,resolution='10m')
 
     lon,lat,az,a,b = open_ellipse_file(ellipse_path)
 
     plot_lunes(comps,gcm,pole_lat=lat)
 
-    plot_pole(lon,lat,az,a,b,m=gcm)
+    plot_pole(lon,lat,az,a,b,m=gcm,zorder=5)
 
     out_path = os.path.join(comps['results_dir'].iloc[0],"poles.png")
     check_dir(os.path.dirname(out_path))
@@ -375,12 +379,9 @@ def plot_lunes(comps,gcm,pole_lat=None):
 #    by_label = OrderedDict(zip(labels, handles))
 #    legend = plt.legend(by_label.values(), by_label.keys(),loc=1)
 
-    track_type_legend = plt.legend(handles=track_type_handles,loc=2)
-    tt_frame = track_type_legend.get_frame()
-    tt_frame.set_alpha(.7)
-    sz_legend = plt.legend(handles=sz_handles,bbox_to_anchor=(.95, .91),bbox_transform=plt.gcf().transFigure, frameon=False)
-    sz_frame = sz_legend.get_frame()
-    sz_frame.set_alpha(.7)
+    track_type_legend = plt.legend(handles=track_type_handles,loc=2,framealpha=.7)
+#    sz_legend = plt.legend(handles=sz_handles,bbox_to_anchor=(.95, .91),bbox_transform=plt.gcf().transFigure, frameon=False)
+    sz_legend = plt.legend(handles=sz_handles,loc=1,framealpha=.7)
 
     plt.gca().add_artist(track_type_legend)
 

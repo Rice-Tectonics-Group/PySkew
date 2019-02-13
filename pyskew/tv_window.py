@@ -188,7 +188,7 @@ class TVWindow(wx.Frame):
         self.center_lon = self.parent.dsk_row["inter_lon"]
         self.update()
 
-    def make_map(self):
+    def make_map(self): #DANIEL TRY TO ONLY MESS AROUND HERE (TODO)
         #set basemap
         try: self.fig.delaxes(self.ax)
         except AttributeError: pass
@@ -214,7 +214,7 @@ class TVWindow(wx.Frame):
 #            self.ax.set_boundary(path, transform=self.fig.transFigure)
         else: self.parent.user_warning("Projection %s not supported"%str(self.proj_box.GetValue()))
 
-#        if self.grd_file!=None:
+#        if self.grd_file!=None: #DANIEL THIS IS MY SAD ATTEMPT TO DO ETOPO SEE IF YOU CAN FIT IN SANDWELL (TODO)
 #            if os.path.isfile(self.grd_file):
 #                grd = netcdf_dataset(self.grd_file)
 #                for key in grd.variables.keys():

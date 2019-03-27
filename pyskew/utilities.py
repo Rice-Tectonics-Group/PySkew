@@ -2,6 +2,7 @@ import os,sys
 import pandas as pd
 import numpy as np
 from scipy.linalg import invpascal
+import scipy.stats as stats
 from datetime import datetime
 from geographiclib.geodesic import Geodesic
 from multiprocessing import Process
@@ -219,10 +220,12 @@ def polyfit(x,y,degree,err=None,full=False):
     reduced_chi2 = chi2/deg_free
 
     #calculate precision parameter (R^2)
-    mean = sum(y)/len(y)
-    ssres = sum((y-yp)**2)
-    sstot = sum((y-mean)**2)
-    r2 = 1 - ssres/sstot
+#    mean = sum(y)/len(y)
+#    ssres = sum((y-yp)**2)
+#    sstot = sum((y-mean)**2)
+#    r2 = 1 - ssres/sstot
+    r2 = (stats.pearsonr(x,y)[0])**2
+
 
     #calculate std of each model parameter
 

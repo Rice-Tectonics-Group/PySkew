@@ -81,11 +81,13 @@ def plot_all_lunes_seperate(deskew_path):
 def plot_gc_from_pole(slat,slon,plat,plon,length=360,error=None,m=None,spacing=1,**kwargs):
     geodict = Geodesic.WGS84.Inverse(slat,slon,plat,plon)
     azi_mean = geodict["azi1"]
-    geodict = Geodesic.WGS84.ArcDirect(plat,plon,geodict['azi2']-90,error)
-    geodict = Geodesic.WGS84.Inverse(slat,slon,geodict['lat2'],geodict['lon2'])
-    azi_se = (azi_mean-geodict['azi1'])/np.sqrt(2)
+    if isinstance(error,int) or isinstance(error,float):
+        geodict = Geodesic.WGS84.ArcDirect(plat,plon,geodict['azi2']-90,error)
+        geodict = Geodesic.WGS84.Inverse(slat,slon,geodict['lat2'],geodict['lon2'])
+        azi_a95 = 1.96*(azi_mean-geodict['azi1'])/np.sqrt(2)
+    else: azi_a95 = None
 
-    m = plot_great_circle(slon,slat,azi_mean,error=1.96*azi_se,length=length,m=m,spacing=spacing,**kwargs)
+    m = plot_great_circle(slon,slat,azi_mean,error=azi_a95,length=length,m=m,spacing=spacing,**kwargs)
     return m
 
 def plot_great_circle(plon,plat,azimuth,length=360,error=None,m=None,spacing=1,**kwargs):

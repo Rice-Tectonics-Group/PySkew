@@ -8,6 +8,7 @@ from geographiclib.geodesic import Geodesic
 import wx.lib.buttons as buttons
 import wx.lib.mixins.listctrl  as  listmix
 from netCDF4 import Dataset as netcdf_dataset
+import matplotlib as mpl
 import matplotlib.path as mpath
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
@@ -15,6 +16,8 @@ from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as Navigat
 from functools import cmp_to_key
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
+import rasterio
+import pyproj
 
 class TVWindow(wx.Frame):
 
@@ -32,6 +35,7 @@ class TVWindow(wx.Frame):
         except AttributeError: self.center_lon = 180
         self.dpi=dpi
         self.grd_file = None
+        self.geo_tiff_paths = []
 
         self.panel = wx.Panel(self,-1,size=(400*2,300*2))
 
@@ -100,6 +104,9 @@ class TVWindow(wx.Frame):
         #-----------------
 
         menu_file = wx.Menu()
+
+        m_tiff = menu_file.Append(-1, "&Add GeoTiff\tCtrl-O", "AddTiff")
+        self.Bind(wx.EVT_MENU, self.on_add_tiff, m_tiff)
 
         menu_file.AppendSeparator()
         m_exit = menu_file.Append(-1, "&Exit\tCtrl-Q", "Exit")
@@ -188,7 +195,20 @@ class TVWindow(wx.Frame):
         self.center_lon = self.parent.dsk_row["inter_lon"]
         self.update()
 
-    def make_map(self): #DANIEL TRY TO ONLY MESS AROUND HERE (TODO)
+    def on_add_tiff(self,event):
+        dlg = wx.FileDialog(
+            self, message="Choose GeoTiff File",
+            defaultDir=self.parent.WD,
+            wildcard="Tiff Files (*.tiff)|*.tiff|All Files (*.*)|*.*",
+            style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST
+            )
+        if dlg.ShowModal() == wx.ID_OK:
+            self.geo_tiff_paths.append(dlg.GetPath())
+            self.update()
+            dlg.Destroy()
+        else: dlg.Destroy()
+
+    def make_map(self):
         #set basemap
         try: self.fig.delaxes(self.ax)
         except AttributeError: pass
@@ -214,21 +234,18 @@ class TVWindow(wx.Frame):
 #            self.ax.set_boundary(path, transform=self.fig.transFigure)
         else: self.parent.user_warning("Projection %s not supported"%str(self.proj_box.GetValue()))
 
-#        if self.grd_file!=None: #DANIEL THIS IS MY SAD ATTEMPT TO DO ETOPO SEE IF YOU CAN FIT IN SANDWELL (TODO)
-#            if os.path.isfile(self.grd_file):
-#                grd = netcdf_dataset(self.grd_file)
-#                for key in grd.variables.keys():
-#                    var = grd.variables[key][:]
-#                    if len(var.shape)==1 and (max(var)>90 or min(var)<-90): lon = var #must be lon as domain is large
-#                    elif len(var.shape)==2: val = var #Must be val because dimension
-#                    else: lat = var #only option left
-#                self.ax.pcolor(lon,lat,val,transform=ccrs.PlateCarree())
-#            else: self.user_warning("Grid file %s not found"%self.grd_file)
-
+        self.add_tiffs_to_map()
         land = cfeature.NaturalEarthFeature('physical', 'land', '110m',edgecolor="black",facecolor="grey")
         self.ax.add_feature(land)
 #        if self.proj_box.GetValue() == 'Mercator': self.ax.gridlines(color='black', alpha=0.4, linestyle='--', draw_labels=True)
         self.ax.gridlines(color='black', alpha=0.4, linestyle='--',linewidth=.5)
+
+    def add_tiffs_to_map(self):
+        for filepath in self.geo_tiff_paths:
+            dataset = rasterio.open(filepath)
+            img_extent = (dataset.bounds[0], dataset.bounds[2], dataset.bounds[1], dataset.bounds[3])
+            band1 = dataset.read(1)
+            self.ax.imshow(band1, origin='upper', extent=img_extent, transform=self.proj, zorder=0, alpha=0.75)
 
     def plot_track(self):
         try: dsk_row = self.parent.dsk_row

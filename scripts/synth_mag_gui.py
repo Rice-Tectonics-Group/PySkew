@@ -20,7 +20,7 @@ class SynthMagGUI(wx.Frame):
         """Constructor"""
         #call init of super class
         default_style = wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.RESIZE_BORDER | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN | wx.NO_FULL_REPAINT_ON_RESIZE | wx.WS_EX_CONTEXTHELP | wx.FRAME_EX_CONTEXTHELP
-        wx.Frame.__init__(self, None, title="SynthMagGUI V0.1.1",style=default_style, size=(400*3,300*3))
+        wx.Frame.__init__(self, None, title="SynthMagGUI V0.2.1",style=default_style, size=(400*3,300*3))
         self.Bind(wx.EVT_CLOSE, self.on_close_main)
 
         #Save input variables
@@ -232,6 +232,7 @@ class SynthMagGUI(wx.Frame):
         #----------------Update Button-----------------
 
         self.fig = Figure((5, 5), dpi=self.dpi)
+#        self.fig.subplots_adjust(top = .95, bottom = 0.05, right = .95, left = .05, hspace = 0.05, wspace = 0.05)
         self.canvas = FigCanvas(self.panel, -1, self.fig)
         self.toolbar = NavigationToolbar(self.canvas)
         self.ax = self.fig.add_subplot(111)
@@ -469,10 +470,13 @@ class SynthMagGUI(wx.Frame):
                 if "Ed.lp" in self.track:
                     other_track = self.track.replace("Ed.lp","Vd.lp")
                     other_phase = phase_shift-90
+                elif "Hd.lp" in self.track:
+                    other_track = self.track.replace("Hd.lp","Vd.lp")
+                    other_phase = phase_shift-90
                 elif "Vd.lp" in self.track:
                     other_track = self.track.replace("Vd.lp","Ed.lp")
                     other_phase = phase_shift+90
-                else: self.user_warning("Improperly named component files should have either Ed.lp or Vd.lp got: %s"%self.track); return
+                else: self.user_warning("Improperly named component files should have either Ed.lp, Hd.lp, or Vd.lp got: %s"%self.track); return
                 other_dsk_row = self.deskew_df[self.deskew_df["comp_name"]==other_track].iloc[0]
                 other_dsk_row["strike"] = (azi+270)%360
                 psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7)
@@ -482,7 +486,7 @@ class SynthMagGUI(wx.Frame):
             psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,color='k',zorder=3,picker=True)
             if self.max_age>=self.dsk_row["age_min"]: self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
             if self.min_age<=-self.dsk_row["age_min"]: self.ax.axvspan(neg_anom-neg_anom_width,neg_anom+neg_anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
-            self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.15),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize)
+            self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,va='top',ha='left')
         except AttributeError: pass
 
         self.ax.plot(dis_synth,synth[0],'r-',alpha=.4,zorder=1)
@@ -507,7 +511,11 @@ class SynthMagGUI(wx.Frame):
         self.age_max_box.SetItems(tdf["chron"].tolist())
 
     def update_track_box(self):
-        self.deskew_df = utl.open_deskew_file(self.deskew_path)
+        if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
+        else: srf = lambda x,y: float(self.sr_box.GetValue())
+        if self.anomalous_skewness_path!=None: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
+        else: asf = lambda x: 0
+        self.deskew_df = sk.calc_aei(utl.open_deskew_file(self.deskew_path),srf,asf)
         abs_data_paths = [self.deskew_df["data_dir"][i] if self.deskew_df["data_dir"][i]==os.path.abspath(self.deskew_df["data_dir"][i]) else os.path.abspath(os.path.join(self.WD,self.deskew_df["data_dir"][i])) for i in self.deskew_df.index]
 #        if any(not os.path.isfile(abs_data_paths)): abs_data_paths = [self.deskew_df["data_dir"][i] if self.deskew_df["data_dir"][i]==os.path.abspath(self.deskew_df["data_dir"][i]) else os.path.abspath(os.path.join(os.path.dirname(self.deskew_path),self.deskew_df["data_dir"][i])) for i in self.deskew_df.index]
         self.deskew_df["data_dir"] = abs_data_paths
@@ -723,7 +731,7 @@ class SynthMagGUI(wx.Frame):
         pos = [pos[0],height-pos[1]]
         pos = self.ax.transData.inverted().transform(pos)
 
-        self.annotate_point(pos,xy=(1-0.12,1-0.11),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize)
+        self.annotate_point(pos,xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,va='top',ha='right')
 
         self.plot_tracer_point(pos[0],linestyle='--',color='red',alpha=.5)
         try:
@@ -762,6 +770,7 @@ class SynthMagGUI(wx.Frame):
     def on_save_plot(self,event):
         try: self.point_annotation.remove()
         except (AttributeError,ValueError) as e: pass
+        self.ax.annotate(r"%$\theta=.f$\n%$e_a=.1f$"%(self.dsk_row["phase_shift"],self.dsk_row["aei"]),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
         self.canvas.draw()
         self.toolbar.save_figure()
 

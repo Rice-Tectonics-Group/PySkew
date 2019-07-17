@@ -1,0 +1,2903 @@
+# @VGMT1.0 @GPOINT
+# @R-114.1101/-105.8036/17.114/23.9209                                    
+# @Jp"+proj=longlat +datum=WGS84 +no_defs "
+# @Jw"GEOGCS[\"GCS_WGS_1984\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_84\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.017453292519943295]]"
+# @NChron|AnomalyEnd|AnomEndQua|CruiseName|Reference|DOI|GeeK2007|IDMethod
+# @Tstring|string|integer|string|string|string|double|string
+# FEATURE_DATA
+# @DC5r.2n|c|1|"# 15060022"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-114.1101	19.1436
+# @DC5r.2n|c|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-114.0952	19.3202
+# @DC5r.2n|c|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-114.0837	19.07
+# @DC5r.2n|c|1|"# 15190002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-114.0373	18.2446
+# @DC5n.2n|o|1|"# 15040161"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-113.8617	17.8004
+# @DC5n.2n|o|1|"# 15190002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-113.8412	18.1711
+# @DC5n.2n|o|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-113.8124	17.4848
+# @DC5n.2n|o|1|"# 15060022"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-113.7981	19.0351
+# @DC5n.2n|o|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-113.7969	19.2951
+# @DC5n.2n|o|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-113.7944	19.0245
+# @DC5n.2n|y|1|"# 15040161"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-113.3499	17.3747
+# @DC5n.2n|y|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-113.3373	17.5608
+# @DC5n.2n|y|1|"# 15190002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-113.2935	18.1686
+# @DC5n.2n|y|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-113.2167	18.9394
+# @DC5n.2n|y|1|"# 15060022"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-113.1928	19.3567
+# @DC5n.2n|y|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-113.1901	19.2628
+# @DC4An|y|1|"# 15140001"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-112.746	17.7647
+# @DC4An|y|1|"# 15190002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-112.7021	18.2085
+# @DC4An|y|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-112.7002	17.6648
+# @DC4An|y|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-112.6801	18.8654
+# @DC4An|y|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-112.6647	19.2399
+# @DC4n.2n|c|1|"# 15140001"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-112.4057	17.5126
+# @DC4n.2n|c|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-112.3734	17.2882
+# @DC4n.2n|c|1|"# 15190002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-112.3717	18.2209
+# @DC4n.2n|c|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-112.3639	17.7293
+# @DC4n.2n|c|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-112.3624	18.8256
+# @DC4n.2n|c|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-112.3612	19.2294
+# @DC4n.2n|c|1|"# 15060039"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-112.3556	17.8414
+# @DC3Bn|c|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-112.1494	17.382
+# @DC3Bn|c|1|"# 15140001"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-112.1477	17.294
+# @DC3Bn|c|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-112.0947	17.7846
+# @DC3Bn|c|1|"# 15060039"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-112.0917	17.5602
+# @DC3Bn|c|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-112.0796	19.2165
+# @DC3Bn|c|1|"# 15190002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-112.0757	18.2258
+# @DC3Bn|c|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-112.0416	18.7886
+# @DC3An.2n|o|1|"# 15140001"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-112.0297	17.2138
+# @DC3An.2n|o|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-112.0025	17.4431
+# @DC3An.2n|o|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-111.9634	17.8041
+# @DC3An.2n|o|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-111.943	19.2114
+# @DC3An.2n|o|1|"# 15190002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-111.9236	18.2285
+# @DC3An.2n|o|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-111.9029	18.7723
+# @DC3An.1n|y|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-111.7661	17.5405
+# @DC3An.1n|y|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-111.7531	17.827
+# @DC3An.1n|y|1|"# 15190002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-111.737	17.9231
+# @DC3An.1n|y|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-111.7057	18.744
+# @DC3An.1n|y|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-111.6795	19.207
+# @DC3n.4n|c|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-111.5478	17.8518
+# @DC3n.4n|c|1|"# 15190002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-111.546	17.7838
+# @DC3n.4n|c|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-111.5455	17.6314
+# @DC3n.4n|c|1|"# 15040162"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-111.54	17.685
+# @DC3n.4n|c|1|"# 15040162"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-111.5378	17.7616
+# @DC3n.4n|c|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-111.4593	18.7087
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-111.3307	20.168
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-111.3225	20.3367
+# @DC3n.4n|c|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-111.2872	19.2076
+# @DC3n.4n|c|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-111.2393	19.4031
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-111.232	20.4903
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.2138	21.4801
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.1804	21.5874
+# @DC3n.4n|c|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.6442	17.8095
+# @DC3n.4n|c|1|"# 15040162"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.6298	17.6454
+# @DC3n.4n|c|1|"# 15040162"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.6296	17.7575
+# @DC3n.4n|c|1|"# 15040093"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.4946	18.3286
+# @DC3An.1n|y|1|"# 15040162"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.4472	17.7581
+# @DC3An.1n|y|1|"# 15040162"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.4463	17.6456
+# @DC3An.1n|y|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.4454	17.8114
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-110.4355	20.0514
+# @DC3n.4n|c|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.4347	18.4245
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-110.4142	19.984
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-110.4066	20.1795
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-110.4065	20.151
+# @DC3n.4n|c|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.4058	18.5634
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-110.3983	20.0267
+# @DC3n.4n|c|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.3937	18.7646
+# @DC3n.4n|c|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.3897	18.7056
+# @DC3n.4n|c|1|"# 23060051"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.3852	18.7572
+# @DC3n.4n|c|1|"# 15040214"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.3779	18.7928
+# @DC3An.1n|y|1|"# 15040093"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.3397	18.2455
+# @DC3n.4n|c|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.3239	19.026
+# @DC3n.4n|c|1|"# 07010020"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.299	19.308
+# @DC3n.4n|c|1|"# 15020046"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.2933	19.1839
+# @DC3n.4n|c|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.2876	19.1999
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.2647	19.7993
+# @DC3An.2n|o|1|"# 09030015"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.2533	17.715
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.2515	19.9508
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.2495	20.0195
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.2485	20.1727
+# @DC3An.2n|o|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.2476	17.8133
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.2423	19.9346
+# @DC3An.1n|y|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.2401	18.3744
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.2399	20.0499
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.2317	20.0267
+# @DC3An.1n|y|1|"# 23060051"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.2243	18.4623
+# @DC3n.4n|c|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.2218	19.1953
+# @DC3An.1n|y|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.2187	18.5349
+# @DC3An.1n|y|1|"# 15040214"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.2084	18.5393
+# @DC3An.2n|o|1|"# 15040093"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.1858	18.1368
+# @DC3An.1n|y|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.1748	18.7161
+# @DC3Bn|c|1|"# 09030015"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.1733	17.68
+# @DC3An.1n|y|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.1658	18.7634
+# @DC3Bn|c|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.1397	17.8144
+# @DC3An.1n|y|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.1242	18.9676
+# @DC3An.1n|y|1|"# 15020046"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.1226	18.9115
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.1191	20.0447
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.1148	19.9058
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.112	19.8477
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.1097	19.9137
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.1088	19.8761
+# @DC3An.2n|o|1|"# 23060051"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.1086	18.2458
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.1067	20.0267
+# @DC3An.1n|y|1|"# 07010020"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.104	19.136
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-110.1006	20.1668
+# @DC3Bn|c|1|"# 15040093"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.0974	18.0721
+# @DC3An.2n|o|1|"# 15040214"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.0874	18.3405
+# @DC3An.2n|o|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.077	18.3358
+# @DC3An.1n|y|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.0455	19.1992
+# @DC3Bn|c|1|"# 23060051"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.0377	18.1099
+# @DC3Bn|c|1|"# 15040214"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.0344	18.1128
+# @DC3An.2n|o|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.0276	18.5035
+# @DC3An.1n|y|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110	19.1876
+# @DC4n.2n|c|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.9768	17.5862
+# @DC3An.2n|o|1|"# 15020046"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-109.9737	18.6188
+# @DC3An.1n|y|1|"# 15080004"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-109.9732	19.3543
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.969	19.885
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.9679	21.0657
+# @DC3An.2n|o|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-109.9646	18.7283
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.962	20.1218
+# @DC4n.2n|c|1|"# 09030015"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.96	17.6417
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.9564	20.0384
+# @DC3Bn|c|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.9555	18.307
+# @DC4n.2n|c|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.9437	17.7785
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.9417	20.025
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.9315	20.1668
+# @DC3An.2n|o|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-109.9176	18.7622
+# @DC3Bn|c|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.8922	18.4813
+# @DC4n.2n|c|1|"# 23060051"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.8892	17.8328
+# @DC4n.2n|c|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.8882	17.8163
+# @DC3Bn|c|1|"# 15020046"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.8873	18.4592
+# @DC4n.2n|c|1|"# 15040093"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.8861	17.9454
+# @DC3An.2n|o|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-109.8817	18.8967
+# @DC3An.2n|o|1|"# 07010020"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-109.881	18.905
+# @DC4n.2n|c|1|"# 15040214"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.8752	17.8711
+# @DC3An.2n|o|1|"# 07010035"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-109.8563	19.1277
+# @DC3An.2n|o|1|"# 15080004"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-109.8485	19.1635
+# @DC3An.2n|o|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-109.8261	19.1854
+# @DC3An.2n|o|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-109.8001	19.1807
+# @DC3An.2n|o|1|"# 07010036"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-109.7949	19.3469
+# @DC3Bn|c|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.7944	18.7411
+# @DC3Bn|c|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.7932	18.7616
+# @DC4n.2n|c|1|"# 15020029"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.786	18.0504
+# @DC3Bn|c|1|"# 07010020"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.784	18.804
+# @DC3Bn|c|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.7753	18.87
+# @DC3Bn|c|1|"# 07010035"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.7507	19.1027
+# @DC4An|y|1|"# 23060051"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.7343	17.541
+# @DC4n.2n|c|1|"# 15020046"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.7283	18.1644
+# @DC3Bn|c|1|"# 07010036"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.7202	19.2175
+# @DC3Bn|c|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.7175	19.1801
+# @DC3Bn|c|1|"# 15080004"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.7124	18.9581
+# @DC4n.2n|c|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.7059	18.248
+# @DC4An|y|1|"# 15040214"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.7035	17.6042
+# @DC4An|y|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.7035	17.5856
+# @DC3Bn|c|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.6799	19.1765
+# @DC3Bn|c|1|"# 07010042"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-109.6781	19.3264
+# @DC4n.2n|c|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.6133	18.4397
+# @DC4An|y|1|"# 15020029"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.6064	17.7441
+# @DC4n.2n|c|1|"# 07010020"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.589	18.602
+# @DC4n.2n|c|1|"# 07010035"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.5822	18.5171
+# @DC4An|y|1|"# 15010066"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.5694	17.7912
+# @DC4n.2n|c|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.5684	18.8182
+# @DC4An|y|1|"# 15040093"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.5648	17.7677
+# @DC4An|y|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.5564	17.8056
+# @DC4n.2n|c|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.5445	18.7604
+# @DC4An|y|1|"# 15020046"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.5434	17.8151
+# @DC4An|y|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.5399	17.7815
+# @DC4n.2n|c|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.5348	18.7559
+# @DC4n.2n|c|1|"# 07010036"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.5276	18.8754
+# @DC4n.2n|c|1|"# 07010035"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.4567	19.0296
+# @DC4n.2n|c|1|"# 15040147"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.4566	19.0948
+# @DC4n.2n|c|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.4175	19.179
+# @DC4n.2n|c|1|"# 15060041"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.3799	19.1661
+# @DC4n.2n|c|1|"# 07010042"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-109.3684	19.3263
+# @DC4An|y|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.3514	18.1533
+# @DC5n.2n|y|1|"# 15020029"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-109.3093	17.2425
+# @DC4An|y|1|"# 07010020"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.293	18.339
+# @DC4An|y|1|"# 07010036"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.2757	18.4281
+# @DC4An|y|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.2663	18.376
+# @DC4An|y|1|"# 07010035"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.2408	18.4285
+# @DC4An|y|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.1942	18.7245
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.1932	23.789
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.1666	23.8542
+# @DC4An|y|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.1626	18.8843
+# @DC4An|y|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.1445	18.779
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.1404	22.8552
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.1249	23.8495
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.1223	22.8864
+# @DC4An|y|1|"# 15040147"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.1222	18.9415
+# @DC5n.2n|y|1|"# 15040093"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-109.1092	17.4851
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0967	22.8317
+# @DC4An|y|1|"# 15040191"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-109.0829	19.0117
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0723	22.9455
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0561	23.9209
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.055	22.985
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.0464	21.7415
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.036	23.0434
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0352	22.9629
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0314	23.0249
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.0117	23.6732
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.9942	23.072
+# @DC4An|y|1|"# 08020010"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-108.9839	19.1736
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.9828	23.4515
+# @DC5n.2n|y|1|"# 15010066"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.9676	17.6717
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.9454	23.7346
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.9232	23.4942
+# @DC5n.2n|y|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.8886	17.7837
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.8789	23.8068
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.8038	23.4526
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.8009	23.4836
+# @DC5n.2n|y|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.7927	18.016
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.7481	23.4332
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.7404	23.7182
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.7398	23.4445
+# @DC5n.2n|y|1|"# 07010042"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.7208	18.2608
+# @DC5n.2n|y|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.718	18.286
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.7076	23.4865
+# @DC5n.2n|y|1|"# 07010020"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.705	18.331
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.6874	23.4665
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.6617	23.6318
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.643	23.5445
+# @DC5n.2n|y|1|"# 15010066"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.6429	18.6137
+# @DC5n.2n|y|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.6341	18.5513
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6312	22.8344
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.6165	23.6384
+# @DC5n.2n|y|1|"# 15040191"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.6105	18.496
+# @DC5n.2n|y|1|"# 15040147"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.576	18.7317
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.5724	23.6489
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.5698	23.6084
+# @DC5n.2n|y|1|"# 67010164"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.5631	18.7973
+# @DC5n.2n|o|1|"# 15040093"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.559	17.1237
+# @DC5n.2n|y|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.5477	18.8989
+# @DC5n.2n|y|1|"# 15020115"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-108.5377	18.877
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.51	21.55
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.4729	22.7741
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.4568	22.7925
+# @DC5n.2n|o|1|"# 09030015"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.4467	17.2933
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4363	23.216
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4256	22.7467
+# @DC5n.2n|o|1|"# 01010036"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.4064	17.3369
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4056	23.2295
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.3981	22.7875
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.3758	23.2678
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.3756	23.1976
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.3711	22.9054
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.368	23.2052
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.3636	23.221
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.3635	23.2991
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.3572	22.8485
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.3345	22.8835
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.3301	22.9546
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.3267	23.3412
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.3231	23.234
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.3095	23.2777
+# @DC5n.2n|o|1|"# 07010042"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.2966	17.5968
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.2902	23.3173
+# @DC5n.2n|o|1|"# 07010035"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.2895	17.6258
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.2881	22.9317
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.2824	23.4148
+# @DC5n.2n|o|1|"# 15010066"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.28	17.6738
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.2605	23.4091
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.2352	23.3812
+# @DC5n.2n|o|1|"# 15040154"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.2174	17.7198
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.2139	23.379
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.1877	22.3754
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.1874	23.0698
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.18	23.0838
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.1586	23.1284
+# @DC5n.2n|o|1|"# 67010177"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.1486	17.9245
+# @DC5n.2n|o|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.1478	17.8731
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.1445	20.8119
+# @DC5n.2n|o|1|"# 15040191"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.14	17.9339
+# @DC5n.2n|o|1|"# 15040193"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.1297	17.9872
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.1202	23.1929
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.1028	22.3992
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.1022	23.1946
+# @DC5n.2n|o|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.0868	18.3735
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.0728	23.2676
+# @DC5r.2n|c|1|"# 07010042"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-108.0621	17.2128
+# @DC5n.2n|o|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.0593	18.2129
+# @DC5n.2n|o|1|"# 07010020"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.057	18.322
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.0532	23.0609
+# @DC5n.2n|o|1|"# 15040147"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.0512	18.5331
+# @DC5n.2n|o|1|"# 15020115"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|10.949|"Magnetic Anomaly"
+-108.0507	18.251
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.0449	23.27
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.0189	23.1403
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.0145	22.582
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.0017	22.195
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.9984	23.1328
+# @DC5r.2n|c|1|"# 15040086"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.9956	17.2274
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.9859	23.2081
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.9401	23.2022
+# @DC5r.2n|c|1|"# 15040193"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.9015	17.4946
+# @DC5r.2n|c|1|"# 15040154"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.8961	17.5064
+# @DC5r.2n|c|1|"# 15040191"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.895	17.6301
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-107.8926	22.7208
+# @DC5r.2n|c|1|"# 01010036"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.8814	17.5302
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.8756	22.9469
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.8588	23.0355
+# @DC5r.2n|c|1|"# 15010066"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.8518	17.6864
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-107.8508	22.4739
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-107.8475	22.7669
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.8429	22.9857
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.8333	23.0267
+# @DC5r.2n|c|1|"# 15020115"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.8154	17.9097
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.8115	23.0438
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.79	22.3
+# @DC5r.2n|c|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.7844	17.7914
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.7821	23.1129
+# @DC5r.2n|c|1|"# 15040147"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.7673	18.4043
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-107.7603	22.596
+# @DC5r.2n|c|1|"# 15280003"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.7602	18.1429
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-107.7572	22.5747
+# @DC5r.2n|c|1|"# 15040198"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.757	18.165
+# @DC5r.2n|c|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.7553	18.1631
+# @DC5r.2n|c|1|"# 67010177"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.7542	18.1209
+# @DC5An.1n|y|1|"# 15040193"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.7519	17.114
+# @DC5r.2n|c|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.7518	18.2645
+# @DC5r.2n|c|1|"# 07010020"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.748	18.318
+# @DC5r.2n|c|1|"# 15040180"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.7302	18.4752
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-107.6895	22.6839
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.6754	22.4823
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.6515	22.5124
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.65	22.5335
+# @DC5An.1n|y|1|"# 15040191"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.6464	17.2969
+# @DC5r.2n|c|1|"# 08010052"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.5035|"Magnetic Anomaly"
+-107.6317	18.4963
+# @DC5An.1n|y|1|"# 15040154"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.6266	17.3307
+# @DC5An.1n|y|1|"# 15020115"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.5804	17.5739
+# @DC5An.1n|y|1|"# 01010036"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.5715	17.6624
+# @DC5An.1n|y|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.562	17.7162
+# @DC5An.1n|y|1|"# 15040198"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.5484	17.8612
+# @DC5An.1n|y|1|"# 15010066"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.538	17.7258
+# @DC5An.1n|y|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.5204	18.1891
+# @DC5An.1n|y|1|"# 03040001"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.5183	18.295
+# @DC5An.1n|y|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.5146	17.7266
+# @DC5An.1n|y|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.5047	18.1277
+# @DC5An.1n|y|1|"# 15040147"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.498	18.2623
+# @DC5An.1n|y|1|"# 15040180"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.4953	18.162
+# @DC5An.1n|y|1|"# 08010052"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.4914	18.3341
+# @DC5An.1n|y|1|"# 67010177"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.4894	18.243
+# @DC5An.1n|y|1|"# 07010020"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|11.935|"Magnetic Anomaly"
+-107.484	18.314
+# @DC5An.2n|c|1|"# 15060022"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.4501	17.3688
+# @DC5An.2n|c|1|"# 15020115"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.3864	17.2872
+# @DC5An.2n|c|1|"# 15040154"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.3774	17.1694
+# @DC5An.2n|c|1|"# 01010036"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.3758	17.746
+# @DC5An.2n|c|1|"# 15040180"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.3354	17.9433
+# @DC5An.2n|c|1|"# 01030138"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.3349	17.7049
+# @DC5An.2n|c|1|"# 15040198"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.3321	17.5806
+# @DC5An.2n|c|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.3285	18.1267
+# @DC5An.2n|c|1|"# 15010066"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.3144	17.697
+# @DC5An.2n|c|1|"# 08010052"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.3141	18.1464
+# @DC5An.2n|c|1|"# 08010047"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.3138	18.1066
+# @DC5An.2n|c|1|"# 03040001"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.3017	18.1533
+# @DC5An.2n|c|1|"# 07150002"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.2983	17.6747
+# @DC5An.2n|c|1|"# 15040147"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.296	18.155
+# @DC5An.2n|c|1|"# 07010020"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.293	18.312
+# @DC5An.2n|c|1|"# 67010177"|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|12.2925|"Magnetic Anomaly"
+-107.2635	18.3723
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1946	19.8666
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1602	20.3251
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9858	20.5021
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9607	20.1233
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9591	19.8011
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1621	20.9495
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1564	20.763
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1561	20.8795
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1454	21.3332
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.127	20.387
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1267	20.9783
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1267	20.6005
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1245	22.0507
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1216	20.4674
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1183	21.8567
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1181	21.152
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.118	21.8278
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1172	21.388
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1139	22.4802
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1129	20.7663
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1109	21.5671
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1087	21.6854
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1086	22.2532
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.1068	21.0852
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.0987	21.6311
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.0977	22.3689
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.0913	21.9165
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.0891	22.5427
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.0878	22.4264
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.073	21.8639
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-112.0607	22.5696
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.6922	20.0924
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.6591	20.5765
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.6474	20.3723
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.6457	20.6239
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.6385	20.5934
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.6347	20.6579
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.6324	20.5025
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.6275	20.647
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.6133	20.899
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.6113	21.0122
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.6052	20.755
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.5924	21.1022
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.5865	21.0681
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.5393	21.585
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.5296	21.2565
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.5292	21.57
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.5243	21.4586
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-111.5007	21.3813
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.4718	20.4002
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.4407	20.6393
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.4343	20.6194
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.4319	20.6031
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.4241	20.6828
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.3668	20.858
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.3602	20.9006
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.3582	21.0183
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.3272	20.9925
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.2983	21.2333
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.2558	21.2612
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-111.2469	20.0433
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.2268	21.2671
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-111.2156	20.1554
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-111.198	20.077
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.197	21.5203
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.1954	21.6004
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-111.1778	20.6222
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-111.1601	20.636
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-111.1598	20.6164
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.1536	21.7702
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.152	21.8509
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.1497	21.8919
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.142	21.9037
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.1419	21.9624
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.1085	22.0108
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.1051	22.0174
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-111.0967	20.4002
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-111.0874	21.0229
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-111.0833	21.0683
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-111.0809	20.4687
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.0791	22.0524
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-111.07	22.0954
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-111.0647	20.4307
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-111.0598	20.8422
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-111.0487	20.5202
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-111.045	19.8821
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-111.044	20.8954
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-111.0202	20.6243
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-111.0152	21.1787
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-111.013	19.919
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.9817	20.06
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.9711	20.7982
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.9706	21.3332
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.9559	20.1759
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.951	21.0249
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.9483	20.075
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.9172	20.2283
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.9172	20.8986
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.9052	20.2778
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.9041	20.8692
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.9033	20.9317
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.9012	21.131
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.898	20.3696
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.8775	21.2107
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.8768	21.5802
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.8718	21.6446
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.8539	21.7319
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.821	20.6307
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.8177	21.6491
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.8165	20.5917
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.8041	21.8045
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.7921	21.7435
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.7848	21.7548
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.7818	21.5387
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.7719	21.6389
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.7714	21.7875
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.7687	21.454
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.765	20.0583
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.7407	21.9006
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.737	21.9023
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.7349	21.8614
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.7265	20.213
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.7233	20.795
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.7225	20.1563
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.7219	21.6137
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.7185	21.9749
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.7137	22.0403
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.713	21.6458
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.704	22.0505
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.7013	21.6677
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.7006	22.0833
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.6961	21.71
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.6912	21.7765
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.6901	20.8086
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.6805	22.0485
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.6803	20.4096
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.6777	21.9714
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.6529	21.3846
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.6497	21.9556
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.6483	20.0483
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.6452	22.1176
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.6402	20.1008
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.6377	22.0953
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.6357	21.2939
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.6332	21.8204
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.6314	21.8644
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.631	21.8196
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.6182	22.1681
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-110.6153	22.1628
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.5985	21.9691
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.5951	21.8557
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.5799	20.6434
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.5788	21.424
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.5717	20.6883
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.5673	22.0143
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.5587	21.4567
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.5582	20.05
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.5517	20.0383
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.5444	22.0636
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.5406	22.0603
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.5402	21.5288
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.5351	20.7849
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.5326	21.492
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.5261	22.0958
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.5257	22.101
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.5096	20.7674
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.5029	21.5327
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.4932	20.4065
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.4779	22.1586
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.4653	20.9477
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.4544	21.0232
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.4535	21.7034
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.4518	21.7195
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.4508	21.6792
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.448	21.0295
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.44	20.5933
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.4395	21.6819
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.4351	22.2452
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.4346	21.7923
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.4334	21.1217
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.4261	21.0956
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.4244	21.7442
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.4241	21.7659
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.4231	21.736
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.4225	21.0899
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.4168	20.6558
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.4033	21.8022
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-110.3988	22.266
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.382	21.2082
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.3735	21.2118
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.3476	21.2683
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.3369	21.2983
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.3367	20.4003
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.3347	21.0034
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.3345	20.8923
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.3312	21.9457
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.325	20.5117
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.3236	21.955
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.3202	21.9665
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.3195	21.3251
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.3178	20.5417
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.3177	21.9611
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.3083	21.9878
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.3008	21.0246
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.3006	20.9859
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.281	21.0811
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.2762	21.0402
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.2747	21.4794
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.2717	21.4515
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.2704	21.4467
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.26	22.0821
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.2576	21.5154
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.2517	22.1167
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.2513	22.0484
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.2496	21.121
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.2471	20.8983
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.243	21.523
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.24	21.5726
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.2365	20.8507
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.2263	21.1918
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.2259	21.5825
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.2173	20.9136
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.2046	21.6292
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.1947	21.6937
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.1893	21.6419
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.1845	20.9775
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.1838	21.2698
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.178	21.0257
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.1746	21.0122
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.1658	21.3221
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.1582	21.0734
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.1551	22.2988
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.153	21.0511
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.1365	21.386
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.1295	21.4281
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.128	21.0963
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.1243	21.4457
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.1199	21.391
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-110.1187	22.3893
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.1163	21.8212
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.1162	21.8137
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-110.1078	20.658
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.1051	21.4672
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-110.1048	20.7273
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.1017	21.8207
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.0995	21.4385
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.0951	21.2334
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.0893	21.5273
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.0877	21.2316
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.0757	21.907
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-110.0734	20.7815
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.0678	21.9126
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.0596	21.5896
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-110.0582	20.8011
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-110.0484	20.8394
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.047	21.6326
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-110.0447	20.8015
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.0399	21.9653
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.0378	21.3606
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.0364	21.3884
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.0341	21.6373
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-110.0317	21.975
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.0296	21.3717
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.0253	21.3882
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.0179	21.7367
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.0158	21.6888
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.0136	21.7487
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.0089	21.3855
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-110.0084	21.7478
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-110.0038	21.4481
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.9931	20.9616
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.992	21.0257
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.9871	21.0514
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.9836	21.8242
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-109.9687	22.1209
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.9677	21.0876
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.9561	21.548
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.9497	21.601
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.9492	21.5755
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.9485	21.5919
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.9389	20.3869
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.9381	21.8776
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.9284	21.165
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-109.927	22.173
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.9183	21.905
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.9176	20.5017
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.9169	21.6584
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.9129	21.6848
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-109.9082	22.2553
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.907	21.6796
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.9044	20.3754
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.9013	21.3475
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.8969	20.4536
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.8963	21.3021
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.8952	21.2554
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.8916	21.3065
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.8901	21.2388
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.8865	21.7495
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.8832	21.9737
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.883	21.9728
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.8768	20.577
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.8724	20.5987
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.8708	21.3205
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-109.8531	22.3463
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.8488	20.6581
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.8473	20.6848
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.8471	20.62
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.8469	20.6717
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.8414	21.8503
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.8317	21.855
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.8303	21.8758
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.8188	21.4803
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.8155	19.7923
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.8145	20.8788
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.8133	21.4483
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.813	19.7982
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.8118	21.5354
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.8093	20.7782
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.8072	20.8679
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.8016	20.3608
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.8002	21.4853
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.7988	20.3822
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.7897	20.3411
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.7884	22.1182
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.7752	20.9523
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.7724	21.9792
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.7651	20.4526
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.7647	20.971
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.7637	20.4277
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.7629	21.5887
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.7607	21.5797
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.7592	22.2275
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.757	20.4417
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.7493	21.0773
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.7402	21.0525
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.735	21.0225
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.7334	21.6373
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.7315	21.0865
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.7296	20.5709
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.7296	21.082
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.7248	19.7738
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.7235	21.0818
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.722	21.6902
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-109.7215	22.4914
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.7212	22.3248
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.718	21.1903
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.7118	20.6195
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.7051	22.0853
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.7016	19.8162
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.7006	19.8322
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.7	21.765
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.6973	20.2339
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.6953	20.6731
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.6921	21.162
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.6844	20.5828
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.6756	20.7015
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.6753	21.2677
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.6752	21.7972
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.6746	20.6436
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.6704	22.2099
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.6703	21.227
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.6559	20.3147
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.6528	20.2978
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.6509	20.1775
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.6435	20.8096
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.6411	20.8085
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.6395	21.2572
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.6379	21.2832
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.6368	20.8452
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.619	22.3165
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.6187	20.3761
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.6145	21.3268
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.6142	22.4604
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.614	22.4183
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.61	21.3253
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.6099	22.4684
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.6046	20.9137
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.6044	20.2291
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.6038	20.88
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.602	21.9837
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.6017	21.0182
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.5959	20.2411
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.5949	20.971
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.5949	22.4829
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-109.5894	19.6862
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.5871	20.9427
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-109.5848	22.4953
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.5844	21.4298
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-109.58	19.7418
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.5729	21.4366
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.5715	21.0206
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.5682	21.0228
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.5637	22.3975
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-109.5617	19.8013
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.5519	21.4301
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.5501	20.4359
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.5477	21.0396
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.5445	22.0187
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.5436	21.0776
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.541	22.3886
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.5397	21.4422
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.5354	22.4459
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.5282	22.447
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.5251	22.4463
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-109.5218	22.5219
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.5214	21.0975
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.5208	21.1071
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.5187	20.3728
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.5176	20.4947
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.5148	21.6158
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.512	20.7564
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.5083	20.5214
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.505	20.7703
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.5033	21.615
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.5031	20.4724
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.5005	20.3974
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.4927	22.1748
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.4884	21.1608
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.4846	20.8071
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.481	21.7007
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.4779	21.198
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.4725	20.4361
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.4698	20.5276
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.4664	22.3257
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.4642	20.8261
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.4596	20.8617
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.4589	20.5688
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.4564	22.2619
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.4556	21.2113
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.455	20.8469
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.4541	20.4235
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.4537	22.3048
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.4496	21.7289
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.4487	20.8549
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.4431	20.7538
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.4405	20.4886
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.4398	22.3676
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.4393	22.3373
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.4332	20.5834
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.4297	22.3804
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.4261	20.8852
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.4249	20.7916
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.4234	20.7865
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.4192	20.8995
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.4144	21.3843
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.4134	20.5139
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.4101	21.3264
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.403	21.3547
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.4002	22.3292
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.4	20.5073
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.3965	20.8194
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.3918	21.3617
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.3893	20.5354
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.3887	20.9564
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.3866	20.9522
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.3835	22.4007
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.3779	20.8273
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.3761	22.4181
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.3738	20.9894
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.3727	20.8306
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.3408	20.8813
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.3385	21.9873
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.3321	21.9305
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.331	21.0848
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.3283	21.49
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.3131	21.0858
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.3103	21.9967
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.3068	20.9246
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.3068	21.0946
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.3056	20.9346
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.2902	20.9517
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.2895	22.0429
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.2808	21.1284
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.277	22.6045
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.2738	22.6045
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.2558	22.1279
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.2483	21.0321
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.2422	21.0099
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.2319	21.028
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.2301	21.0415
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.2301	21.1942
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.2229	21.0641
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.2221	22.1875
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.2072	21.2267
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.2052	22.2046
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.1994	22.7908
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.1989	21.2819
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.1962	22.2058
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.1899	22.2392
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.1812	21.3277
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.18	22.7048
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.1775	21.8973
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.1662	21.0879
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.1657	21.9433
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.1653	22.8071
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.1585	20.0154
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.1544	21.8567
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.1456	21.1293
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.143	20.003
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.1224	22.3769
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.1148	22.8907
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.114	19.9553
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.1116	20.0811
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.1102	21.9871
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.1035	20.102
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.1	21.1577
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0879	22.9246
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.087	20.1483
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.0792	21.2346
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.0766	20.1296
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0723	22.9299
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.0669	19.9816
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.0652	20.169
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.0639	22.0601
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-109.0609	22.4849
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.0603	20.1484
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.0518	22.1426
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.0486	22.0869
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.0479	20.0136
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.0442	22.0907
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0404	23.0162
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0393	22.9658
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.0379	20.0574
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.0359	21.7297
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.0323	22.1073
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-109.0285	22.0893
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0282	23.0495
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0266	23.0322
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.025	20.0712
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.025	23.0503
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.025	23.051
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.0242	20.6499
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-109.0221	21.2961
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0218	23.0697
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-109.0169	23.0848
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.0111	20.1046
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-109.0053	20.1197
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.9964	21.6837
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.9958	23.1404
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.9866	21.6722
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.9833	20.2679
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.9766	23.1816
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.9745	22.6121
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.9743	20.1532
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.965	21.778
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.9627	22.2737
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.9596	20.6734
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.9584	20.6822
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.9571	23.1083
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.9431	20.6536
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.9303	20.3706
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.9293	22.6948
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.9157	20.2352
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.9148	21.924
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.9134	22.7901
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.9122	21.7561
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.9102	22.8802
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.8934	20.6999
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.8933	22.8279
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.8905	20.703
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.8862	22.8492
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.88	22.8346
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.8789	20.7342
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.8776	19.8355
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.8732	21.9617
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.8702	20.6511
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.868	20.7728
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.8605	20.3503
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.8605	19.8743
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.8552	20.6467
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.855	21.9649
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.8532	21.9857
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.8505	21.9957
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.8502	21.8713
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.8476	20.7572
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.843	19.9095
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.8427	19.9198
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.8422	22.3595
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.8401	22.8908
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.8398	22.9082
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.8395	22.8847
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.8308	20.688
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.8292	19.785
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.8229	20.8233
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.8216	20.8131
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.8211	20.8297
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.8209	19.9126
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.8207	20.7205
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.8197	19.9592
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.8171	20.822
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.8155	20.7562
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.8138	22.9101
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.8096	20.9055
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.8085	20.7303
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.808	21.9171
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.8047	22.9398
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.8017	20.8593
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.8016	19.8038
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.7964	20.7969
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.7963	22.9521
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.7956	22.202
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.7935	22.0735
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.7917	22.9333
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.7902	19.8379
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.7892	20.8692
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.7865	20.8114
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.7829	21.9251
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.7812	20.8015
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.779	22.5335
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.7777	19.8356
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.7763	22.9661
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.7751	21.9458
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.7746	20.8116
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.7741	20.8926
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.7704	22.5975
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.7656	20.9406
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.7652	20.8309
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.7635	20.1616
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.7628	20.2164
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.7568	20.9355
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.7508	22.2493
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.7435	20.9801
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.7414	20.8524
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.7398	22.3016
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.7387	22.1716
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.7336	22.6253
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.7257	20.9147
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.7195	20.3093
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.7115	20.4956
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.7099	22.6854
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.7039	20.9154
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.6967	22.2283
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6938	22.7547
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.6936	22.2752
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.6909	22.304
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.6885	20.1332
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.6782	20.1038
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.6774	20.1169
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.667	20.5827
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.6588	20.2215
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6542	20.5507
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.6474	20.9843
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.6472	22.4832
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6461	22.8057
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.6449	22.2935
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6439	22.815
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6415	22.8114
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6361	20.6667
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.6315	22.3952
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.6268	22.5138
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6245	20.6079
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6189	20.6949
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6178	22.869
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.616	20.279
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.6157	22.504
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6113	20.709
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6077	20.7108
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.6033	20.6989
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.5926	20.2921
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.5896	21.5419
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.5854	22.4618
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.5791	22.486
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.5713	20.3432
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.5705	20.7871
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.5652	22.4867
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.5652	20.8167
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.5522	22.5857
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.5501	22.9606
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.5485	21.611
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.5423	20.4289
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.5419	22.9098
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.5384	20.8485
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.5374	22.6078
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.5333	22.955
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.5305	21.5975
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.527	22.6201
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.5233	22.9883
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.5225	20.534
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.5208	20.5577
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.511	22.6528
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.5098	21.5829
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.5061	20.9958
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.5029	22.5762
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4997	22.5685
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4935	22.588
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.4929	20.5175
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.492	20.6051
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4844	21.7012
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.4773	21.0304
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.4768	22.725
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.4711	22.7136
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.4696	22.8073
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.4629	22.8238
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.4524	20.7169
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4522	21.7293
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4518	21.725
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.4471	20.7378
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4422	21.7983
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.4415	21.1255
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.441	20.7587
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4387	22.6951
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.4372	22.8694
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4344	22.7048
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.4323	21.6663
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.424	22.7797
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.424	20.789
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4197	22.75
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.4082	22.7813
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.4011	21.2093
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.3915	21.688
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.3915	20.2211
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.3821	21.6776
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.3819	20.2092
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.38	22.7523
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.3752	20.7799
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.3668	22.8426
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.3634	22.0867
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.3628	22.9286
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.3612	22.0343
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.36	22.825
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.355	22.9241
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.3547	21.4704
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.3538	22.8487
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.3457	21.0085
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.3372	21.8575
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.3343	20.9853
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.3237	21.5236
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.323	22.8802
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.3205	21.5103
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.3094	22.2242
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.3054	21.5812
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.304	22.9256
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.3007	22.9103
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.2995	22.0508
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.2985	20.3235
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.2982	21.082
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.2944	22.0351
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.2889	22.9006
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.2848	21.5985
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.2816	20.3748
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.2793	21.6117
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.2745	20.4146
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.2743	22.9066
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.2741	20.4757
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.2717	22.2675
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.2699	21.1619
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.2682	20.3223
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.2557	20.4967
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-108.2532	20.0328
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.2464	22.2857
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.2335	22.2074
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.2282	22.3153
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.2207	21.7331
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-108.2185	20.1636
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.2147	21.7847
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.2127	21.348
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.2119	21.7333
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.2053	22.3537
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.2047	22.2473
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.2032	22.2511
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.202	21.8467
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-108.1983	20.1545
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.1853	22.382
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.18	21.86
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.1766	22.2884
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.1738	20.646
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.1735	20.6319
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.1702	22.4187
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-108.1665	20.2426
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-108.1664	20.2272
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.1636	21.4451
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.1562	21.4804
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.1528	21.4939
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.1485	22.334
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.1483	22.5487
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-108.1448	20.2877
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.144	22.4355
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.1421	20.6813
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.1394	22.4526
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.139	21.5152
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-108.137	20.2926
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.1295	20.7232
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.1291	22.5183
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.127	21.933
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.1242	20.9221
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.1238	21.9735
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.1172	22.3992
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.1152	22.563
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-108.1086	20.1257
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-108.0981	20.1246
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.0969	21.7209
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-108.0919	20.3479
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-108.0879	20.1498
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.0854	22.0339
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.0852	22.415
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.0836	21.9902
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.0815	21.7169
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-108.0762	20.1859
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.0761	22.4309
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.0755	21.0155
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.0691	21.02
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.0658	21.7505
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-108.0619	20.3787
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.0535	22.6366
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.0529	21.0876
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.0482	22.6223
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.0463	22.1254
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-108.0462	20.2061
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-108.0334	22.4637
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-108.0314	20.2209
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.0287	22.6405
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-108.027	21.1848
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.0175	22.6664
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-108.0141	20.5801
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-108.0138	21.8335
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.0072	22.7357
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-108.0055	20.5673
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-108.0025	22.162
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-108.0016	22.6901
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-107.9973	22.1937
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.9963	21.8824
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-107.9932	22.6082
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-107.9877	22.6008
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-107.984	22.7147
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.9827	20.6126
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-107.9815	22.2113
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.9774	21.3577
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.9769	20.349
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.9727	20.2725
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.9673	21.3957
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-107.9668	22.6744
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.9627	20.08
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.9616	21.356
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.961	22.057
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-107.9577	22.6454
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-107.9505	22.6995
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.9492	21.956
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.9475	20.8684
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-107.9464	22.6698
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.9462	20.0793
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.945	21.9186
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.9432	20.0971
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-107.9424	22.7502
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.9385	21.552
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-107.9383	22.3292
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-107.9364	22.7555
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-107.9295	22.7591
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.9222	21.6437
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-107.9188	22.6927
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.9186	22.0257
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.9163	20.5348
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.9131	20.5383
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-107.913	22.7902
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.9127	20.9684
+# @DC1n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|0.78|"Magnetic Anomaly"
+-107.9114	22.79
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-107.9062	22.3643
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.9047	21.6435
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.8952	20.0899
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-107.8889	22.3813
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.8856	20.574
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.8852	21.0347
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.8842	22.1622
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.8836	21.0661
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.8761	21.02
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.8751	20.1311
+# @DC1r.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.03|"Magnetic Anomaly"
+-107.8611	22.731
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.8528	20.2131
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.8492	21.2693
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.849	21.8004
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.847	21.2511
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.8412	20.8296
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.834	20.3003
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.8338	21.3034
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-107.8317	22.5185
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.8307	22.286
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.8198	21.854
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.8191	21.2888
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.8071	20.3628
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.8029	21.4622
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.7951	21.5876
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.7909	20.9332
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.7885	20.9849
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.7832	21.0025
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.7825	21.567
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.7813	21.02
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.7801	21.6246
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.7787	21.0216
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-107.7773	22.5886
+# @DC2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|1.86|"Magnetic Anomaly"
+-107.7751	22.5508
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.7735	22.3169
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.7732	21.0908
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.7725	20.4796
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.7718	21.9382
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.7677	21.951
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.7648	20.4779
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.761	21.1807
+# @DC3n.1n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.235|"Magnetic Anomaly"
+-107.753	21.687
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.7469	21.2431
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.7434	21.1976
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.7412	22.0898
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.7405	21.2513
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.7357	20.5168
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.7288	21.4127
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.7176	19.9408
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.7167	19.97
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.7089	19.9519
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.7057	20.7802
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.6983	21.5178
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.6859	20.074
+# @DC3n.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|4.62|"Magnetic Anomaly"
+-107.685	21.5146
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.6791	19.9996
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.6781	22.226
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.6774	19.9955
+# @DC2An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|2.581|"Magnetic Anomaly"
+-107.6642	22.5163
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.6621	20.0052
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.6536	19.3721
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.6534	21.0087
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.6533	20.8559
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.652	20.961
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.6481	21.1338
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.6456	21.1672
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.6454	20.1066
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.6428	21.0839
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.6412	20.9458
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.6402	21.0241
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.6385	20.1109
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.6375	20.894
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.6165	21.2845
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.6147	21.1893
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.605	21.3304
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.5988	21.459
+# @DC3n.4n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.105|"Magnetic Anomaly"
+-107.5782	21.4606
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.5779	19.4673
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.559	20.2085
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.5569	22.3228
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.5552	22.4422
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.5433	22.3733
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.5415	20.383
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.5399	20.2443
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.5342	20.3812
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.52	22.4318
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.5193	22.4333
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.5072	19.3137
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.494	20.4245
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.4804	19.3522
+# @DC2An.3n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|3.58|"Magnetic Anomaly"
+-107.476	22.4753
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.4677	20.6935
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.4508	20.6877
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.437	19.5485
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.4218	19.6138
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.407	20.0186
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.4055	20.7961
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.4043	19.9188
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.4026	20.8779
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.4018	21.1166
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.4009	20.891
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.4003	20.8327
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.3983	19.9916
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.3972	21.1608
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.3962	20.9316
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.3925	21.1911
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.3895	21.0802
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.381	19.9119
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.376	20.9451
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.3755	19.4337
+# @DC3An.1n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|5.894|"Magnetic Anomaly"
+-107.3731	21.1295
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.3619	20.0769
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.3589	20.0993
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.3507	19.6435
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.3388	20.1255
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.3222	20.3024
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.3212	20.287
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.3206	20.1558
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.3204	20.1646
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.3162	19.7233
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.2707	20.3389
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.2669	19.579
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.2643	20.6193
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.2538	20.5201
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.2479	19.5191
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.2164	20.743
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.2132	20.8183
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.2124	20.8583
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.2104	20.8121
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.2104	20.6689
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.2099	20.8701
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.2078	20.9233
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.2043	20.7736
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.1963	21.0489
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1937	19.9289
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1847	20.0674
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.1844	21.0201
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1811	19.8561
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1787	20.0986
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1778	20.0781
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1767	19.9983
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.1744	20.9852
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1721	20.0853
+# @DC3An.2n|o|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|6.567|"Magnetic Anomaly"
+-107.1585	21.0345
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1557	20.242
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1549	20.2236
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1438	20.5754
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1011	20.3836
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.1009	20.5994
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.0931	20.6447
+# @DC3Bn|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.013|"Magnetic Anomaly"
+-107.067	20.6982
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-107.009	20.5263
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9969	19.7011
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9872	19.5571
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9861	20.2298
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.98	20.1719
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9797	20.1185
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.979	20.0774
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9768	19.989
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9747	19.1073
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9741	19.8035
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9732	19.3733
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9716	20.2624
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9676	19.8337
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9667	19.1369
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9633	20.0033
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.954	19.3077
+# @DC4n.2n|c|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|7.861|"Magnetic Anomaly"
+-106.9511	20.5456
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.707	20.085
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.707	20.0765
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.698	20.029
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.6928	20.8778
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.69	19.954
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.6631	20.7577
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.6538	20.7051
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.6512	19.7376
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.651	19.7045
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.6483	19.7132
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.6458	19.6987
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.6393	19.7183
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.633	19.5166
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.6269	20.6052
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.6232	19.5269
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.594	20.5299
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.5717	20.365
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.5669	19.3456
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.5663	19.2831
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.5645	20.4039
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.5541	20.3591
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.5489	19.2036
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.5365	19.1211
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.5362	19.0445
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.5328	19.3071
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.5324	20.3289
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.529	19.045
+# @DC4An|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|8.699|"Magnetic Anomaly"
+-106.5213	19.108
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.4703	20.1723
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.4658	20.2267
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.4583	20.2421
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.3982	20.1152
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.3971	20.0966
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.3919	20.0625
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.3748	20.032
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.3567	19.9928
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.3363	19.9509
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.2761	19.8044
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.2649	19.8045
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.2537	19.777
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.1819	19.6231
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.1781	19.647
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.1668	19.5841
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.1578	19.6106
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.1516	19.597
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.0871	19.4325
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.0836	19.4199
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.0774	19.4044
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.0613	19.3624
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.0113	19.2363
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-106.0102	19.254
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-105.9518	19.1749
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-105.9351	19.0953
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-105.9349	19.0703
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-105.9265	19.0967
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-105.8985	19.0008
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-105.8789	18.9732
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-105.8692	18.9419
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-105.8409	18.8541
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-105.8287	18.7891
+# @DC5n.2n|y|1|N/A|DeMets+Traylen_2000_Tectonophys|10.1016/S0040-1951(99)00309-1|9.92|"Magnetic Anomaly"
+-105.8036	18.7539

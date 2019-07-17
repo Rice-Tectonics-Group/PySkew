@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import wx, os, sys, pdb
 import numpy as np
 import pandas as pd

@@ -12,7 +12,6 @@ if 'darwin' in sys.platform:
 import matplotlib.lines as mlines
 from collections import OrderedDict
 from matplotlib.patches import Rectangle,ConnectionPatch
-from collections import OrderedDict
 import cartopy.crs as ccrs
 from geographiclib.geodesic import Geodesic
 from .skewness import *
@@ -84,7 +83,7 @@ def plot_gc_from_pole(slat,slon,plat,plon,length=360,error=None,m=None,spacing=1
     if isinstance(error,int) or isinstance(error,float):
         geodict = Geodesic.WGS84.ArcDirect(plat,plon,geodict['azi2']-90,error)
         geodict = Geodesic.WGS84.Inverse(slat,slon,geodict['lat2'],geodict['lon2'])
-        azi_a95 = 1.96*(azi_mean-geodict['azi1'])/np.sqrt(2)
+        azi_a95 = (azi_mean-geodict['azi1'])/np.sqrt(2)
     else: azi_a95 = None
 
     m = plot_great_circle(slon,slat,azi_mean,error=azi_a95,length=length,m=m,spacing=spacing,**kwargs)
@@ -671,11 +670,11 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 
     ax0 = fig.add_subplot(8,1,1)
     remove_axis_lines_and_ticks(ax0)
-    ax0.set_ylabel("synthetic (%s)"%'ship',rotation=0,fontsize=14)
-    ax0.yaxis.set_label_coords(-.1,.45)
+    ax0.set_ylabel(r"synthetic (%s)"%'ship',rotation=0,fontsize=11)
+    ax0.yaxis.set_label_coords(-.15,.45)
     ax0.format_coord = format_coord
     min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0],'ship',ax0, color='k', linestyle='-')
-    ylim = ax0.set_ylim([-200,200]) #MODIFY THIS TO CHANGE Y AXIS
+    ylim = ax0.set_ylim([-250,250]) #MODIFY THIS TO CHANGE Y AXIS
 #    ylim = ax0.get_ylim()
 
     for j,iterrow in enumerate(rows.iterrows()):
@@ -701,8 +700,8 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     ax = fig.add_subplot(8,1,8, sharex=ax0)
     ax.set_anchor('W')
     remove_axis_lines_and_ticks(ax)
-    ax.set_ylabel("synthetic (%s)"%'aero',rotation=0,fontsize=14)
-    ax.yaxis.set_label_coords(-.1,.45)
+    ax.set_ylabel(r"synthetic (%s)"%'aero',rotation=0,fontsize=11)
+    ax.yaxis.set_label_coords(-.15,.45)
     min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0],'aero', ax, color='k', linestyle='-')
     ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
     ax.format_coord = format_coord

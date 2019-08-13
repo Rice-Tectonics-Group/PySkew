@@ -135,7 +135,7 @@ def plot_small_circles(plon,plat,m=None,range_arcdis=(10,180,10),range_azis=(-18
 
     return m
 
-def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1),**kwargs):
+def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1), alpha_line=1.0, filled=True, **kwargs):
     if m==None:
         # Create figure
         fig = plt.figure(figsize=(16,9), dpi=200)
@@ -162,11 +162,19 @@ def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1)
 
         lb_asml_circ_points = np.array(lb_sml_circ_points)
 
-        m.plot(ub_asml_circ_points[:,0],ub_asml_circ_points[:,1],transform=ccrs.Geodetic(),linestyle='--',**kwargs)
-        m.plot(lb_asml_circ_points[:,0],lb_asml_circ_points[:,1],transform=ccrs.Geodetic(),linestyle='--',**kwargs)
-
+        if filled:
+            if 'linewidth' in kwargs.keys():
+                linewidth = kwargs['linewidth']
+                kwargs.pop('linewidth')
+            m.fill_between(ub_asml_circ_points[:,0],lb_asml_circ_points[:,1],ub_asml_circ_points[:,1],transform=ccrs.Geodetic(),linewidth=0,**kwargs)
+            kwargs['linewidth'] = linewidth
+        else:
+            m.plot(ub_asml_circ_points[:,0],ub_asml_circ_points[:,1],transform=ccrs.Geodetic(),linestyle='--',**kwargs)
+            m.plot(lb_asml_circ_points[:,0],lb_asml_circ_points[:,1],transform=ccrs.Geodetic(),linestyle='--',**kwargs)
+            
     asml_circ_points = np.array(sml_circ_points)
-    m.plot(asml_circ_points[:,0][:-1],asml_circ_points[:,1][:-1],transform=ccrs.Geodetic(),**kwargs)
+    if "alpha" in kwargs.keys(): kwargs.pop("alpha")
+    m.plot(asml_circ_points[:,0][:-1],asml_circ_points[:,1][:-1],transform=ccrs.Geodetic(), alpha=alpha_line, **kwargs)
 
     return m
 

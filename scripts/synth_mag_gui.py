@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import wx, os, sys, pdb
 import numpy as np
 import pandas as pd
@@ -6,6 +8,7 @@ import pyskew.plot_skewness as psk
 import pyskew.skewness as sk
 from pyskew.srm_window import SRMWindow
 from pyskew.tv_window import TVWindow
+from pyskew.eai_window import EAIWindow
 import pyskew.utilities as utl
 import matplotlib
 from matplotlib.figure import Figure
@@ -30,7 +33,7 @@ class SynthMagGUI(wx.Frame):
         self.syn_buff = .2
         self.min_age,self.max_age = 0,0
         self.spreading_rate_path,self.anomalous_skewness_path,self.timescale_path,self.deskew_path = None,None,None,None
-        self.srmw_open,self.tvw_open = False,False
+        self.srmw_open,self.tvw_open,self.eai_open = False,False,False
 
         #make the Panel
         self.panel = wx.Panel(self,-1,size=(1200,900))
@@ -198,16 +201,24 @@ class SynthMagGUI(wx.Frame):
                              (self.rd_box, 1, wx.ALIGN_LEFT|wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT,side_bar_h_space),
                              (self.ri_box, 1, wx.ALIGN_LEFT|wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT,side_bar_h_space)])
 
-        #----------------Buffer Buttons Box-----------------
+        #----------------Synth Options Box-----------------
 
-        zero_btn_sizer = wx.StaticBoxSizer(wx.StaticBox(self.panel, wx.ID_ANY, "Fix Sythetic Endpoints"), wx.VERTICAL)
-        self.zero_start_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Zero Start Point", size=(200,25))
+        zero_btn_sizer = wx.BoxSizer(wx.VERTICAL)
+        synth_options_sizer = wx.StaticBoxSizer(wx.StaticBox(self.panel, wx.ID_ANY, "Shift Synthetic"), wx.HORIZONTAL)
+        self.zero_start_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Zero Start Points", size=(200,25))
         self.Bind(wx.EVT_TEXT_ENTER, self.on_zero_start, self.zero_start_button)
 
-        self.zero_end_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Zero End Point", size=(200,25))
+        self.zero_end_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Zero End Points", size=(200,25))
         self.Bind(wx.EVT_TEXT_ENTER, self.on_zero_end, self.zero_end_button)
+
+        self.shift_synth_box = wx.TextCtrl(self.panel, id=wx.ID_ANY, size=(50,25), style=wx.TE_PROCESS_ENTER)
+        self.Bind(wx.EVT_TEXT_ENTER, self.on_shift_synth_box, self.shift_synth_box)
+
         zero_btn_sizer.AddMany([(self.zero_start_button, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.LEFT|wx.RIGHT,side_bar_h_space),
-                             (self.zero_end_button, 1, wx.ALIGN_BOTTOM|wx.ALIGN_LEFT|wx.LEFT|wx.RIGHT,side_bar_h_space)])
+                                (self.zero_end_button, 1, wx.ALIGN_BOTTOM|wx.ALIGN_LEFT|wx.LEFT|wx.RIGHT,side_bar_h_space)])
+
+        synth_options_sizer.AddMany([(zero_btn_sizer, 2, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.LEFT|wx.RIGHT,side_bar_h_space),
+                                     (self.shift_synth_box, 1, wx.ALIGN_TOP|wx.ALIGN_RIGHT|wx.LEFT|wx.RIGHT,side_bar_h_space)])
 
         #----------------Transition Filter Length SynthBox-----------------
 
@@ -252,7 +263,7 @@ class SynthMagGUI(wx.Frame):
                           (age_sr_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space),
                           (layer_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space),
                           (mag_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space),
-                          (zero_btn_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space),
+                          (synth_options_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space),
                           (filter_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space),
                           (self.update_button, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space)])
 
@@ -317,6 +328,14 @@ class SynthMagGUI(wx.Frame):
 
         menu_edit = wx.Menu()
 
+        self.m_next = menu_edit.Append(-1, "&Next Profile\tCtrl-Right", "")
+        self.Bind(wx.EVT_MENU, self.on_next, self.m_next)
+
+        self.m_prev = menu_edit.Append(-1, "&Previous Profile\tCtrl-Left", "")
+        self.Bind(wx.EVT_MENU, self.on_prev, self.m_prev)
+
+        menu_edit.AppendSeparator()
+
         self.m_use_sr_model = menu_edit.AppendCheckItem(-1, "&Toggle Spreading Rate Model\tCtrl-Shift-R", "")
         self.Bind(wx.EVT_MENU, self.on_use_sr_model, self.m_use_sr_model)
 
@@ -346,6 +365,9 @@ class SynthMagGUI(wx.Frame):
 
         self.m_tv = menu_tools.Append(-1, "&Track Viewer\tAlt-V", "")
         self.Bind(wx.EVT_MENU, self.on_tv, self.m_tv)
+
+        self.m_eai = menu_tools.Append(-1, "&Effective Inclination Viewer\tAlt-E", "")
+        self.Bind(wx.EVT_MENU, self.on_eai, self.m_eai)
 
         #-----------------
         # Help Menu
@@ -382,6 +404,7 @@ class SynthMagGUI(wx.Frame):
             self.ai_box.SetValue("%.1f"%90.0)
             self.rd_box.SetValue("%.1f"%0.0)
             self.ri_box.SetValue("%.1f"%90.0)
+            self.shift_synth_box.SetValue("%.1f"%0.0)
             self.twf_box.SetValue("%.1f"%0.0)
             self.samp_n_box.SetValue("%d"%4096)
         else:# TODO
@@ -397,6 +420,7 @@ class SynthMagGUI(wx.Frame):
             self.ai_box.SetValue("%.1f"%90.0)
             self.rd_box.SetValue("%.1f"%0.0)
             self.ri_box.SetValue("%.1f"%90.0)
+            self.shift_synth_box.SetValue("%.1f"%0.0)
             self.twf_box.SetValue("%.1f"%0.0)
             self.samp_n_box.SetValue("%d"%4096)
 
@@ -417,6 +441,7 @@ class SynthMagGUI(wx.Frame):
             twf = float(self.twf_box.GetValue())
             spreading_rate = float(self.sr_box.GetValue())
             phase_shift = float(self.phase_shift_box.GetValue())
+            synth_shift = float(self.shift_synth_box.GetValue())
             syn_length = int(self.samp_n_box.GetValue())
         except ValueError: self.user_warning("At least one value is not numeric"); return
         fix_sta,fix_end = self.zero_start_button.GetValue(),self.zero_end_button.GetValue()
@@ -430,6 +455,8 @@ class SynthMagGUI(wx.Frame):
         except: #Be wary of Errors here this is done so you can plot just the data and not have a million errors but it can mask true behavior be ready to need to debug this
             synth = [[0],[0],0]
             srf = lambda x,y: 0
+        if self.anomalous_skewness_path!=None: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
+        else: asf = lambda x: 0
 
         #Update Readouts on synthetic
         self.samp_dis_box.SetValue("%.2f"%float(synth[2]))
@@ -442,6 +469,9 @@ class SynthMagGUI(wx.Frame):
             self.dsk_row["phase_shift"] = phase_shift
             self.deskew_df.set_value(self.dsk_idx,"strike",(azi+90)%360)
             self.deskew_df.set_value(self.dsk_idx,"phase_shift",phase_shift)
+            self.dsk_row = sk.row_calc_aei(self.dsk_row,srf,asf)
+            self.deskew_df.at[self.dsk_idx,"ei"] = self.dsk_row["ei"]
+            self.deskew_df.at[self.dsk_idx,"aei"] = self.dsk_row["aei"]
 
             #Center Synthetic
             if self.max_age!=self.min_age: step = (self.max_age-self.min_age)/(syn_length-1)
@@ -475,6 +505,7 @@ class SynthMagGUI(wx.Frame):
                     other_phase = phase_shift-90
                 elif "Vd.lp" in self.track:
                     other_track = self.track.replace("Vd.lp","Ed.lp")
+                    if other_track not in self.deskew_df["comp_name"].tolist(): other_track = self.track.replace("Vd.lp","Hd.lp")
                     other_phase = phase_shift+90
                 else: self.user_warning("Improperly named component files should have either Ed.lp, Hd.lp, or Vd.lp got: %s"%self.track); return
                 other_dsk_row = self.deskew_df[self.deskew_df["comp_name"]==other_track].iloc[0]
@@ -489,7 +520,7 @@ class SynthMagGUI(wx.Frame):
             self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,va='top',ha='left')
         except AttributeError: pass
 
-        self.ax.plot(dis_synth,synth[0],'r-',alpha=.4,zorder=1)
+        self.ax.plot(dis_synth,np.array(synth[0])+synth_shift,'r-',alpha=.4,zorder=1)
         self.ax.plot(dis_synth,np.zeros(len(dis_synth)),'k--')
 
 #        psk.plot_scale_bars(self.ax,offset_of_bars = .05)
@@ -500,6 +531,9 @@ class SynthMagGUI(wx.Frame):
             self.ax.set_ylim(ylim)
 
         self.canvas.draw()
+
+        #update external windows if necessary
+        if self.eai_open: self.eai.update()
 
     def update_age_boxes(self):
         tdf = pd.read_csv(self.timescale_path,sep='\t',header=0)
@@ -618,6 +652,7 @@ class SynthMagGUI(wx.Frame):
             self.sr_box.SetValue("%.1f"%((srf(self.dsk_row["sz_name"],self.dsk_row["age_min"])+srf(self.dsk_row["sz_name"],self.dsk_row["age_max"]))/2))
         if self.srmw_open: self.srmw.sz_box.SetValue(self.dsk_row["sz_name"]); self.srmw.on_select_sz(event)
         if self.tvw_open: self.tvw.on_parent_select_track()
+        if self.eai_open: self.eai.on_parent_select_track()
         self.update(event)
 
     def on_select_age_min(self,event):
@@ -701,6 +736,9 @@ class SynthMagGUI(wx.Frame):
     def on_zero_end(self,event):
         pass
 
+    def on_shift_synth_box(self,event):
+        self.update(event)
+
     def on_show_component(self,event):
         pass
 
@@ -770,7 +808,7 @@ class SynthMagGUI(wx.Frame):
     def on_save_plot(self,event):
         try: self.point_annotation.remove()
         except (AttributeError,ValueError) as e: pass
-        self.ax.annotate(r"%$\theta=.f$\n%$e_a=.1f$"%(self.dsk_row["phase_shift"],self.dsk_row["aei"]),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
+        self.ax.annotate(r"%$\theta=.f$"%(self.dsk_row["phase_shift"])+"\n"+r"%$e_a=.1f$"%(self.dsk_row["aei"]),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
         self.canvas.draw()
         self.toolbar.save_figure()
 
@@ -822,6 +860,16 @@ class SynthMagGUI(wx.Frame):
     def on_show_major_anoms(self,event):
         self.update(event)
 
+    def on_next(self,event):
+        self.track_box.SetValue(self.deskew_df.iloc[(self.dsk_idx[0]+1)%len(self.deskew_df)]["comp_name"])
+        self.on_select_track(event)
+
+    def on_prev(self,event):
+        if self.dsk_idx==0: new_dsk_idx = len(self.deskew_df)-1
+        else: new_dsk_idx = self.dsk_idx[0]-1
+        self.track_box.SetValue(self.deskew_df.iloc[new_dsk_idx]["comp_name"])
+        self.on_select_track(event)
+
     def on_use_sr_model(self,event):
         self.update(event)
 
@@ -843,6 +891,13 @@ class SynthMagGUI(wx.Frame):
             self.tvw.Center()
             self.tvw.Show()
             self.tvw_open=True
+
+    def on_eai(self,event):
+        if not self.tvw_open:
+            self.eai = EAIWindow(parent=self,dpi=self.dpi)
+            self.eai.Center()
+            self.eai.Show()
+            self.eai_open=True
 
     def on_open_debug(self,event):
         pdb.set_trace()

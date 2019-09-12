@@ -1,0 +1,397 @@
+# @VGMT1.0 @GPOINT
+# @R-95.1467118826/-82.6905511708/-5.39216684138/10.9939617209            
+# @Jp"+proj=longlat +datum=WGS84 +no_defs "
+# @Jw"GEOGCS[\"GCS_WGS_1984\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_84\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]]"
+# @NChron|AnomalyEnd|AnomEndQua|CruiseName|Reference|DOI|GeeK2007|IDMethod
+# @Tstring|string|integer|string|string|string|double|string
+# FEATURE_DATA
+# @DC5An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|12.401|"Magnetic Anomaly"
+-95.14671	6.31022
+# @DC5AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|13.139|"Magnetic Anomaly"
+-94.21976	6.33163
+# @DC5ACn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.076|"Magnetic Anomaly"
+-93.20011	6.43149
+# @DC5ADn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.612|"Magnetic Anomaly"
+-92.60116	6.47429
+# @DC5n.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|10.949|"Magnetic Anomaly"
+-94.93339	4.39619
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-92.23335	6.55392
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-92.38547	6.75355
+# @DC5ADn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.612|"Magnetic Anomaly"
+-92.6992	6.5872
+# @DC5An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|12.401|"Magnetic Anomaly"
+-94.00644	4.74203
+# @DC5AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|13.139|"Magnetic Anomaly"
+-93.1508	5.00427
+# @DC5ACn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.076|"Magnetic Anomaly"
+-92.38071	5.31644
+# @DC5ADn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.612|"Magnetic Anomaly"
+-91.89585	5.52606
+# @DC5An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|12.401|"Magnetic Anomaly"
+-91.11626	4.6681
+# @DC5An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|12.401|"Magnetic Anomaly"
+-89.43349	5.05909
+# @DC5ABn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|13.51|"Magnetic Anomaly"
+-89.83279	5.38315
+# @DC5ABn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|13.51|"Magnetic Anomaly"
+-91.4395	4.97328
+# @DC5An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|12.401|"Magnetic Anomaly"
+-92.45677	4.78256
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-91.52982	5.71893
+# @DC5ADn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.612|"Magnetic Anomaly"
+-91.74136	5.28785
+# @DC5ADn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.612|"Magnetic Anomaly"
+-90.60049	5.54511
+# @DC5ADn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.612|"Magnetic Anomaly"
+-90.17267	5.64988
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-88.66103	6.4303
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-90.39133	5.81177
+# @DC5ADn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.612|"Magnetic Anomaly"
+-88.48039	6.2686
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-88.93673	6.61097
+# @DC5Cn.3n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.726|"Magnetic Anomaly"
+-89.1554	6.78206
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-89.49766	7.03858
+# @DC5Cn.3n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.726|"Magnetic Anomaly"
+-90.05858	6.68701
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-90.41035	6.47785
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-91.15191	7.20002
+# @DC5Cn.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.488|"Magnetic Anomaly"
+-90.8762	7.29496
+# @DC5Cn.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.488|"Magnetic Anomaly"
+-90.77162	7.18103
+# @DC5Cn.3n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.726|"Magnetic Anomaly"
+-90.67655	7.37089
+# @DC5Cn.3n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.726|"Magnetic Anomaly"
+-90.57197	7.25699
+# @DC5n.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|10.949|"Magnetic Anomaly"
+-88.89871	4.74441
+# @DC4An|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|9.025|"Magnetic Anomaly"
+-88.51842	4.48684
+# @DC5n.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|10.949|"Magnetic Anomaly"
+-92.2595	4.47014
+# @DC4An|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|9.025|"Magnetic Anomaly"
+-92.08124	4.21962
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-87.20029	6.82672
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-86.63956	7.018
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-85.66507	7.43337
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-89.98134	7.59467
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-89.30633	8.01185
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-88.92604	8.26764
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-88.77392	8.09713
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-89.18273	7.9076
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-88.48871	7.58518
+# @DC6n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.131|"Magnetic Anomaly"
+-88.41265	8.61552
+# @DC6n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.131|"Magnetic Anomaly"
+-87.83034	8.04147
+# @DC6An.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.725|"Magnetic Anomaly"
+-88.10248	8.85435
+# @DC6An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.32|"Magnetic Anomaly"
+-87.87906	9.03397
+# @DC6AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.859|"Magnetic Anomaly"
+-87.6817	9.25768
+# @DC6AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.859|"Magnetic Anomaly"
+-86.90597	8.44858
+# @DC6An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.32|"Magnetic Anomaly"
+-87.22306	8.32446
+# @DC6An.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.725|"Magnetic Anomaly"
+-87.50115	8.20371
+# @DC6AAr.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.248|"Magnetic Anomaly"
+-86.74295	8.49368
+# @DC6AAr.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.248|"Magnetic Anomaly"
+-87.53442	9.42242
+# @DC6AAr.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.493|"Magnetic Anomaly"
+-87.37043	9.61354
+# @DC6Bn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.75|"Magnetic Anomaly"
+-87.28253	9.68296
+# @DC6Bn.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|23.069|"Magnetic Anomaly"
+-87.18622	9.83165
+# @DC6Bn.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|23.069|"Magnetic Anomaly"
+-86.52072	9.06468
+# @DC6Bn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.75|"Magnetic Anomaly"
+-86.60391	8.97017
+# @DC6AAr.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.493|"Magnetic Anomaly"
+-86.71086	8.87563
+# @DC6An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.32|"Magnetic Anomaly"
+-88.71094	9.91179
+# @DC6AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.859|"Magnetic Anomaly"
+-88.6325	10.371
+# @DC6An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.32|"Magnetic Anomaly"
+-88.95337	10.17327
+# @DC6An.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.725|"Magnetic Anomaly"
+-89.23146	10.01075
+# @DC6An.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.725|"Magnetic Anomaly"
+-89.04607	9.83401
+# @DC6n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.131|"Magnetic Anomaly"
+-89.60937	9.84815
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-90.24397	9.83401
+# @DC6AAr.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.248|"Magnetic Anomaly"
+-88.29738	10.4463
+# @DC6AAr.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.248|"Magnetic Anomaly"
+-88.23083	10.36159
+# @DC6AAr.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.493|"Magnetic Anomaly"
+-88.05494	10.38277
+# @DC6AAr.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.493|"Magnetic Anomaly"
+-88.1928	10.56155
+# @DC6Bn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.75|"Magnetic Anomaly"
+-88.14526	10.6462
+# @DC6AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.859|"Magnetic Anomaly"
+-88.47269	10.16824
+# @DC6Bn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.75|"Magnetic Anomaly"
+-87.94561	10.39689
+# @DC6Bn.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|23.069|"Magnetic Anomaly"
+-87.96938	10.75433
+# @DC6Bn.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|23.069|"Magnetic Anomaly"
+-88.01691	10.80604
+# @DC6Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|23.535|"Magnetic Anomaly"
+-87.88381	10.99396
+# @DC6Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|23.535|"Magnetic Anomaly"
+-87.81726	10.91881
+# @DC6Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|23.535|"Magnetic Anomaly"
+-87.41321	10.42983
+# @DC6Bn.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|23.069|"Magnetic Anomaly"
+-87.74002	10.40924
+# @DC6Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|23.535|"Magnetic Anomaly"
+-87.03594	9.94316
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-86.27674	7.72327
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-86.31952	8.07163
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-85.19292	8.77452
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-85.49953	8.62553
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-85.32127	8.41259
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-84.87919	8.57586
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-84.47275	8.36288
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-84.86492	8.24925
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-84.6011	8.14979
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-84.26597	8.29897
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-84.00215	8.09295
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-84.28023	7.99345
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-87.5614	7.10237
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-87.87038	7.25667
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-88.1556	7.42278
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-87.66836	7.61253
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-92.95435	7.39668
+# @DC5An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|12.401|"Magnetic Anomaly"
+-93.21105	0.23674
+# @DC5AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|13.139|"Magnetic Anomaly"
+-93.25383	-0.40213
+# @DC5ABn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|13.51|"Magnetic Anomaly"
+-93.25383	-0.59355
+# @DC5ACn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.076|"Magnetic Anomaly"
+-93.24432	-0.79453
+# @DC5ACn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.076|"Magnetic Anomaly"
+-92.27459	-0.84238
+# @DC5AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|13.139|"Magnetic Anomaly"
+-92.17952	-0.40213
+# @DC5An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|12.401|"Magnetic Anomaly"
+-92.75946	0.21042
+# @DC5ABn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|13.51|"Magnetic Anomaly"
+-92.11297	-0.60312
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-87.05118	-3.22417
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-88.10648	-3.27195
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-87.75471	-3.27195
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-88.47132	-4.64852
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-86.97322	-2.63805
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-87.44494	-2.67433
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-88.09162	-2.66674
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-86.00824	-2.70498
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-84.06727	-2.36157
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-84.55214	-2.47633
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-84.95501	-2.54804
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-85.13683	-2.58031
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-85.51118	-2.63051
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-83.70861	-2.63314
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-84.35986	-2.75742
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-84.95405	-2.89126
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-85.20124	-2.94861
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-85.99509	-3.05375
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-88.06845	-2.98525
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-87.63112	-3.01392
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-87.03217	-2.9279
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-85.99747	-3.43956
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-85.20599	-3.29266
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-84.15545	-3.02985
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-83.47093	-2.82912
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-83.05182	-2.70191
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-82.69055	-2.59196
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-84.93484	-3.23265
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-88.00071	-4.45532
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-87.04524	-4.14514
+# @DC6n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|19.048|"Magnetic Anomaly"
+-86.01728	-3.66532
+# @DC6An.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.725|"Magnetic Anomaly"
+-85.04279	-3.47427
+# @DC6An.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.725|"Magnetic Anomaly"
+-85.19134	-3.55786
+# @DC6An.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.725|"Magnetic Anomaly"
+-86.01133	-3.99358
+# @DC6An.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.725|"Magnetic Anomaly"
+-87.03098	-4.72721
+# @DC6An.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.725|"Magnetic Anomaly"
+-88.0221	-5.13485
+# @DC6An.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|20.725|"Magnetic Anomaly"
+-88.1148	-3.91839
+# @DC6An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.32|"Magnetic Anomaly"
+-85.99945	-4.32768
+# @DC6An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.32|"Magnetic Anomaly"
+-85.20916	-3.87423
+# @DC6An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.32|"Magnetic Anomaly"
+-84.90612	-3.72501
+# @DC6An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.32|"Magnetic Anomaly"
+-83.9863	-3.24496
+# @DC6An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.32|"Magnetic Anomaly"
+-88.00784	-5.39217
+# @DC6An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.32|"Magnetic Anomaly"
+-87.02385	-4.92749
+# @DC6AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.859|"Magnetic Anomaly"
+-82.87753	-3.2796
+# @DC6AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.859|"Magnetic Anomaly"
+-83.69514	-3.71904
+# @DC6AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.859|"Magnetic Anomaly"
+-84.67438	-4.13917
+# @DC6AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.859|"Magnetic Anomaly"
+-84.86453	-4.23463
+# @DC6AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.859|"Magnetic Anomaly"
+-85.19728	-4.39687
+# @DC6AAn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|21.859|"Magnetic Anomaly"
+-86.02441	-4.74033
+# @DC6Bn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.75|"Magnetic Anomaly"
+-85.99588	-4.97874
+# @DC6Bn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.75|"Magnetic Anomaly"
+-85.14024	-4.5877
+# @DC6Bn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.75|"Magnetic Anomaly"
+-84.8265	-4.45412
+# @DC6Bn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.75|"Magnetic Anomaly"
+-84.53178	-4.33007
+# @DC6Bn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.75|"Magnetic Anomaly"
+-83.64761	-3.85274
+# @DC6Bn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.75|"Magnetic Anomaly"
+-83.03915	-3.55666
+# @DC6Bn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|22.75|"Magnetic Anomaly"
+-82.73492	-3.39425
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-88.04389	-2.23446
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-87.22627	-2.23446
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-87.01711	-2.2249
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-84.78792	-2.11849
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-84.97212	-2.14838
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-85.04936	-2.16632
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-85.51878	-2.1962
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-86.01791	-2.21414
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-84.48246	-2.04435
+# @DC5Dn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|17.615|"Magnetic Anomaly"
+-90.02139	-2.76037
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-92.5503	-1.32086
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-91.99888	-1.29215
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-91.65662	-1.30172
+# @DC5ADn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.612|"Magnetic Anomaly"
+-92.40769	-1.05292
+# @DC5n.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|10.949|"Magnetic Anomaly"
+-93.11023	4.23221
+# @DC5An.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|12.401|"Magnetic Anomaly"
+-93.29087	4.58529
+# @DC5ABn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|13.51|"Magnetic Anomaly"
+-93.77811	6.39197
+# @DC5ABn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|13.51|"Magnetic Anomaly"
+-92.80363	5.15412
+# @DC5ABn|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|13.51|"Magnetic Anomaly"
+-88.2378	6.0328
+# @DC5n.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|10.949|"Magnetic Anomaly"
+-90.68115	4.29974
+# @DC5Bn.1n|y|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|14.8|"Magnetic Anomaly"
+-90.60224	5.76791
+# @DC5Cn.1n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.293|"Magnetic Anomaly"
+-86.24794	7.50606
+# @DC5Cn.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.488|"Magnetic Anomaly"
+-90.23383	6.56337
+# @DC5Cn.2n|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|16.488|"Magnetic Anomaly"
+-90.31702	6.6822
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-86.34539	8.27389
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-86.19328	8.34018
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-87.0109	8.04654
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-87.99964	7.72423
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-87.81901	7.80009
+# @DC5En|o|2|N/A|Barckhausen++_2001_JGR|10.1029/2001JB000238|18.781|"Magnetic Anomaly"
+-90.34792	9.0024

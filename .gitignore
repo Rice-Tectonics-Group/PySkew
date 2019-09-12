@@ -39,6 +39,7 @@ backups/*
 backup/*
 data*
 0000_group_meeting_files/*
+raw_data/fracture_zones/*
 
 Results_File_Types
 

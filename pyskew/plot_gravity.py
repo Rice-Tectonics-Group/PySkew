@@ -104,6 +104,8 @@ def get_sandwell(window,down_sample_factor,sandwell_files_path="../raw_data/grav
         all_grav = np.vstack([all_grav,next_grav])
 
     return all_lons,all_lats,all_grav
+=======
+>>>>>>> e5a4790417b01b9770b7a99be87aa1e43b898411
 
 def plot_deskew_on_grav(*args,**kwargs):
     pass
@@ -114,7 +116,11 @@ def plot_deskew_crossings_only(*args,**kwargs):
 def plot_grav(*args,**kwargs):
     pass
 
+<<<<<<< HEAD
 def plot_wiggle(add_crossing=False,*args,**kwargs):
+=======
+def plot_wiggle(*args,**kwargs,add_crossing=False):
+>>>>>>> e5a4790417b01b9770b7a99be87aa1e43b898411
     pass
 
 def plot_chrons_to_map(*args,**kwargs): #maybe

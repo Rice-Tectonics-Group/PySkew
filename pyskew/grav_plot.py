@@ -14,6 +14,7 @@ import pandas as pd
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
 from geographiclib.geodesic import Geodesic
+import rasterio
 import pyproj
 import numpy as np
 import matplotlib
@@ -51,6 +52,24 @@ ax.xaxis.set_major_formatter(lon_formatter)
 ax.yaxis.set_major_formatter(lat_formatter)
 land = cfeature.NaturalEarthFeature('physical', 'land', resolution, edgecolor="black", facecolor=landcolor, linewidth=2)
 ax.add_feature(land)
+
+#deskew1 = pd.read_csv('/home/dtw6/Code/PySkew/24r/data/C24r.deskew', sep='\t')
+deskew = utl.open_deskew_file('../27r/data/pole_9_78.deskew')
+#deskew = pd.concat([deskew1,deskew2])
+#deskew.reset_index(drop=True, inplace=True)
+#cross_lat = deskew['inter_lat']
+#cross_lon = deskew['inter_lon']
+#deskew_files = deskew['comp_name']
+#mag_type = deskew['track_type']
+
+# Create map elements
+fig = plt.figure(figsize=(16,9),dpi=100)
+proj = ccrs.Mollweide()
+ax = fig.add_subplot(111,projection=proj)
+plt.gca().set_axis_off()
+plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
+plt.margins(0,0)
+land = cfeature.NaturalEarthFeature('physical', 'land', '50m', edgecolor='black', facecolor='gray', linewidth=0.5,zorder=1000)
 
 ## Read Barckhausen data
 #ccz_chrons, gcz_chrons = utl.get_barckhausen_2013_chrons(barckhausen_path='../raw_data/chrons/Barckhausen2013/GSFML.Barckhausen++_2013_MGR.picks.gmt')

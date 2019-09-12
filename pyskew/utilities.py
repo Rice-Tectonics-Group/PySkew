@@ -219,8 +219,8 @@ def polyfit(x,y,degree,err=None,full=False):
     x,y,err,N = np.array(x),np.array(y),np.array(err),len(x)
 
     #calculate fit and chi2
-    if full: pols,res,rank,sv,rcond = np.polyfit(x,y,degree,w=(1/(err)),full=full)
-    else: pols = np.polyfit(x,y,degree,w=(1/(err)),full=full)
+    if full: pols,res,rank,sv,rcond = np.polyfit(x,y,degree,w=(1/err),full=full)
+    else: pols = np.polyfit(x,y,degree,w=(1/err),full=full)
     yp = np.polyval(pols,x)
     chi2 = sum(((y-yp)/err)**2)
     deg_free = (N-degree-1)

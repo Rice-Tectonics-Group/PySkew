@@ -21,7 +21,7 @@ def calc_aei(deskew_df,srf,asf):
 
     deskew_df["ei"] = [(90 if ".Vd." in comp else 0) for ps,comp in zip(deskew_df["phase_shift"],deskew_df["comp_name"])]
 
-    deskew_df["aei"] = [wrap_180_180(180 - wrap_180_180(row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))) for i,row in deskew_df.iterrows()]
+    deskew_df["aei"] = [wrap_90_90(wrap_180_180(180 - wrap_180_180(row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)))) for i,row in deskew_df.iterrows()]
 
     for i,row in deskew_df[deskew_df['track_type']=='ship'].iterrows():
         decimal_year = get_shipmag_decimal_year(row)
@@ -29,11 +29,26 @@ def calc_aei(deskew_df,srf,asf):
         igrf = ipmag.igrf([decimal_year,0,float(row['inter_lat']),float(row['inter_lon'])])
         alpha = float(row['strike']) - igrf[0]
         e = np.degrees(np.arctan2(np.tan(np.deg2rad(igrf[1])),np.sin(np.deg2rad(alpha))))
-        aei = wrap_180_180(180 - e - wrap_180_180(float(row['phase_shift'])) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)))
+        aei = wrap_90_90(wrap_180_180(180 - e - wrap_180_180(float(row['phase_shift'])) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))))
         deskew_df.set_value(i,'ei',e)
         deskew_df.set_value(i,'aei',aei)
 
     return deskew_df
+
+def row_calc_aei(row,srf,asf):
+    if row["track_type"] == "aero":
+        row["ei"] = 90 if ".Vd." in row["comp_name"] else 0
+        row["aei"] = wrap_90_90(wrap_180_180(180 - wrap_180_180(row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))))
+    else:
+        decimal_year = get_shipmag_decimal_year(row)
+        if decimal_year==None: raise ValueError("Intersection point could not be found in data file so IGRF could not be calculated and aei could not be found please check your data, skipping %s"%row['comp_name'])
+        igrf = ipmag.igrf([decimal_year,0,float(row['inter_lat']),float(row['inter_lon'])])
+        alpha = float(row['strike']) - igrf[0]
+        e = np.degrees(np.arctan2(np.tan(np.deg2rad(igrf[1])),np.sin(np.deg2rad(alpha))))
+        aei = wrap_90_90(wrap_180_180(180 - e - wrap_180_180(float(row['phase_shift'])) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))))
+        row['ei'] = e
+        row['aei'] = aei
+    return row
 
 def get_asf_srf(spreading_rate_path=None,anomalous_skewness_model_path=None):
     if spreading_rate_path==None:

@@ -32,6 +32,13 @@ def wrap_180_180(x):
     elif x<-180: return (x%180)
     else: return x
 
+def wrap_90_90(x):
+    try: x = float(x)
+    except ValueError: raise ValueError("could not coerce input %s into type float for calculation"%str(x))
+    if x>90: return x-180
+    elif x<-90: return 180+x
+    else: return x
+
 def wrap_0_360(x):
     try: x = float(x)
     except ValueError: raise ValueError("could not coerce input %s into type float for calculation"%str(x))
@@ -143,7 +150,7 @@ def cmp_to_key(mycmp):
             return mycmp(self.obj, other.obj) != 0
     return K
 
-def get_barckhausen_2013_chrons(barckhausen_path=os.path.join('raw_data','chrons','Barckhausen2013','GSFML.Barckhausen++_2013_MGR.picks.gmt')):
+def get_barckhausen_2013_chrons(barckhausen_path=os.path.join('..','raw_data','chrons','Barckhausen2013','GSFML.Barckhausen++_2013_MGR.picks.gmt')):
     ndf = open(barckhausen_path,'r')
 
     meta_lonlat = ndf.readlines()[7:]
@@ -199,7 +206,7 @@ def polyfit(x,y,degree,err=None,full=False):
         y - the dependent variable calculated from x, which is assumed to contain all error
             degree - the degree of the polynomial to be fit
     Optional Parameters:
-        err - the error in the dependent variable, should be a vector of equal length to x and y, if None set to 1
+        err - the error in the dependent variable, should be a vector of equal length to x and y, if None error is assumed unity
         full - boolean which determines the amount of statistics returned
 
     Returns:
@@ -212,8 +219,8 @@ def polyfit(x,y,degree,err=None,full=False):
     x,y,err,N = np.array(x),np.array(y),np.array(err),len(x)
 
     #calculate fit and chi2
-    if full: pols,res,rank,sv,rcond = np.polyfit(x,y,degree,w=(1/(err**2)),full=full)
-    else: pols = np.polyfit(x,y,degree,w=(1/(err**2)),full=full)
+    if full: pols,res,rank,sv,rcond = np.polyfit(x,y,degree,w=(1/(err)),full=full)
+    else: pols = np.polyfit(x,y,degree,w=(1/(err)),full=full)
     yp = np.polyval(pols,x)
     chi2 = sum(((y-yp)/err)**2)
     deg_free = (N-degree-1)
@@ -249,7 +256,7 @@ def polyfit(x,y,degree,err=None,full=False):
 def polyerr(pols,sds,x,xerr=None):
     if isinstance(xerr,type(None)): xerr = np.zeros(len(x))
     pols,sds,x,xerr = np.array(pols)[::-1],np.array(sds)[::-1],np.array([e if e!=0 else .01 for e in x]),np.array(xerr)
-    return np.sqrt(sum(np.array([((pols[i]*(x**i))**2) * ( ((i*(x**(i-1))*xerr)**2)/(x**2) + (sds[i]**2)/(pols[i]**2) ) for i in range(len(pols))])))
+    return np.sqrt(len(x)*sum(np.array([((pols[i]*(x**i))**2) * ( ((i*(x**(i-1))*xerr)**2)/(x**2) + (sds[i]**2)/(pols[i]**2) ) for i in range(len(pols))])))
 
 def polyenv(pols,x,yerr,xerr=None,center=None):
     if center==None: center = sum(x)/len(x) #by default center the error env on the mean of the independent var.

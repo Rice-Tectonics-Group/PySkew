@@ -8,6 +8,8 @@ from functools import reduce
 from .plot_geographic import *
 from .utilities import *
 import pmagpy.ipmag as ipmag
+try: from tqdm import tqdm
+except ImportError: tqdm = lambda x: x
 
 
 def intersect(a1,a2,e=1):
@@ -108,17 +110,22 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
         #read data and make a empty dataframe for output data
         adf = open_mag_file(aeromag_file)
         ddf = pd.read_csv(date_file,sep='\t',index_col=0)
-        idf = pd.DataFrame(columns=['dis','v_comp','e_comp','t_comp'])
+        idf = pd.DataFrame(columns=['dis','v_comp','e_comp','h_comp','t_comp'])
 
         dis = 0
         decimal_year = float(ddf.loc[track]['decimal_year'])
         prev_lat,prev_lon = None,None
         for i,row in adf.iterrows(): #iterate over rows
 
-            #check for data gaps
-            if (row['lat']==None) or (row['lon']==None) or (row['alt']==None) or (row['mag']==None) or (row['v_comp']==None) or (row['e_comp']==None): continue
-            #check for absurd values outside of the domain of the varible (this will capture null values of -99999)
-            elif (abs(float(row['lat']))>90) or (abs(convert_to_180_180(row['lon']))>180) or (float(row['alt'])<0) or (abs(float(row['mag']))==99999) or (abs(float(row['v_comp']))==99999) or (abs(float(row['e_comp']))==99999): continue
+            row["lon"] = convert_to_0_360(row["lon"])
+            adf.at[i,"lon"] = row["lon"]
+
+            try:
+                #check for data gaps
+                if (row['lat']==None) or (row['lon']==None) or (row['alt']==None) or (row['mag']==None) or (row['v_comp']==None) or (row['e_comp']==None): continue
+                #check for absurd values outside of the domain of the varible (this will capture null values of -99999)
+                elif (abs(float(row['lat']))>90) or (abs(convert_to_180_180(row['lon']))>180) or (float(row['alt'])<0) or (abs(float(row['mag']))==99999) or (abs(float(row['v_comp']))==99999) or (abs(float(row['e_comp']))==99999): continue
+            except ValueError as e: continue #This implies a value which is not convertable to a float as all of these should be floats this datum must be skipped
 
             if prev_lat!=None and prev_lon!=None: #calculate distance
                 dis += Geodesic.WGS84.Inverse(float(row['lat']),float(row['lon']),prev_lat,prev_lon)['s12']/1000
@@ -128,36 +135,40 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
             dec,inc,mag = ipmag.igrf([decimal_year,float(row['alt'])*0.3048e-3,float(row['lat']),float(row['lon'])])
             res_v_comp = mag*np.sin(np.deg2rad(inc))
             res_e_comp = mag*np.cos(np.deg2rad(inc))*np.cos(np.deg2rad(dec))
+            res_h_comp = mag*np.cos(np.deg2rad(inc))
             res_t_comp = mag
 
             adf.set_value(i,'res_v_comp',float(row['v_comp'])-res_v_comp)
             adf.set_value(i,'res_e_comp',float(row['e_comp'])-res_e_comp)
+            adf.set_value(i,'res_h_comp',float(row['h_comp'])-res_e_comp)
             adf.set_value(i,'res_t_comp',float(row['mag'])-res_t_comp)
 
             prev_lat,prev_lon = float(row['lat']),float(row['lon'])
 
-        adf = adf[(adf['res_e_comp']<3000) & (adf['res_v_comp']<3000) & (adf['res_t_comp']<3000)]
+        adf = adf[(adf['res_e_comp']<3000) & (adf['res_v_comp']<3000) & (adf['res_h_comp']<3000) & (adf['res_t_comp']<3000)]
 
         #remove a second order polynomial fromm the magnetic data I don't know why but this is something done
-        for col in ['res_e_comp','res_v_comp','res_t_comp']:
+        for col in ['res_e_comp','res_h_comp','res_v_comp','res_t_comp']:
             pols = np.polyfit(adf['dis'].tolist(),adf[col].tolist(),2)
             mag_fit = np.polyval(pols,adf['dis'].tolist())
             adf['cor'+col.lstrip('res')] = np.array(adf[col].tolist()) - mag_fit
 
         #iterpolate and round data
         round3_func = lambda x: round(x,3)
-#        adf_dis_list = list(map(float,adf['dis'].tolist()))
-#        adf_lat_list = list(map(float,adf['lat'].tolist()))
-#        adf_lon_list = list(map(float,adf['lon'].tolist()))
-#        adf_v_list = list(map(float,adf['cor_v_comp'].tolist()))
-#        adf_e_list = list(map(float,adf['cor_e_comp'].tolist()))
-#        adf_t_list = list(map(float,adf['cor_t_comp'].tolist()))
+        adf_dis_list = list(map(float,adf['dis'].tolist()))
+        adf_lat_list = list(map(float,adf['lat'].tolist()))
+        adf_lon_list = list(map(float,adf['lon'].tolist()))
+        adf_v_list = list(map(float,adf['cor_v_comp'].tolist()))
+        adf_e_list = list(map(float,adf['cor_e_comp'].tolist()))
+        adf_h_list = list(map(float,adf['cor_h_comp'].tolist()))
+        adf_t_list = list(map(float,adf['cor_t_comp'].tolist()))
         idf['dis'] = list(map(round3_func,np.arange(float(adf['dis'].tolist()[0]),float(adf['dis'].tolist()[-1]),.1))) #spacing of 1 km, because I can
         idf['lat'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_lat_list)))
         idf['lon'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_lon_list)))
         idf['alt'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,list(map(lambda x: float(x)*.3048, adf['alt'].tolist())))))
         idf['v_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_v_list)))
         idf['e_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_e_list)))
+        idf['h_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_h_list)))
         idf['t_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_t_list)))
 
 #        adf[['dis','alt','cor_v_comp','lat','lon']].to_csv(aeromag_file+'.Vd',index=False,header=False,sep='\t')
@@ -165,6 +176,7 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
 #        adf[['dis','alt','cor_t_comp','lat','lon']].to_csv(aeromag_file+'.Td',index=False,header=False,sep='\t')
         idf[['dis','alt','v_comp','lat','lon']].to_csv(aeromag_file+'.Vd.lp',index=False,header=False,sep='\t')
         idf[['dis','alt','e_comp','lat','lon']].to_csv(aeromag_file+'.Ed.lp',index=False,header=False,sep='\t')
+        idf[['dis','alt','h_comp','lat','lon']].to_csv(aeromag_file+'.Hd.lp',index=False,header=False,sep='\t')
         idf[['dis','alt','t_comp','lat','lon']].to_csv(aeromag_file+'.Td.lp',index=False,header=False,sep='\t')
 
         if extension.startswith('c'):
@@ -202,7 +214,7 @@ def seperate_chron_into_spreading_zones(chron_to_analyse):
     #separate chrons into the different spreading zones
     spreading_zone_files = []
     chron,chron_color = chron_to_analyse
-    fchron = open("raw_data/chrons/cande/cande.%s"%str(chron))
+    fchron = open("../raw_data/chrons/cande/cande.%s"%str(chron))
     string = fchron.read()
     fchron.close()
     spreading_zones = string.split('>')
@@ -249,7 +261,7 @@ def get_track_intersects(chron_to_analyse, tracks_or_cuts, spreading_zone_files,
     chron_name = "chron%s"%(str(chron))
     bound_check_func = lambda x: bounding_lats[0]<float(x[1]) and bounding_lats[1]>float(x[1]) and bounding_lons[0]<float(x[0]) and bounding_lons[1]>float(x[0])
     intersecting_tracks,out_string = [],""
-    for track in tracks_or_cuts:
+    for track in tqdm(tracks_or_cuts):
         print(track)
         dft = open_mag_file(track)
         if dft.empty: continue
@@ -316,6 +328,7 @@ def cut_tracks_and_flip(track_cuts, data_directory, heading="east"):
 
     cut_tracks,flipped_data=[],[]
     for track,cuts in track_cuts.items():
+        print("Starting Track: %s"%track)
         directory,path = os.path.split(track)
         dfin = open_mag_file(track)
 #        fin = open(track,'r')
@@ -324,10 +337,11 @@ def cut_tracks_and_flip(track_cuts, data_directory, heading="east"):
 #        lines = [line.split() for line in lines]
 #        dfin = pd.DataFrame(lines,columns=["time","lat","lon","n_comp","s_comp","h_comp","v_comp","mag","dec","inc","None","alt"])
         lats=list(map(float,dfin['lat'].tolist()))
-        lons=list(map(float,dfin['lon'].tolist()))
+        lons=list(map(convert_to_0_360,dfin['lon'].tolist()))
         df_segments=[]
         for cut in cuts:
-            cut_index = [[lon,lat] for lon,lat in zip(lons,lats)].index(list(cut))
+            try: cut_index = [[lon,lat] for lon,lat in zip(lons,lats)].index(list(cut))
+            except ValueError as e: import pdb; pdb.set_trace()
             print("cutting track: %s along index: %d"%(track,cut_index))
             df_segments.append(dfin.loc[:cut_index])
             dfin = dfin.loc[cut_index:]

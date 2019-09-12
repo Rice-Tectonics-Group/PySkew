@@ -12,7 +12,6 @@ if 'darwin' in sys.platform:
 import matplotlib.lines as mlines
 from collections import OrderedDict
 from matplotlib.patches import Rectangle,ConnectionPatch
-from collections import OrderedDict
 import cartopy.crs as ccrs
 from geographiclib.geodesic import Geodesic
 from .skewness import *
@@ -84,7 +83,7 @@ def plot_gc_from_pole(slat,slon,plat,plon,length=360,error=None,m=None,spacing=1
     if isinstance(error,int) or isinstance(error,float):
         geodict = Geodesic.WGS84.ArcDirect(plat,plon,geodict['azi2']-90,error)
         geodict = Geodesic.WGS84.Inverse(slat,slon,geodict['lat2'],geodict['lon2'])
-        azi_a95 = 1.96*(azi_mean-geodict['azi1'])/np.sqrt(2)
+        azi_a95 = (azi_mean-geodict['azi1'])/np.sqrt(2)
     else: azi_a95 = None
 
     m = plot_great_circle(slon,slat,azi_mean,error=azi_a95,length=length,m=m,spacing=spacing,**kwargs)
@@ -232,8 +231,8 @@ def plot_apw_legend(m,**kwargs):
                             mlines.Line2D([0],[0],marker='v', markeredgecolor='k', markerfacecolor='grey', label='Mixed Polarity',linestyle='')]
     labels += ["Normal Polarity","Mixed Polarity","Reversed Polarity","Normal Colatitude/Azimuth","Mixed Colatitude/Azimuth","Reversed Colatitude/Azimuth"]
     by_label = OrderedDict(zip(labels, handles))
-    m.legend(by_label.values(), by_label.keys(),**kwargs)
-    return m
+    leg = m.legend(by_label.values(), by_label.keys(),**kwargs)
+    return m,leg
 
 def plot_pole_track(ellipse_data, m=None,modify_alpha_with_error=True, min_alpha=0.2, max_alpha=0.8, annotations=[],annotation_positions=[], **kwargs):
 
@@ -345,7 +344,7 @@ def plot_lunes(comps,gcm,pole_lat=None):
         clt_mid = 90-np.degrees(np.arctan(np.tan(np.deg2rad(inc_mid))*0.5))
         lat_mid = Geodesic.WGS84.ArcDirect(float(row["inter_lat"]),float(row["inter_lon"]), strike-90, clt_mid)['lat2']
         # Find array of great semicircle azimuths (degrees)
-        if (pole_lat >= 0 and lat_mid >= 90-pole_lat) or (pole_lat > 0 and lat_mid >= 90+pole_lat):
+        if (pole_lat >= 0 or lat_mid >= 90-pole_lat) or (pole_lat > 0 or lat_mid >= 90+pole_lat):
             azi = np.linspace(strike-(180),strike,100)
         else:
             azi = np.linspace(strike,strike+180,100)
@@ -362,7 +361,9 @@ def plot_lunes(comps,gcm,pole_lat=None):
 
         # Draw great circle
         gcm.scatter([gc_lon[0],gc_lon[-1]], [gc_lat[0],gc_lat[-1]], edgecolor='k', facecolor='none', zorder=10,transform=ccrs.Geodetic())
-        gcm.plot(gc_lon, gc_lat, color=(float(row["r"]),float(row["g"]),float(row["b"])), linestyle=linestyle, linewidth=linewidth,transform=ccrs.Geodetic())
+        if row["inter_lat"]<-11: color = "pink"
+        else: color = (float(row["r"]),float(row["g"]),float(row["b"]))
+        gcm.plot(gc_lon, gc_lat, color=color, linestyle=linestyle, linewidth=linewidth,transform=ccrs.Geodetic())
 
     comps["inter_lat"] = comps["inter_lat"].apply(float)
     tmp_comps = comps.sort_values(by="inter_lat",ascending=False)
@@ -671,11 +672,11 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 
     ax0 = fig.add_subplot(8,1,1)
     remove_axis_lines_and_ticks(ax0)
-    ax0.set_ylabel("synthetic (%s)"%'ship',rotation=0,fontsize=14)
-    ax0.yaxis.set_label_coords(-.1,.45)
+    ax0.set_ylabel(r"synthetic (%s)"%'ship',rotation=0,fontsize=11)
+    ax0.yaxis.set_label_coords(-.15,.45)
     ax0.format_coord = format_coord
     min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0],'ship',ax0, color='k', linestyle='-')
-    ylim = ax0.set_ylim([-200,200]) #MODIFY THIS TO CHANGE Y AXIS
+    ylim = ax0.set_ylim([-250,250]) #MODIFY THIS TO CHANGE Y AXIS
 #    ylim = ax0.get_ylim()
 
     for j,iterrow in enumerate(rows.iterrows()):
@@ -701,8 +702,8 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     ax = fig.add_subplot(8,1,8, sharex=ax0)
     ax.set_anchor('W')
     remove_axis_lines_and_ticks(ax)
-    ax.set_ylabel("synthetic (%s)"%'aero',rotation=0,fontsize=14)
-    ax.yaxis.set_label_coords(-.1,.45)
+    ax.set_ylabel(r"synthetic (%s)"%'aero',rotation=0,fontsize=11)
+    ax.yaxis.set_label_coords(-.15,.45)
     min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0],'aero', ax, color='k', linestyle='-')
     ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
     ax.format_coord = format_coord

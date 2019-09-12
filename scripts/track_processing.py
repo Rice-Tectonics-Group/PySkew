@@ -42,7 +42,7 @@ Flags:
               zone you are analysing by compiling a series of .sr files generated during your spreading rate 
               analysis. Note that after running this flag you will need to rename the top lines delimenating the 
               different spreading zones so that the names match those in your .deskew file. In addition if you 
-              want the code to automatically pull this model you need to place it in this path raw_data/
+              want the code to automatically pull this model you need to place it in this path ../raw_data/
               spreading_rate_model.txt
         -cdmf : Creates a bunch of $DATAFILE.deskewed files which have "lat lon mag" deskewed in it for the phase
                shift given in the input deskew file so it can then be used in gmt scripts for visualization.
@@ -57,7 +57,7 @@ Flags:
         -f    : .inp file input, this is REQUIRED for all flags bellow this as it details the basics of what is
                needed to start analysis from the raw data.
         -1    : First stage geographic preprocessing: creates spreading zone files from Barckhausen 2013 and
-               Cande 1989 data, finds intersects of all tracks in $CWD/raw_data/hi_alt and $CWD/raw_data/ship
+               Cande 1989 data, finds intersects of all tracks in $CWD/../raw_data/hi_alt and $CWD/../raw_data/ship
                with the chron of interest in the spreading zones just separated out and saves this data to your
                usable_tracks_and_intersects_for_chron#.txt file, separates out the data that is selected as
                intersecting into your data directory, extracts shipmag .latlon file as preprocessing for step 2.
@@ -314,12 +314,13 @@ if __name__=="__main__":
 
         #This is very time intensive but only needs to be run once per chron skip if already done for this chron
         if ship_or_aero=='aero':
-            tracks = glob.glob('raw_data/hi_alt/**/*.DAT')
+            tracks = glob.glob('../raw_data/hi_alt/**/*.DAT')
         elif ship_or_aero=='ship':
-            tracks = glob.glob('raw_data/ship/**/*.lp')
+            tracks = glob.glob('../raw_data/ship/**/*.lp')
         else:
-            tracks = glob.glob('raw_data/ship/**/*.lp')
-            tracks += glob.glob('raw_data/hi_alt/**/*.DAT')
+            tracks = glob.glob('../raw_data/ship/**/*.lp')
+            tracks += glob.glob('../raw_data/hi_alt/**/*.DAT')
+
         intersecting_tracks,usable_tracks_path = get_track_intersects(chron_to_analyse, tracks, spreading_zone_files, data_directory=data_directory, bounding_lats=bounding_lats, bounding_lons=bounding_lons, e=e)
 
         #seperates out the data marked out for analysis above int the data_directory

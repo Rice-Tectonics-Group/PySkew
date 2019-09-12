@@ -2,7 +2,7 @@ import os,sys
 import numpy as np
 import pandas as pd
 import pmagpy.ipmag as ipmag
-from pyskew.utilities import check_dir,dt_to_dec
+from pyskew.utilities import check_dir,dt_to_dec,convert_to_0_360
 from datetime import datetime
 from geographiclib.geodesic import Geodesic
 
@@ -72,7 +72,7 @@ def preprocess_m77t(m77tf,data_directory="shipmag_data"):
     decimal_year_array = list(map(round3_func,np.interp(dis_array,list(map(float,m77t_df['DIS'])),list(map(float,m77t_df['DECIMAL_YEAR'].tolist())))))
     mag_cor_array = list(map(round3_func,np.interp(dis_array,list(map(float,m77t_df['DIS'])),list(map(float,m77t_df['MAG_COR'])))))
     lat_array = list(map(round3_func,np.interp(dis_array,list(map(float,m77t_df['DIS'])),list(map(float,m77t_df['LAT'])))))
-    lon_array = list(map(round3_func,np.interp(dis_array,list(map(float,m77t_df['DIS'])),list(map(float,m77t_df['LON'])))))
+    lon_array = list(map(round3_func,np.interp(dis_array,list(map(float,m77t_df['DIS'])),convert_to_0_360(m77t_df['LON']))))
 
     interp_df = pd.DataFrame({'dis':dis_array,'decimal_year':decimal_year_array,'mag_cor':mag_cor_array,'lat':lat_array,'lon':lon_array})
 
@@ -94,7 +94,7 @@ def preprocess_m77t(m77tf,data_directory="shipmag_data"):
 
 
 if __name__=="__main__":
-    data_directory='./raw_data/new_shipmag'
+    data_directory='../raw_data/new_shipmag'
     if len(sys.argv)>=4: data_directory=sys.argv[3]
     print("extracting data from main .h77t and .m77t files")
     _,new_m77t_files = split_m77t(sys.argv[1],sys.argv[2],data_directory=data_directory)

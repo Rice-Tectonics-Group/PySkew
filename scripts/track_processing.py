@@ -287,7 +287,7 @@ if __name__=="__main__":
         try:
             fi = sys.argv.index('-f')
             fin = open(sys.argv[fi+1],'r')
-            lin = [line.split('\t')[0] for line in fin.readlines()]
+            lin = [line.split('\t')[0].rstrip("\n") for line in fin.readlines()]
             chron_to_analyse=lin[0].split(',')
             chron,chron_color = chron_to_analyse
             chron_name = "chron%s"%(str(chron))

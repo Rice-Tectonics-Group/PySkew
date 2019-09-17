@@ -232,27 +232,29 @@ def seperate_chron_into_spreading_zones(chron_to_analyse):
     if str(chron) in ccz.keys():
         i+=1
         ccz_data = np.array([(convert_to_0_360(lonlat[0]),float(lonlat[1])) for lonlat in ccz[str(chron)]])
-        nlons = np.arange(min(ccz_data[:,0]),max(ccz_data[:,0]),.025)
-        nlats = np.interp(nlons, ccz_data[:,0], ccz_data[:,1])
-        out_str = reduce(lambda x,y: x+'\n'+y, [str(nlon)+' '+str(nlat) for nlon,nlat in zip(nlons,nlats)])
-        fchron_out_path =os.path.join('spreading_zones','chron%s_sz%d.txt'%(chron,i))
-        print("Barckhausen data for CCZ included in %s"%fchron_out_path)
-        fchron_out = open(fchron_out_path,'w+')
-        fchron_out.write(out_str)
-        fchron_out.close()
-        spreading_zone_files.append(fchron_out_path)
+        if len(ccz_data)>1:
+            nlons = np.arange(min(ccz_data[:,0]),max(ccz_data[:,0]),.025)
+            nlats = np.interp(nlons, ccz_data[:,0], ccz_data[:,1])
+            out_str = reduce(lambda x,y: x+'\n'+y, [str(nlon)+' '+str(nlat) for nlon,nlat in zip(nlons,nlats)])
+            fchron_out_path =os.path.join('spreading_zones','chron%s_sz%d.txt'%(chron,i))
+            print("Barckhausen data for CCZ included in %s"%fchron_out_path)
+            fchron_out = open(fchron_out_path,'w+')
+            fchron_out.write(out_str)
+            fchron_out.close()
+            spreading_zone_files.append(fchron_out_path)
     if str(chron) in gcz.keys():
         i+=1
         gcz_data = np.array([(convert_to_0_360(lonlat[0]),float(lonlat[1])) for lonlat in gcz[str(chron)]])
-        nlats = np.arange(min(gcz_data[:,1]),max(gcz_data[:,1]),.05)
-        nlons = np.interp(nlats, gcz_data[:,1], gcz_data[:,0])
-        out_str = reduce(lambda x,y: x+'\n'+y, [str(nlon)+' '+str(nlat) for nlon,nlat in zip(nlons,nlats)])
-        fchron_out_path =os.path.join('spreading_zones','chron%s_sz%d.txt'%(chron,i))
-        print("Barckhausen data for GCZ included in %s"%fchron_out_path)
-        fchron_out = open(fchron_out_path,'w+')
-        fchron_out.write(out_str)
-        fchron_out.close()
-        spreading_zone_files.append(fchron_out_path)
+        if len(gcz_data)>1:
+            nlats = np.arange(min(gcz_data[:,1]),max(gcz_data[:,1]),.05)
+            nlons = np.interp(nlats, gcz_data[:,1], gcz_data[:,0])
+            out_str = reduce(lambda x,y: x+'\n'+y, [str(nlon)+' '+str(nlat) for nlon,nlat in zip(nlons,nlats)])
+            fchron_out_path =os.path.join('spreading_zones','chron%s_sz%d.txt'%(chron,i))
+            print("Barckhausen data for GCZ included in %s"%fchron_out_path)
+            fchron_out = open(fchron_out_path,'w+')
+            fchron_out.write(out_str)
+            fchron_out.close()
+            spreading_zone_files.append(fchron_out_path)
     return spreading_zone_files
 
 def get_track_intersects(chron_to_analyse, tracks_or_cuts, spreading_zone_files, data_directory='.', bounding_lats=(-90,90), bounding_lons=(0,360),e=1):

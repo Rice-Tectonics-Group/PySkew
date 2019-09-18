@@ -310,6 +310,7 @@ if __name__=="__main__":
 
     #Run step1, search all files for files that potentally cross chron_to_analyse in the region of interest and seperate that data
     if '-1' in sys.argv:
+        print("Creating Spreading Zones")
         spreading_zone_files = seperate_chron_into_spreading_zones(chron_to_analyse)
 
         #This is very time intensive but only needs to be run once per chron skip if already done for this chron
@@ -321,6 +322,7 @@ if __name__=="__main__":
             tracks = glob.glob('../raw_data/ship/**/*.lp')
             tracks += glob.glob('../raw_data/hi_alt/**/*.DAT')
 
+        print("Finding Intersections")
         intersecting_tracks,usable_tracks_path = get_track_intersects(chron_to_analyse, tracks, spreading_zone_files, data_directory=data_directory, bounding_lats=bounding_lats, bounding_lons=bounding_lons, e=e)
 
         #seperates out the data marked out for analysis above int the data_directory
@@ -336,9 +338,10 @@ if __name__=="__main__":
         aeromag_preprocess(aeromag_tracks)
 
         #plots all selected plots for analysis on a basic ortho map with selected chrons
+        print("Visualizing Intersecting Tracks")
         if plot: plot_tracks(chrons_info, results_directory, tracks=tracks, lon_0=lon_0, lat_0=lat_0)
 
-        print("please rerun again with -2 as an arg")
+        print("Success!!! Please run again with -2 as an arg, after using -r to remove any mis-picked tracks.")
 
     #find the turns in the tracks set to be analysed, cut and flip those tracks, then calculate best fit great circles for spreading zones to get azimuth and strike for projecting data and decide which cuts intersect which spreading zones closely enough to be analysed, and removes data not going to be used in further analysis
     if '-2' in sys.argv:
@@ -350,26 +353,32 @@ if __name__=="__main__":
         tracks = [track.split()[0] for track in seperated_tracks]
 
         #slices tracks using rdp according to tolerance and min_angle, set plot to True to check cuts on plots
+        print("Cutting Tracks")
         track_cuts = find_track_cuts(tracks, chrons_info, results_directory, tolerance=tolerance, min_angle=min_angle, plot=plot)
 
+        print("Flipping Tracks")
         cut_tracks,flipped_data = cut_tracks_and_flip(track_cuts, data_directory, heading=heading)
 
         #Generates .gcp files or great circle pole files from gmt in order to find strike
+        print("Determining Azimuth of Spreading")
         spreading_zone_files = seperate_chron_into_spreading_zones(chron_to_analyse)
         for spreading_zone_file in spreading_zone_files:
             subprocess.check_call('gmt fitcircle %s -L3 > %s'%(spreading_zone_file,spreading_zone_file[:-3]+'gcp'),shell=True)
 
         #Find and save all of the cuts of the tracks that intersect the chron in the region of interest so that the intersect can be used to generate strike and only the intersecting cuts will be used from now on
+        print("Finding All Intersecting Track Segments")
         tracks,cut_tracks_path = get_track_intersects(chron_to_analyse, cut_tracks, spreading_zone_files, data_directory=data_directory, bounding_lats=bounding_lats, bounding_lons=bounding_lons, e=e)
 
         #this time it's litterally just taking the .c# file which is actually a .lp file and copying it so it fits the framework
+        print("Processing Ship Magnetic Records by Removing IGRF and Interpolating")
         shipmag_tracks = list(filter(lambda x: 'ship' in x, tracks))
         shipmag_preprocess(shipmag_tracks)
 
+        print("Processing Aero Magnetic Records by Removing IGRF and Interpolating")
         aeromag_tracks = list(filter(lambda x: 'aero' in x, tracks))
         aeromag_preprocess(aeromag_tracks)
 
-        print("please rerun with -3 to find strikes and plot cut tracks")
+        print("Success!!! Please run again with -3 as an arg, after using -r to remove any mis-picked track cuts.")
 
     if '-3' in sys.argv:
 
@@ -381,12 +390,14 @@ if __name__=="__main__":
         track_sz_and_inters = [track.split('\t') for track in cut_tracks]
 
         #Uses spreading zone GCP and track/sz intersect to calculate the azimuth and writes out azsz files to save strike and azimuth as well as intersection point of track and anomoly
+        print("Doing some more fancy Great-Circle things for azimuth to maintain backwards compatability")
         tracks, az_files = generate_az_strike_files(track_sz_and_inters, chron_to_analyse, heading, results_directory, plot=plot)
 
         #plots all selected plots for analysis on a basic ortho map with selected chrons
+        print("Visualizing Cuts, use -r to remove any mis-picked track cuts before next step.")
         if plot: plot_tracks(chrons_info, results_directory, tracks=tracks, track_dir='all_cut_tracks', lon_0=lon_0, lat_0=lat_0, cuts=True)
 
-        print("please rerun with -4 as an arg to generate a .deskew file and start analysis")
+        print("Success!!! Please run again with -4 as an arg, using -a to provide an age range for your anomaly.")
 
     #pull out East and Vertical componenets of the data into their own sub directories for deskewing analysis
     if '-4' in sys.argv:
@@ -412,6 +423,7 @@ if __name__=="__main__":
         cut_tracks_file.close()
 
         create_deskew_file(chron_name,results_directory,age_min,age_max,data_directory=data_directory,phase_shift=180,step=60)
+        print("Preprocessing Complete!!!")
 
     if '-ptl' in sys.argv:
         annotate=False

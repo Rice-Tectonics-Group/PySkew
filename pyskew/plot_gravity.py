@@ -40,6 +40,9 @@ def get_sandwell(window,down_sample_factor,sandwell_files_path="../raw_data/grav
         if "W" in yfile: ylon = 360-ylon
 
         if xlat-ylat==0: return (ylon-window[1])%360 - (xlon-window[1])%360
+#            if (ylon-window[1])==0: return -1
+#            elif (xlon-window[1])==0: return 1
+#            else: return (ylon-window[1])%360 - (xlon-window[1])%360
         else: return ylat-xlat
 
     idx,all_gravs,prev_file,all_lats,all_lons = 0,[],None,np.array([]),np.array([])
@@ -47,13 +50,13 @@ def get_sandwell(window,down_sample_factor,sandwell_files_path="../raw_data/grav
         with rasterio.open(filepath) as dataset:
             lats = np.arange(dataset.bounds[3],dataset.bounds[1],-dataset.res[1]*down_sample_factor)
             lons = np.arange(dataset.bounds[0],dataset.bounds[2],dataset.res[0]*down_sample_factor)
-            if window[0]>dataset.bounds[0]: lon_lb = int((window[0]-dataset.bounds[0])/(dataset.res[0]*down_sample_factor) + .5)
+            if round(window[0],3)>round(dataset.bounds[0],3): lon_lb = int((window[0]-dataset.bounds[0])/(dataset.res[0]*down_sample_factor) + .5)
             else: lon_lb = 0
-            if window[1]<dataset.bounds[2]: lon_ub = int((window[1]-dataset.bounds[2])/(dataset.res[0]*down_sample_factor) + .5)
+            if round(window[1],3)<round(dataset.bounds[2],3): lon_ub = int((window[1]-dataset.bounds[2])/(dataset.res[0]*down_sample_factor) + .5)
             else: lon_ub = -1
-            if window[2]>dataset.bounds[1]: lat_lb = int((window[2]-dataset.bounds[1])/(dataset.res[1]*down_sample_factor) + .5)
+            if round(window[2],3)>round(dataset.bounds[1],3): lat_lb = int((window[2]-dataset.bounds[1])/(dataset.res[1]*down_sample_factor) + .5)
             else: lat_lb = 0
-            if window[3]<dataset.bounds[3]: lat_ub = int((window[3]-dataset.bounds[3])/(dataset.res[1]*down_sample_factor) + .5)
+            if round(window[3],3)<round(dataset.bounds[3],3): lat_ub = int((window[3]-dataset.bounds[3])/(dataset.res[1]*down_sample_factor) + .5)
             else: lat_ub = -1
             lats = lats[-(lat_ub):-lat_lb-1]
             lons = lons[lon_lb:lon_ub]
@@ -78,9 +81,9 @@ def get_sandwell(window,down_sample_factor,sandwell_files_path="../raw_data/grav
             ylat,ylon = list(map(float,re.findall(r'\d+',yfile)))
 
             if "S" in xfile: xlat = -xlat
-            if "W" in xfile: xlon = 180+xlon
+            if "W" in xfile: xlon = 360-xlon
             if "S" in yfile: ylat = -ylat
-            if "W" in yfile: ylon = 180+ylon
+            if "W" in yfile: ylon = 360-ylon
 
             if abs(round(xlat-ylat))!=0:
                 #create new entry
@@ -99,9 +102,11 @@ def get_sandwell(window,down_sample_factor,sandwell_files_path="../raw_data/grav
 
         prev_file = filepath
 
-    all_grav = all_gravs[0]
-    for next_grav in all_gravs[1:]:
-        all_grav = np.vstack([all_grav,next_grav])
+    try:
+        all_grav = all_gravs[0]
+        for next_grav in all_gravs[1:]:
+            all_grav = np.vstack([all_grav,next_grav])
+    except (UnboundLocalError,IndexError) as err: return [],[],[]
 
     return all_lons,all_lats,all_grav
 

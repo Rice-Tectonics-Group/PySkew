@@ -773,7 +773,7 @@ def make_synthetic(age_min,age_max,layer_depth,layer_thickness,layer_mag,azi,rd,
         tot_dis += age_step*srf(sz_name,age)
         dis_domain.append(tot_dis+min_dis)
         try: idx = tdf[(abs(round(age,2))>=tdf["top"]) & (abs(round(age,2))<=tdf["base"])].index[0]
-        except: import pdb; pdb.set_trace()
+        except: raise IndexError("Age bounds of %.3f, %.3f out of bounds of age model %s"%(age_min,age_max,timescale))
         if idx%2==0: pol = layer_mag
         else: pol = -layer_mag
         mag_sig.append(pol) #Square Wave

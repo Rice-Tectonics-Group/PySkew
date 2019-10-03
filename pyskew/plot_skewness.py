@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import pmagpy.ipmag as ipmag
 import matplotlib.pyplot as plt
+plt.switch_backend('Agg')
 if 'darwin' in sys.platform:
     try:
         plt.switch_backend('QT5Agg')
@@ -398,68 +399,45 @@ def plot_lunes(comps,gcm,pole_lat=None):
 
     return gcm
 
-def plot_chron_span_on_axes(sz,axes):
-    # I know I made it save two files, but that was before I remembered it should be the same. :p
-    try: dis_span = np.loadtxt(os.path.join('..','raw_data','SynthData','dis_span_%s.txt'%sz),delimiter=',')
-    except (IOError,OSError) as e:
-        try:
+def plot_chron_span_on_axes(sz_name, axes, anom_age_span,spreading_rate_path="../raw_data/spreading_rate_model.txt"):
 
-            default_name = ''
-            if os.path.isfile(os.path.join('..','raw_data','SynthData','dis_span_Default.txt')): default_name = 'Default'
-            elif os.path.isfile(os.path.join('..','raw_data','SynthData','dis_span_default.txt')): default_name = 'default'
-            else: sz = 'default'; raise IOError
-
-            dis_span = np.loadtxt(os.path.join('..','raw_data','SynthData','dis_span_%s.txt'%default_name),delimiter=',')
-
-        except (IOError,OSError) as e:
-            raise IOError("No synthetic found for %s, please generate a new synthetic which contains a spreading rate model for this spreading zone"%sz)
+    srf = generate_spreading_rate_model(spreading_rate_path)[0]
+    step = .01
+    srf_sz = lambda x: step*srf(sz_name,x)
+    anom_width = sum(map(srf_sz,np.arange(*anom_age_span,step)))
 
     for axis in axes:
-        axis.axvspan(*dis_span, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
+        axis.axvspan(-anom_width/2, anom_width/2, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
 
-def plot_synthetic(sz,ship_or_aero,ax,**kwargs):
-    try:
-        if ship_or_aero=='aero':
-            dis_syn = np.loadtxt(os.path.join('..','raw_data','SynthData','dis_syn_%s_aero.txt'%sz),delimiter=',')
-            mag_syn = np.loadtxt(os.path.join('..','raw_data','SynthData','mag_syn_%s_aero.txt'%sz),delimiter=',')
-        elif ship_or_aero=='ship':
-            dis_syn = np.loadtxt(os.path.join('..','raw_data','SynthData','dis_syn_%s_ship.txt'%sz),delimiter=',')
-            mag_syn = np.loadtxt(os.path.join('..','raw_data','SynthData','mag_syn_%s_ship.txt'%sz),delimiter=',')
-        else: raise ValueError("plot synthetic needs to know if you want the aeromag or shipmag synthetic was given %s not ship or aero"%ship_or_aero)
-    except (IOError,OSError) as e:
-        try:
+def plot_synthetic(sz_name, anom_age_span, ax=plt.gca(),timescale_path="../raw_data/timescale_gradstein2012.txt",spreading_rate_path="../raw_data/spreading_rate_model.txt",age_min=40.0,age_max=100.0,layer_depth=4.5,layer_thickness=0.5,layer_mag=1000.,azi=90.,rd=0.,ri=90.,ad=0.,ai=90.,fix_sta=False,fix_end=False,twf=0.,length=4096,buff=.2,**kwargs):
+    mag_syn,dis_syn,samp_dis = make_synthetic(age_min,age_max,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,timescale_path,sz_name=sz_name,spreading_rate_path=spreading_rate_path,length=length,buff=buff)
 
-            default_name = ''
-            if os.path.isfile(os.path.join('..','raw_data','SynthData','dis_span_Default.txt')): default_name = 'Default'
-            elif os.path.isfile(os.path.join('..','raw_data','SynthData','dis_span_default.txt')): default_name = 'default'
-            else: sz = 'default'; raise IOError
+    #Center Synthetic
+    srf = generate_spreading_rate_model(spreading_rate_path)[0]
+    if age_min!=age_max: step = (age_max-age_min)/(length-1)
+    else: step = .01
+    srf_sz = lambda x: step*srf(sz_name,x)
+    center_dis = sum(map(srf_sz,np.arange(0,sum(anom_age_span)/2+step,step)))
+#    dis_anom_min = sum(map(srf_sz,np.arange(0,age_min+step,step)))
+#    dis_anom_max = sum(map(srf_sz,np.arange(0,age_max+step,step)))
+#    neg_anom_max = sum(map(srf_sz,np.arange(-age_max+step,0,step)))
+#    neg_anom_min = sum(map(srf_sz,np.arange(-age_min+step,0,step)))
+#    anom_width = abs(dis_anom_max-dis_anom_min)/2
+#    center_dis = dis_anom_max - anom_width
+#    neg_anom_width = abs(neg_anom_max-neg_anom_min)/2
+#    neg_anom = -(neg_anom_max - neg_anom_width) - center_dis
+    dis_syn = np.array(dis_syn) - center_dis
 
-            if ship_or_aero=='aero':
-                dis_syn = np.loadtxt(os.path.join('..','raw_data','SynthData','dis_syn_%s_aero.txt'%default_name),delimiter=',')
-                mag_syn = np.loadtxt(os.path.join('..','raw_data','SynthData','mag_syn_%s_aero.txt'%default_name),delimiter=',')
-            elif ship_or_aero=='ship':
-                dis_syn = np.loadtxt(os.path.join('..','raw_data','SynthData','dis_syn_%s_ship.txt'%default_name),delimiter=',')
-                mag_syn = np.loadtxt(os.path.join('..','raw_data','SynthData','mag_syn_%s_ship.txt'%default_name),delimiter=',')
-            else: raise ValueError("plot synthetic needs to know if you want the aeromag or shipmag synthetic was given %s not ship or aero"%ship_or_aero)
+    if "clip_on" in kwargs.keys(): spc_clip = kwargs.pop("clip_on")
+    else: spc_clip = False
 
-        except (IOError,OSError) as e:
-            raise IOError("No synthetic found for %s, please generate a new synthetic which contains a spreading rate model for this spreading zone"%sz)
+    zln = ax.plot(-dis_syn,np.zeros(len(dis_syn)),'k--')
+    sln = ax.plot(-dis_syn,mag_syn,**kwargs) #reverse because I'm dumb and changed convention
 
-    if 'plot_anom_spans' in kwargs and kwargs.pop('plot_anom_spans'):
-        if not os.path.isfile(os.path.join('..','raw_data','SynthData','anom_spans_%s.txt'%sz)):
-            print("%s does not exist and is required in order to plot anomoly spans on the synthetics, please regenerate the synthetic with an age model file to solve this issue."%os.path.abspath(os.path.join('..','raw_data','SynthData','anom_spans.txt')))
-        else:
-            anom_spans = pd.read_csv(os.path.join('..','raw_data','SynthData','anom_spans_%s.txt'%sz),sep=',',index_col=0,header=None)
-            for anomoly,older_bound in anom_spans.iterrows():
-                if isinstance(older_bound,pd.Series): older_bound=older_bound.iloc[0]
-                if np.isnan(older_bound): continue
-                ax.axvline(older_bound,linestyle='--',color='blue',alpha=.7)
-                if 'n' in anomoly.split('.')[-1]: ylevel=-380+80
-                else: ylevel=-380
-                ax.annotate(anomoly, xy=(older_bound,ylevel), xycoords='data', ha='left', va='bottom', fontsize=8, clip_on=False)
-
-    ax.plot(dis_syn,np.zeros(len(dis_syn)),'k--')
-    ax.plot(dis_syn,mag_syn,**kwargs)
+    if spc_clip:
+        clip_patch = Rectangle([0.,ax.transAxes.inverted().transform(ax.get_figure().transFigure.transform([0.,0.]))[1]],1.,ax.transAxes.inverted().transform(ax.get_figure().transFigure.transform([1.,1.]))[1],transform=ax.transAxes)
+        zln[0].set_clip_path(clip_patch)
+        sln[0].set_clip_path(clip_patch)
 
     return min(dis_syn),max(dis_syn)
 
@@ -497,9 +475,18 @@ def plot_skewness_data(deskew_row, phase_shift, ax, **kwargs):
 
     shifted_mag = phase_shift_data(data_df['mag'].tolist(),phase_shift)
 
+    if "clip_on" in kwargs.keys(): spc_clip = kwargs.pop("clip_on")
+    else: spc_clip = False
+
     proj_dist = projected_distances['dist'].tolist()
-    ax.plot(proj_dist,np.zeros(len(proj_dist)),'k--')
-    ax.plot(proj_dist,shifted_mag,**kwargs)
+    zln = ax.plot(proj_dist,np.zeros(len(proj_dist)),'k--')
+    sln = ax.plot(proj_dist,shifted_mag,**kwargs)
+
+    if spc_clip:
+#        kwargs["clip_on"] = True
+        clip_patch = Rectangle([0.,ax.transAxes.inverted().transform(ax.get_figure().transFigure.transform([0.,0.]))[1]],1.,ax.transAxes.inverted().transform(ax.get_figure().transFigure.transform([1.,1.]))[1],transform=ax.transAxes)
+        zln[0].set_clip_path(clip_patch)
+        sln[0].set_clip_path(clip_patch)
 
     return min(proj_dist), max(proj_dist)
 
@@ -516,9 +503,11 @@ def plot_deskew_page(row,leave_plots_open=False):
     ax0 = fig.add_subplot(8,1,8)
     ax0.set_anchor('W')
     remove_axis_lines_and_ticks(ax0)
-    ax0.set_ylabel("synthetic (%s)"%row['track_type'],rotation=0,fontsize=14)
+    ax0.set_ylabel("synthetic (%s)"%row['track_type'],rotation=0,fontsize=10)
     ax0.yaxis.set_label_coords(1.07,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'],row['track_type'], ax0, color='k', linestyle='-')
+    if row['track_type']=="aero": layer_depth = 12.5
+    else: layer_depth = 4.5
+    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=layer_depth, color='k', linestyle='-')
     ylim = ax0.get_ylim() #insure that all of the plots have the same zoom level in the y direction
 
     for j,phase_shift in enumerate(np.arange(row['phase_shift']-3*row['step'],row['phase_shift']+4*row['step'],row['step'])):
@@ -533,7 +522,7 @@ def plot_deskew_page(row,leave_plots_open=False):
         min_proj_dis, max_proj_dis = plot_skewness_data(row,phase_shift,ax,color='k',linestyle='-',picker=leave_plots_open)
 #        ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
 
-    plot_chron_span_on_axes(row['sz_name'],fig.get_axes())
+    plot_chron_span_on_axes(row['sz_name'],fig.get_axes(),rows[['age_min','age_max']].iloc[0])
 
     ax0.set_xlim(max(min_proj_dis,min_syn_dis,-1000),min(max_proj_dis,max_syn_dis,1000))
     fig.subplots_adjust(hspace=.0) #remove space between subplot axes
@@ -562,7 +551,9 @@ def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate
     remove_axis_lines_and_ticks(ax0)
     ax0.set_ylabel("synthetic (%s)"%row['track_type'],rotation=0,fontsize=14)
     ax0.yaxis.set_label_coords(1.07,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'],row['track_type'], ax0, color='k', linestyle='-')
+    if row['track_type']=="aero": layer_depth = 12.5
+    else: layer_depth = 4.5
+    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'], row[['age_min','age_max']].iloc[0], ax0, layer_depth=layer_depth, color='k', linestyle='-')
     ylim = ax0.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
 
     asf,srf,sz_list = get_asf_srf(spreading_rate_model_path,anomalous_skewness_model_path)
@@ -602,7 +593,7 @@ def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate
 
         min_proj_dis, max_proj_dis = plot_skewness_data(row,phase_shift,ax,color='k',linestyle='-',picker=leave_plots_open)
 
-    plot_chron_span_on_axes(row['sz_name'],fig.get_axes())
+    plot_chron_span_on_axes(row['sz_name'],fig.get_axes(),rows[['age_min','age_max']].iloc[0])
 
     ax0.set_xlim(xlims)
     fig.subplots_adjust(hspace=.0) #remove space between subplot axes
@@ -625,19 +616,6 @@ def save_show_plots(fig,out_file,leave_plots_open=True,msg=None):
 
 def plot_skewnesses(deskew_path,leave_plots_open=False):
     deskew_df = open_deskew_file(deskew_path)
-
-    row = deskew_df.iloc[0]
-
-    comp_types = deskew_df['track_type'].tolist()
-
-    if 'aero' in comp_types:
-        if 'ship' in comp_types:
-            ship_or_aero='both'
-        else:
-            ship_or_aero='aero'
-    else: ship_or_aero='ship'
-
-    check_generate_synth(row['sz_name'],row['age_min'],row['age_max'],ship_or_aero)
 
     check_dir(os.path.join(row['results_dir'],'deskew_plots'))
 
@@ -672,19 +650,25 @@ def plot_fz_loc(deskew_row,fz_loc_path,ax,**kwargs):
         fz_dis = (fzi_dict['s12']*np.sin(np.deg2rad(float(deskew_row['strike'])-fzi_dict['azi2'])))/1000
         ax.axvline(fz_dis,**kwargs)
 
-def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,ridge_loc_func=None,fz_loc_path=None):
+def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,ridge_loc_func=None,fz_loc_path=None, **kwargs):
 #    plt.rc('text', usetex=True)
 #    plt.rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+    if "xlims" in kwargs.keys(): xlim = kwargs.pop("xlims")
+    else: xlim = [-500,500]
+    if "ylims" in kwargs.keys(): ylim = kwargs.pop("ylims")
+    else: ylim = [-250,250]
+    if "clip_on" in kwargs.keys(): clip_on = kwargs.pop("clip_on")
+    else: clip_on = False
 
     fig = plt.figure(figsize=(12, 9), facecolor='white')
 
     ax0 = fig.add_subplot(8,1,1)
     remove_axis_lines_and_ticks(ax0)
-    ax0.set_ylabel(r"synthetic (%s)"%'ship',rotation=0,fontsize=11)
-    ax0.yaxis.set_label_coords(-.15,.45)
+    ax0.set_ylabel(r"synthetic (%s)"%'ship',rotation=0,fontsize=10)
+    ax0.yaxis.set_label_coords(-.075,.45)
     ax0.format_coord = format_coord
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0],'ship',ax0, color='k', linestyle='-')
-    ylim = ax0.set_ylim([-250,250]) #MODIFY THIS TO CHANGE Y AXIS
+    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', clip_on=clip_on)
+    ylim = ax0.set_ylim(ylim) #MODIFY THIS TO CHANGE Y AXIS
 #    ylim = ax0.get_ylim()
 
     for j,iterrow in enumerate(rows.iterrows()):
@@ -694,15 +678,15 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 
         remove_axis_lines_and_ticks(ax)
 
-        min_proj_dis, max_proj_dis = plot_skewness_data(row,float(row['phase_shift']),ax,color='k',linestyle='-',picker=True)
+        min_proj_dis, max_proj_dis = plot_skewness_data(row,float(row['phase_shift']),ax,color='k',linestyle='-',picker=True, clip_on=clip_on)
 
         if ridge_loc_func!=None:
             plot_ridge_loc(row,ridge_loc_func,ax,color='r',linestyle='-',alpha=1)
         if fz_loc_path!=None:
             plot_fz_loc(row,fz_loc_path,ax,color='g',linestyle='-',alpha=1)
 
-        ax.annotate(r"%s"%row['comp_name']+"\n"+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(row['inter_lat']),convert_to_0_360(row['inter_lon'])),xy=(-.15,.45),xycoords="axes fraction")
-        ax.set_ylabel(r"$\theta$=%.1f"%float(row['phase_shift'])+"\n"+r"$e_a$=%.1f"%float(row['aei']),rotation=0,fontsize=14)
+        ax.annotate(r"%s"%row['comp_name']+"\n"+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(row['inter_lat']),convert_to_0_360(row['inter_lon'])),xy=(-.15,.45),xycoords="axes fraction",fontsize=10)
+        ax.set_ylabel(r"$\theta$=%.1f"%float(row['phase_shift'])+"\n"+r"$e_a$=%.1f"%float(row['aei']),rotation=0,fontsize=10)
         ax.yaxis.set_label_coords(1.05,.45)
         ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
         ax.format_coord = format_coord
@@ -710,15 +694,15 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     ax = fig.add_subplot(8,1,8, sharex=ax0)
     ax.set_anchor('W')
     remove_axis_lines_and_ticks(ax)
-    ax.set_ylabel(r"synthetic (%s)"%'aero',rotation=0,fontsize=11)
-    ax.yaxis.set_label_coords(-.15,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0],'aero', ax, color='k', linestyle='-')
+    ax.set_ylabel(r"synthetic (%s)"%'aero',rotation=0,fontsize=10)
+    ax.yaxis.set_label_coords(-.075,.45)
+    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on)
     ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
     ax.format_coord = format_coord
 
-    plot_chron_span_on_axes(rows['sz_name'].iloc[0],fig.get_axes())
+    plot_chron_span_on_axes(rows['sz_name'].iloc[0],fig.get_axes(),rows[['age_min','age_max']].iloc[0])
 
-    ax0.set_xlim(-500,500)
+    ax0.set_xlim(xlim)
     fig.subplots_adjust(hspace=.0) #remove space between subplot axes
     if rows.groupby(level=0).agg(lambda x: len(set(x)) == 1)['sz_name'].iloc[0]:
         title = "%s : %.1f$^\circ$N to %.1f$^\circ$N"%(rows['sz_name'].iloc[0],float(rows['inter_lat'].iloc[0]),float(rows['inter_lat'].iloc[-1]))
@@ -731,30 +715,19 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 
     save_show_plots(fig,out_file,leave_plots_open=leave_plots_open)
 
-def plot_best_skewnesses(deskew_path, leave_plots_open=False, best_skews_subdir="best_skews", ridge_loc_path=None, fz_loc_path=None):
-#    dt_path,age_min,age_max,results_dir = create_matlab_datatable(deskew_path)
-
-    deskew_df = filter_deskew_and_calc_aei(deskew_path)
-    comp_types = deskew_df['track_type'].tolist()
-
-    check_generate_synth(deskew_df['sz_name'].iloc[0],deskew_df['age_min'].iloc[0],deskew_df['age_max'].iloc[0],ship_or_aero='both')
-
+def plot_best_skewnesses(deskew_df, best_skews_subdir="best_skews", **kwargs):
     results_dir = os.path.join(deskew_df['results_dir'].iloc[0],best_skews_subdir)
     check_dir(results_dir)
 
-    ridge_loc_func=None
-    if ridge_loc_path!=None: ridge_loc_func = read_and_fit_ridge_data(ridge_loc_path)
+    if "ridge_loc_path" in kwargs.keys() and kwargs["ridge_loc_path"]!=None: ridge_loc_func = read_and_fit_ridge_data(kwargs["ridge_loc_path"])
 
     num_profiles_per_page = 6
     prev_i,page_num = 0,0
-    for i in range(num_profiles_per_page,len(deskew_df.index),num_profiles_per_page):
+    for i in list(range(num_profiles_per_page,len(deskew_df.index),num_profiles_per_page))+[-1]:
         rows = deskew_df.iloc[prev_i:i]
-        page_num = i/num_profiles_per_page
-        run_in_parallel(plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func,'fz_loc_path':fz_loc_path})
-        prev_i = i
-    rows = deskew_df.iloc[prev_i:len(deskew_df.index)]
-    page_num += 1
-    run_in_parallel(plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs={'leave_plots_open':leave_plots_open,'ridge_loc_func':ridge_loc_func,'fz_loc_path':fz_loc_path})
+        run_in_parallel(plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs=kwargs)
+#        plot_best_skewness_page(rows,results_dir,page_num,**kwargs)
+        prev_i,page_num = i,page_num+1
 
 def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None):
 #    plt.rc('text', usetex=True)
@@ -767,7 +740,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
     ax0.set_ylabel("synthetic (%s)"%'ship',rotation=0,fontsize=14)
     ax0.yaxis.set_label_coords(-.1,.45)
     ax0.format_coord = format_coord
-    min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0],'ship',ax0, color='k', linestyle='-')
+    min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0], rows1[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-')
     ylim = ax0.set_ylim(-200,200)
 
     for j,iterrow in enumerate(zip(rows1.iterrows(),rows2.iterrows())):
@@ -796,11 +769,11 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
     remove_axis_lines_and_ticks(ax)
     ax.set_ylabel("synthetic (%s)"%'aero',rotation=0,fontsize=14)
     ax.yaxis.set_label_coords(-.1,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0],'aero', ax, color='k', linestyle='-')
+    min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0], rows1[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-')
     ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
     ax.format_coord = format_coord
 
-    plot_chron_span_on_axes(rows1['sz_name'].iloc[0],fig.get_axes())
+    plot_chron_span_on_axes(rows1['sz_name'].iloc[0],fig.get_axes(),rows1[['age_min','age_max']].iloc[0])
 
     ax0.set_xlim(-400,600)
     fig.subplots_adjust(hspace=.0) #remove space between subplot axes
@@ -828,8 +801,6 @@ def overlay_best_skewnesses(deskew_path, deskew_path2, leave_plots_open=False, b
 
     deskew_df = filter_deskew_and_calc_aei(deskew_path)
     deskew_df2 = filter_deskew_and_calc_aei(deskew_path2)
-
-    check_generate_synth(deskew_df['sz_name'].iloc[0],deskew_df['age_min'].iloc[0],deskew_df['age_max'].iloc[0],ship_or_aero='both')
 
     results_dir = os.path.join(deskew_df['results_dir'].iloc[0],best_skews_subdir)
     check_dir(results_dir)
@@ -866,19 +837,14 @@ def overlay_skewness_by_spreading_zone(deskew_path,deskew_path2,leave_plots_open
     try: os.remove(tmp_deskew_path); os.remove(tmp_deskew_path2); os.remove("%s.dt.csv"%os.path.basename(tmp_deskew_path).split('.')[0])
     except OSError: print("trouble removing temporary deskew and dt.csv files used for this function, check the code")
 
-def plot_skewness_by_spreading_zone(deskew_path,leave_plots_open=False,ridge_loc_path=None, fz_loc_path=None):
-    deskew_df = open_deskew_file(deskew_path)
+def plot_skewness_by_spreading_zone(deskew_path,leave_plots_open=False,ridge_loc_path=None, fz_loc_path=None, synth_config_path=None, **kwargs):
+    deskew_df = filter_deskew_and_calc_aei(deskew_path)
 
-    tmp_deskew_path = '.tmp_deskew_file'
     for sz in deskew_df['sz_name'].drop_duplicates():
         sz_deskew_df = deskew_df[deskew_df['sz_name']==sz].copy()
         sz_deskew_df.sort_values(by="comp_name",inplace=True)
         sz_deskew_df.sort_values(by="inter_lat",ascending=False,inplace=True)
-        sz_deskew_df.to_csv(tmp_deskew_path,sep='\t',index=False)
-        plot_best_skewnesses(tmp_deskew_path,leave_plots_open=leave_plots_open,ridge_loc_path=ridge_loc_path,best_skews_subdir="skewness_by_spreading_zones/%s"%str(sz), fz_loc_path=fz_loc_path)
-
-    try: os.remove(tmp_deskew_path); os.remove("%s.dt.csv"%os.path.basename(tmp_deskew_path).split('.')[0])
-    except OSError: print("trouble removing temporary deskew and dt.csv files used for this function, check the code")
+        plot_best_skewnesses(sz_deskew_df,leave_plots_open=leave_plots_open,ridge_loc_path=ridge_loc_path,best_skews_subdir="skewness_by_spreading_zones/%s"%str(sz), fz_loc_path=fz_loc_path, **kwargs)
 
 def plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page_num, leave_plots_open=False):
 
@@ -890,7 +856,7 @@ def plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page
     remove_axis_lines_and_ticks(ax0)
     ax0.set_ylabel("synthetic (%s)"%'ship',rotation=0,fontsize=14)
     ax0.yaxis.set_label_coords(-.1,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0],'ship',ax0, color='k', linestyle='-', plot_anom_spans=True)
+    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', plot_anom_spans=True)
     ylim = ax0.get_ylim()
 
     for j,iterrow in enumerate(rows.iterrows()):
@@ -925,7 +891,7 @@ def plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page
     remove_axis_lines_and_ticks(ax)
     ax.set_ylabel("synthetic (%s)"%'aero',rotation=0,fontsize=14)
     ax.yaxis.set_label_coords(-.1,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0],'aero', ax, color='k', linestyle='-', plot_anom_spans=True)
+    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', plot_anom_spans=True)
     ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
 
     ax0.set_xlim(-1000,500)
@@ -948,7 +914,6 @@ def plot_spreading_rate_picks(deskew_path,spreading_rate_picks_path,leave_plots_
     deskew_df['comp_name'] = deskew_df['comp_name'].apply(lambda x: str(x).rstrip('.Ed .Vd .lp'))
     picked_profiles = deskew_df[deskew_df['comp_name'].isin(spreading_rate_picks.columns)].drop_duplicates(subset='comp_name')
 
-    check_generate_synth(deskew_df['sz_name'].iloc[0],deskew_df['age_min'].iloc[0],deskew_df['age_max'].iloc[0],ship_or_aero='both')
     results_dir = os.path.join(deskew_df['results_dir'].iloc[0],'spreading_rate_picks')
 
     num_profiles_per_page = 6

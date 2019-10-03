@@ -109,11 +109,18 @@ if __name__=="__main__":
 
     if "-xl" in sys.argv:
         xli = sys.argv.index('-xl')
-        kwargs['xlims'] = sys.argv[xli+1].split(',')
+        kwargs['xlims'] = list(map(float,sys.argv[xli+1].split(',')))
 
     if "-yl" in sys.argv:
         yli = sys.argv.index('-yl')
-        kwargs['ylims'] = sys.argv[yli+1]
+        kwargs['ylims'] = list(map(float,sys.argv[yli+1].split(',')))
+
+    if "-clip" in sys.argv:
+        kwargs['clip_on'] = True
+
+    if "-synth" in sys.argv:
+        syi = sys.argv.index('-synth')
+        kwargs['synth_config_path'] = sys.argv[syi+1]
 
     if '-rtp' in sys.argv:
         rtpi = sys.argv.index('-rtp')

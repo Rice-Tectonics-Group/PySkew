@@ -6,8 +6,7 @@ import pyskew.plot_geographic as pgeo
 import pyskew.utilities as utl
 from geographiclib.geodesic import Geodesic
 import wx.lib.buttons as buttons
-import wx.lib.mixins.listctrl  as  listmix
-from netCDF4 import Dataset as netcdf_dataset
+import wx.lib.mixins.listctrl as listmix
 import matplotlib as mpl
 import matplotlib.path as mpath
 from matplotlib.figure import Figure
@@ -16,7 +15,7 @@ from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as Navigat
 from functools import cmp_to_key
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
-import pyskew.plot_gravity as pg
+#import pyskew.plot_gravity as pg
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 
 class TVWindow(wx.Frame):

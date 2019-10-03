@@ -363,8 +363,8 @@ class SynthMagGUI(wx.Frame):
         self.m_srm_edit = menu_tools.Append(-1, "&Spreading Rate Model\tAlt-R", "")
         self.Bind(wx.EVT_MENU, self.on_srm_edit, self.m_srm_edit)
 
-        self.m_tv = menu_tools.Append(-1, "&Track Viewer\tAlt-V", "")
-        self.Bind(wx.EVT_MENU, self.on_tv, self.m_tv)
+#        self.m_tv = menu_tools.Append(-1, "&Track Viewer\tAlt-V", "")
+#        self.Bind(wx.EVT_MENU, self.on_tv, self.m_tv)
 
         self.m_eai = menu_tools.Append(-1, "&Effective Inclination Viewer\tAlt-E", "")
         self.Bind(wx.EVT_MENU, self.on_eai, self.m_eai)
@@ -464,7 +464,7 @@ class SynthMagGUI(wx.Frame):
         #Update Data
         try:
             infile = os.path.join(self.dsk_row["data_dir"],self.dsk_row["comp_name"])
-            if not os.path.isfile(infile): self.user_warning("Data file %s could not be found"%infile)
+            if not os.path.isfile(infile): self.user_warning("Data file %s could not be found"%infile); return
             self.dsk_row["strike"] = (azi+270)%360 #rotate an extra 90 degrees because convention here is 180 from old convention for ease of moving synthetic
             self.dsk_row["phase_shift"] = phase_shift
             self.deskew_df.set_value(self.dsk_idx,"strike",(azi+90)%360)

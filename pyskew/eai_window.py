@@ -137,7 +137,7 @@ class EAIWindow(wx.Frame):
         event.Skip()
 
     def on_select_dleft_click(self,event):
-        try: dsk_row = self.parent.dsk_row
+        try: dsk_df = self.parent.deskew_df
         except AttributeError: event.Skip(); return
 
         pos=event.GetPosition()
@@ -145,8 +145,6 @@ class EAIWindow(wx.Frame):
         pos = [pos[0],height-pos[1]]
         pos = self.ax.transData.inverted().transform(pos)
 
-        try: dsk_df = self.parent.deskew_df
-        except AttributeError: return
         min_dis,min_row = np.inf,None
         ylim = self.ax.get_ylim()
         for i,row in dsk_df.iterrows():
@@ -157,12 +155,12 @@ class EAIWindow(wx.Frame):
 
         self.parent.track_box.SetValue(min_row["comp_name"])
         self.parent.on_select_track(event)
-#        self.update()
 
     ##########################Additional Plotting and Backend Functions################
 
     def on_parent_select_track(self):
-        self.update()
+        pass
+#        self.update()
 
     def plot_eai(self):
         try: dsk_df = self.parent.deskew_df

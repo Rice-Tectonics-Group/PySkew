@@ -5,15 +5,15 @@ import pandas as pd
 import numpy as np
 from geographiclib.geodesic import Geodesic
 from functools import reduce
-from .plot_geographic import *
-from .utilities import *
+import scipy.spatial as spatial
+import pyskew.plot_geographic as pg
+import pyskew.utilities as utl
 import pmagpy.ipmag as ipmag
 try: from tqdm import tqdm
 except ImportError: tqdm = lambda x: x
 
 
 def intersect(a1,a2,e=1):
-    import scipy.spatial as spatial
     tree = spatial.cKDTree(a1)
     return tree.query(a2, e)
 
@@ -98,7 +98,7 @@ def shipmag_preprocess(shipmag_files):
     for shipmag_file in shipmag_files:
         if os.path.basename(shipmag_file).split('.')[-1].startswith('c'):
             shutil.copyfile(shipmag_file,shipmag_file+'.lp')
-        ship_df = open_mag_file(shipmag_file)
+        ship_df = utl.open_mag_file(shipmag_file)
         latlon_df = ship_df[['lat','lon']]
         latlon_file = shipmag_file + ".latlon"
         latlon_df.to_csv(latlon_file, sep=' ', index=False, header=False)
@@ -108,7 +108,7 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
 
         track,extension = os.path.basename(aeromag_file).split('.') #segment the name into parts
         #read data and make a empty dataframe for output data
-        adf = open_mag_file(aeromag_file)
+        adf = utl.open_mag_file(aeromag_file)
         ddf = pd.read_csv(date_file,sep='\t',index_col=0)
         idf = pd.DataFrame(columns=['dis','v_comp','e_comp','h_comp','t_comp'])
 
@@ -117,14 +117,14 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
         prev_lat,prev_lon = None,None
         for i,row in adf.iterrows(): #iterate over rows
 
-            row["lon"] = convert_to_0_360(row["lon"])
+            row["lon"] = utl.convert_to_0_360(row["lon"])
             adf.at[i,"lon"] = row["lon"]
 
             try:
                 #check for data gaps
                 if (row['lat']==None) or (row['lon']==None) or (row['alt']==None) or (row['mag']==None) or (row['v_comp']==None) or (row['e_comp']==None): continue
                 #check for absurd values outside of the domain of the varible (this will capture null values of -99999)
-                elif (abs(float(row['lat']))>90) or (abs(convert_to_180_180(row['lon']))>180) or (float(row['alt'])<0) or (abs(float(row['mag']))==99999) or (abs(float(row['v_comp']))==99999) or (abs(float(row['e_comp']))==99999): continue
+                elif (abs(float(row['lat']))>90) or (abs(utl.convert_to_180_180(row['lon']))>180) or (float(row['alt'])<0) or (abs(float(row['mag']))==99999) or (abs(float(row['v_comp']))==99999) or (abs(float(row['e_comp']))==99999): continue
             except ValueError as e: continue #This implies a value which is not convertable to a float as all of these should be floats this datum must be skipped
 
             if prev_lat!=None and prev_lon!=None: #calculate distance
@@ -189,7 +189,7 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
 def find_track_cuts(tracks, chrons_info, results_directory, tolerance=1, min_angle=10,plot=False):
 
     track_cuts={}
-    check_dir(os.path.join(results_directory,"turning_points"))
+    utl.check_dir(os.path.join(results_directory,"turning_points"))
 
     for track in tracks:
 
@@ -206,7 +206,7 @@ def find_track_cuts(tracks, chrons_info, results_directory, tolerance=1, min_ang
         track_cuts[track]=[[syx,sxx] for sxx,syx in zip(sx[idx],sy[idx])] #save lon and lat of "significant" turns
 
         if plot:
-            plot_track_cuts(x,y,sx,sy,idx,chrons_info,track_name,results_directory)
+            pg.plot_track_cuts(x,y,sx,sy,idx,chrons_info,track_name,results_directory)
 
     return track_cuts
 
@@ -218,7 +218,7 @@ def seperate_chron_into_spreading_zones(chron_to_analyse):
     string = fchron.read()
     fchron.close()
     spreading_zones = string.split('>')
-    check_dir('spreading_zones')
+    utl.check_dir('spreading_zones')
     for i,spreading_zone in enumerate(spreading_zones):
         if spreading_zone == '': continue
         headerless_spreading_zone = spreading_zone.split('\n')[1:]
@@ -231,7 +231,7 @@ def seperate_chron_into_spreading_zones(chron_to_analyse):
     ccz,gcz = get_barckhausen_2013_chrons()
     if str(chron) in ccz.keys():
         i+=1
-        ccz_data = np.array([(convert_to_0_360(lonlat[0]),float(lonlat[1])) for lonlat in ccz[str(chron)]])
+        ccz_data = np.array([(utl.convert_to_0_360(lonlat[0]),float(lonlat[1])) for lonlat in ccz[str(chron)]])
         if len(ccz_data)>1:
             nlons = np.arange(min(ccz_data[:,0]),max(ccz_data[:,0]),.025)
             nlats = np.interp(nlons, ccz_data[:,0], ccz_data[:,1])
@@ -244,7 +244,7 @@ def seperate_chron_into_spreading_zones(chron_to_analyse):
             spreading_zone_files.append(fchron_out_path)
     if str(chron) in gcz.keys():
         i+=1
-        gcz_data = np.array([(convert_to_0_360(lonlat[0]),float(lonlat[1])) for lonlat in gcz[str(chron)]])
+        gcz_data = np.array([(utl.convert_to_0_360(lonlat[0]),float(lonlat[1])) for lonlat in gcz[str(chron)]])
         if len(gcz_data)>1:
             nlats = np.arange(min(gcz_data[:,1]),max(gcz_data[:,1]),.05)
             nlons = np.interp(nlats, gcz_data[:,1], gcz_data[:,0])
@@ -265,9 +265,9 @@ def get_track_intersects(chron_to_analyse, tracks_or_cuts, spreading_zone_files,
     intersecting_tracks,out_string = [],""
     for track in tqdm(tracks_or_cuts):
         print(track)
-        dft = open_mag_file(track)
+        dft = utl.open_mag_file(track)
         if dft.empty: continue
-        lt = [[convert_to_0_360(lon),float(lat)] for lon,lat in zip(dft['lon'],dft['lat'])]
+        lt = [[utl.convert_to_0_360(lon),float(lat)] for lon,lat in zip(dft['lon'],dft['lat'])]
         if not list(filter(bound_check_func,lt)): print("track out of bounds, skipping track"); continue
 
         for spreading_zone_file in spreading_zone_files:
@@ -283,7 +283,7 @@ def get_track_intersects(chron_to_analyse, tracks_or_cuts, spreading_zone_files,
                 break
 
     print("found %d intersecting tracks"%len(intersecting_tracks))
-    check_dir(data_directory)
+    utl.check_dir(data_directory)
     fout_name=os.path.join(data_directory,"usable_tracks_and_intersects_for_%s.txt"%str(chron_name))
     if os.path.isfile(fout_name): print("backing up %s to %s"%(fout_name,fout_name+'.bak')); shutil.copyfile(fout_name,fout_name+'.bak')
     fout = open(fout_name,'w+')
@@ -301,7 +301,7 @@ def seperate_data(data_directory, usable_tracks_path):
 
     aeromag_directory = os.path.join(data_directory,'aero')
     shipmag_directory = os.path.join(data_directory,'ship')
-    check_dir(data_directory);check_dir(aeromag_directory);check_dir(shipmag_directory)
+    utl.check_dir(data_directory);utl.check_dir(aeromag_directory);utl.check_dir(shipmag_directory)
     new_tracks,out_string = [],""
     for track,sz,inter in tracks_sz_and_inter:
         track_dir,track_file = os.path.split(track)
@@ -312,7 +312,7 @@ def seperate_data(data_directory, usable_tracks_path):
         else:
             print("couldn't identify if the data for track %s was ship or aeromag just sticking it in the data directory, this does rely on a specific directory structure being used which while bad works so if you want to mess with how this is done feel free."%track)
             new_track_dir = data_directory
-        check_dir(new_track_dir)
+        utl.check_dir(new_track_dir)
         new_track_file = os.path.join(new_track_dir, track_file)
         shutil.copyfile(track,new_track_file)
         out_string += "%s\t%s\t%s"%(new_track_file,sz,str(inter))
@@ -339,7 +339,7 @@ def cut_tracks_and_flip(track_cuts, data_directory, heading="east"):
 #        lines = [line.split() for line in lines]
 #        dfin = pd.DataFrame(lines,columns=["time","lat","lon","n_comp","s_comp","h_comp","v_comp","mag","dec","inc","None","alt"])
         lats=list(map(float,dfin['lat'].tolist()))
-        lons=list(map(convert_to_0_360,dfin['lon'].tolist()))
+        lons=list(map(utl.convert_to_0_360,dfin['lon'].tolist()))
         df_segments=[]
         for cut in cuts:
             try: cut_index = [[lon,lat] for lon,lat in zip(lons,lats)].index(list(cut))
@@ -352,9 +352,9 @@ def cut_tracks_and_flip(track_cuts, data_directory, heading="east"):
         for df_segment in df_segments:
             if len(df_segment)==0: continue
             if heading=='east':
-                flip_bool = (convert_to_0_360(df_segment['lon'].iloc[0])>convert_to_0_360(df_segment['lon'].iloc[-1])) #is heading easterly
+                flip_bool = (utl.convert_to_0_360(df_segment['lon'].iloc[0])>utl.convert_to_0_360(df_segment['lon'].iloc[-1])) #is heading easterly
             elif heading=='west':
-                flip_bool = (convert_to_0_360(df_segment['lon'].iloc[0])<convert_to_0_360(df_segment['lon'].iloc[-1])) #is heading westerly
+                flip_bool = (utl.convert_to_0_360(df_segment['lon'].iloc[0])<utl.convert_to_0_360(df_segment['lon'].iloc[-1])) #is heading westerly
             elif heading=='north':
                 flip_bool = (df_segment['lat'].iloc[0]>df_segment['lat'].iloc[-1]) #is heading northerly
             elif heading=='south':
@@ -366,7 +366,7 @@ def cut_tracks_and_flip(track_cuts, data_directory, heading="east"):
                 flipped_data.append(track.split('.')[0]+'.c%d'%i)
             if not os.path.isdir(os.path.join(directory,'c%d'%i)):
                 print("making directory %s"%os.path.join(directory,'c%d'%i))
-                check_dir(os.path.join(directory,'c%d'%i))
+                utl.check_dir(os.path.join(directory,'c%d'%i))
             segment_path = os.path.join(directory,'c%d'%i,path.split('.')[0] + '.c%d'%i)
             i+=1
             print("writing: %s"%segment_path)
@@ -386,9 +386,9 @@ def seperate_E_V(cut_tracks):
         e_dir = os.path.join(cut_track_dir,'E')
         v_dir = os.path.join(cut_track_dir,'V')
         if not os.path.isdir(e_dir):
-            check_dir(e_dir)
+            utl.check_dir(e_dir)
         if not os.path.isdir(v_dir):
-            check_dir(v_dir)
+            utl.check_dir(v_dir)
         e_mv_files = (cut_track_path+".E",cut_track_path+".Ed",cut_track_path+".Ed.lp",cut_track_path+".Ed.xyz")
         for e_mv_file in e_mv_files:
             shutil.copyfile(os.path.join(cut_track_dir,e_mv_file),os.path.join(e_dir,e_mv_file))
@@ -407,15 +407,15 @@ def generate_az_strike_files(track_sz_and_inters, chron_to_analyse, heading, res
 
         gcp_lon,gcp_lat = open(spreading_zone_file[:-3]+'gcp').readlines()[5].split()[0:2] #GMT has varriable ouutput to fitcircle so some of these files will have the N eigin value pole here and some the South this may need to be adapted
 
-        az = convert_to_0_360(Geodesic.WGS84.Inverse(float(idx[0][1][1]),float(idx[0][1][0]),float(gcp_lat),float(gcp_lon))['azi1'])
+        az = utl.convert_to_0_360(Geodesic.WGS84.Inverse(float(idx[0][1][1]),float(idx[0][1][0]),float(gcp_lat),float(gcp_lon))['azi1'])
 
         if heading=='east' and az>=180: az -= 180
         elif heading=='west' and az<=180: az += 180
-        elif heading=='north' and (az<=270 and az>=90): az = wrap_0_360(180+az)
-        elif heading=='south'and (az>=270 or az<=90): az = wrap_0_360(180+az)
+        elif heading=='north' and (az<=270 and az>=90): az = utl.wrap_0_360(180+az)
+        elif heading=='south'and (az>=270 or az<=90): az = utl.wrap_0_360(180+az)
         elif heading not in ['east','west','north','south']: print("heading is not a cardinal direction was given %s so az cannot be corrected proceeding with %.3f as azimuth of younging for track %s correct manually in *.azszs if this is incorrect"%(heading,float(az),str(track)))
 
-        strike = wrap_0_360(az + 90)
+        strike = utl.wrap_0_360(az + 90)
 
         print("track", os.path.basename(track))
         print("spreading zone", os.path.basename(spreading_zone_file))
@@ -434,7 +434,7 @@ def generate_az_strike_files(track_sz_and_inters, chron_to_analyse, heading, res
         #if os.path.isfile('.tmp_az.txt'): os.remove('.tmp_az.txt')
 
         if plot:
-            plot_az_strike(track,spreading_zone_file,idx,az,strike,chron_color,chron_name,results_directory,fout_name)
+            pg.plot_az_strike(track,spreading_zone_file,idx,az,strike,chron_color,chron_name,results_directory,fout_name)
 
     return tracks, az_files
 
@@ -445,7 +445,7 @@ def remove_failed_data(new_useful_tracks_file,data_directory,failed_data_dir="fa
     nfin.close()
     ncts = [nfin_line.split('\t')[0] for nfin_line in nfin_lines]
 
-    check_dir(failed_data_dir)
+    utl.check_dir(failed_data_dir)
 
     for d in [x[0] for x in os.walk(data_directory)]:
         if d == data_directory: continue

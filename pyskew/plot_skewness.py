@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import pmagpy.ipmag as ipmag
 import matplotlib.pyplot as plt
-plt.switch_backend('Agg')
+#plt.switch_backend('Agg')
 if 'darwin' in sys.platform:
     try:
         plt.switch_backend('QT5Agg')
@@ -172,7 +172,7 @@ def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1)
         else:
             m.plot(ub_asml_circ_points[:,0],ub_asml_circ_points[:,1],transform=ccrs.Geodetic(),linestyle='--',**kwargs)
             m.plot(lb_asml_circ_points[:,0],lb_asml_circ_points[:,1],transform=ccrs.Geodetic(),linestyle='--',**kwargs)
-            
+
     asml_circ_points = np.array(sml_circ_points)
     if "alpha" in kwargs.keys(): kwargs.pop("alpha")
     m.plot(asml_circ_points[:,0][:-1],asml_circ_points[:,1][:-1],transform=ccrs.Geodetic(), alpha=alpha_line, **kwargs)
@@ -409,7 +409,7 @@ def plot_chron_span_on_axes(sz_name, axes, anom_age_span,spreading_rate_path="..
     for axis in axes:
         axis.axvspan(-anom_width/2, anom_width/2, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
 
-def plot_synthetic(sz_name, anom_age_span, ax=plt.gca(),timescale_path="../raw_data/timescale_gradstein2012.txt",spreading_rate_path="../raw_data/spreading_rate_model.txt",age_min=40.0,age_max=100.0,layer_depth=4.5,layer_thickness=0.5,layer_mag=1000.,azi=90.,rd=0.,ri=90.,ad=0.,ai=90.,fix_sta=False,fix_end=False,twf=0.,length=4096,buff=.2,**kwargs):
+def plot_synthetic(sz_name, anom_age_span, ax=plt.gca(),timescale_path="../raw_data/timescale_gradstein2012.txt",spreading_rate_path="../raw_data/spreading_rate_model.txt",age_min=40.0,age_max=100.0,layer_depth=4.5,layer_thickness=0.5,layer_mag=1000.,azi=90.,rd=0.,ri=90.,ad=0.,ai=90.,fix_sta=False,fix_end=False,twf=0.,length=4096,buff=.2, xlims=[-500,500], clip_on=False, **kwargs):
     mag_syn,dis_syn,samp_dis = make_synthetic(age_min,age_max,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,timescale_path,sz_name=sz_name,spreading_rate_path=spreading_rate_path,length=length,buff=buff)
 
     #Center Synthetic
@@ -428,16 +428,16 @@ def plot_synthetic(sz_name, anom_age_span, ax=plt.gca(),timescale_path="../raw_d
 #    neg_anom = -(neg_anom_max - neg_anom_width) - center_dis
     dis_syn = np.array(dis_syn) - center_dis
 
-    if "clip_on" in kwargs.keys(): spc_clip = kwargs.pop("clip_on")
-    else: spc_clip = False
-
     zln = ax.plot(-dis_syn,np.zeros(len(dis_syn)),'k--')
     sln = ax.plot(-dis_syn,mag_syn,**kwargs) #reverse because I'm dumb and changed convention
 
-    if spc_clip:
-        clip_patch = Rectangle([0.,ax.transAxes.inverted().transform(ax.get_figure().transFigure.transform([0.,0.]))[1]],1.,ax.transAxes.inverted().transform(ax.get_figure().transFigure.transform([1.,1.]))[1],transform=ax.transAxes)
-        zln[0].set_clip_path(clip_patch)
-        sln[0].set_clip_path(clip_patch)
+    if not clip_on:
+        ax.set_xlim(xlims)
+        start_box = ax.transAxes.transform([0,0])[0]
+        end_box = ax.transAxes.transform([1,0])[0] - start_box
+        clip_patch = Rectangle([start_box,-1e7],end_box,1e9)
+        ax.lines[0].set_clip_path(clip_patch)
+        ax.lines[1].set_clip_path(clip_patch)
 
     return min(dis_syn),max(dis_syn)
 
@@ -467,7 +467,7 @@ def plot_scale_bars(ax,size_x=100,size_y=100,x_unit='km',y_unit='nT', scale_bar_
     ax.annotate('',xy=ybar_xy_figure_location, xycoords='figure fraction', xytext=(ybar_xytext_figure_location), textcoords='figure fraction', arrowprops=dict(arrowstyle='|-|'))
     ax.annotate('%d %s'%(size_y,y_unit),xy=ybar_xy_figure_location, xycoords='figure fraction', va='top', ha='center', fontsize=10)
 
-def plot_skewness_data(deskew_row, phase_shift, ax, **kwargs):
+def plot_skewness_data(deskew_row, phase_shift, ax, xlims=[-500,500], clip_on=False, **kwargs):
     data_file_path = os.path.join(deskew_row["data_dir"],deskew_row["comp_name"])
     data_df = pd.read_csv(data_file_path,names=["dist","dec_year","mag","lat","lon"],delim_whitespace=True)
 
@@ -475,18 +475,17 @@ def plot_skewness_data(deskew_row, phase_shift, ax, **kwargs):
 
     shifted_mag = phase_shift_data(data_df['mag'].tolist(),phase_shift)
 
-    if "clip_on" in kwargs.keys(): spc_clip = kwargs.pop("clip_on")
-    else: spc_clip = False
-
     proj_dist = projected_distances['dist'].tolist()
     zln = ax.plot(proj_dist,np.zeros(len(proj_dist)),'k--')
     sln = ax.plot(proj_dist,shifted_mag,**kwargs)
 
-    if spc_clip:
-#        kwargs["clip_on"] = True
-        clip_patch = Rectangle([0.,ax.transAxes.inverted().transform(ax.get_figure().transFigure.transform([0.,0.]))[1]],1.,ax.transAxes.inverted().transform(ax.get_figure().transFigure.transform([1.,1.]))[1],transform=ax.transAxes)
-        zln[0].set_clip_path(clip_patch)
-        sln[0].set_clip_path(clip_patch)
+    if not clip_on:
+        ax.set_xlim(xlims)
+        start_box = ax.transAxes.transform([0,0])[0]
+        end_box = ax.transAxes.transform([1,0])[0] - start_box
+        clip_patch = Rectangle([start_box,-1e7],end_box,1e9)
+        ax.lines[0].set_clip_path(clip_patch)
+        ax.lines[1].set_clip_path(clip_patch)
 
     return min(proj_dist), max(proj_dist)
 
@@ -495,7 +494,7 @@ def remove_axis_lines_and_ticks(ax):
     ax.set_xticks([])
     ax.set_yticks([])
 
-def plot_deskew_page(row,leave_plots_open=False):
+def plot_deskew_page(row, leave_plots_open=False, xlims=[-500,500], ylims=[-250,250], **kwargs):
 #    plt.rc('text', usetex=True)
 
     fig = plt.figure(figsize=(16, 9), facecolor='white')
@@ -507,8 +506,9 @@ def plot_deskew_page(row,leave_plots_open=False):
     ax0.yaxis.set_label_coords(1.07,.45)
     if row['track_type']=="aero": layer_depth = 12.5
     else: layer_depth = 4.5
-    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=layer_depth, color='k', linestyle='-')
-    ylim = ax0.get_ylim() #insure that all of the plots have the same zoom level in the y direction
+    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'], row[['age_min','age_max']], ax0, layer_depth=layer_depth, color='k', linestyle='-')
+    ax0.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
+    ax0.patch.set_alpha(0.0)
 
     for j,phase_shift in enumerate(np.arange(row['phase_shift']-3*row['step'],row['phase_shift']+4*row['step'],row['step'])):
         if j>6: break #stop over plotting synthetic which can happen due to floats being used for phase shifts
@@ -520,11 +520,13 @@ def plot_deskew_page(row,leave_plots_open=False):
         ax.set_ylabel(r"$\theta$=%.1f"%float(phase_shift),rotation=0,fontsize=14)
         ax.yaxis.set_label_coords(1.05,.45)
         min_proj_dis, max_proj_dis = plot_skewness_data(row,phase_shift,ax,color='k',linestyle='-',picker=leave_plots_open)
-#        ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
+        ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
+        ax.patch.set_alpha(0.0)
 
-    plot_chron_span_on_axes(row['sz_name'],fig.get_axes(),rows[['age_min','age_max']].iloc[0])
+    plot_chron_span_on_axes(row['sz_name'],fig.get_axes(),row[['age_min','age_max']])
 
-    ax0.set_xlim(max(min_proj_dis,min_syn_dis,-1000),min(max_proj_dis,max_syn_dis,1000))
+#    ax0.set_xlim(max(min_proj_dis,min_syn_dis,-1000),min(max_proj_dis,max_syn_dis,1000))
+    ax0.set_xlim(xlims)
     fig.subplots_adjust(hspace=.0) #remove space between subplot axes
     fig.suptitle("%s - PhaseShift=%.1f - Step=%d"%(row['comp_name'],float(row['phase_shift']),int(row['step'])),fontsize=16)
     plot_scale_bars(ax)
@@ -533,16 +535,16 @@ def plot_deskew_page(row,leave_plots_open=False):
 
     save_show_plots(fig,out_file,leave_plots_open=leave_plots_open,msg="saving deskew file for %s to %s"%(row['comp_name'],out_file))
 
-def plot_pole_perturbations(deskew_path,ellipse_path,dis=5,spreading_rate_model_path=None, anomalous_skewness_model_path=None, xlims=[-500,500], ylims=[-200,200], leave_plots_open=False):
+def plot_pole_perturbations(deskew_path,ellipse_path,**kwargs):
 
     deskew_df = filter_deskew_and_calc_aei(deskew_path)
     elipse_file = open(ellipse_path,"r")
     lon,lat,az,a,b = list(map(float,elipse_file.read().split()))
 
     for i,row in deskew_df.iterrows():
-        run_in_parallel(plot_trial_pole_reduction_page,args=[row,lon,lat],kwargs={'dis':dis, 'spreading_rate_model_path':spreading_rate_model_path, 'anomalous_skewness_model_path':anomalous_skewness_model_path, 'xlims':xlims, 'ylims':ylims, 'leave_plots_open':leave_plots_open})
+        run_in_parallel(plot_trial_pole_reduction_page,args=[row,lon,lat],kwargs=kwargs)
 
-def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate_model_path=None, anomalous_skewness_model_path=None, xlims=[-500,500], ylims=[-200,200], leave_plots_open=False):
+def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate_model_path=None, anomalous_skewness_model_path=None, xlims=[-500,500], ylims=[-200,200], leave_plots_open=False, **kwargs):
 
     fig = plt.figure(figsize=(16, 9), facecolor='white')
 
@@ -553,8 +555,9 @@ def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate
     ax0.yaxis.set_label_coords(1.07,.45)
     if row['track_type']=="aero": layer_depth = 12.5
     else: layer_depth = 4.5
-    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'], row[['age_min','age_max']].iloc[0], ax0, layer_depth=layer_depth, color='k', linestyle='-')
-    ylim = ax0.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
+    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'], row[['age_min','age_max']], ax0, layer_depth=layer_depth, color='k', linestyle='-')
+    ax0.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
+    ax0.patch.set_alpha(0.0)
 
     asf,srf,sz_list = get_asf_srf(spreading_rate_model_path,anomalous_skewness_model_path)
     azi = Geodesic.WGS84.Inverse(row['inter_lat'],row['inter_lon'],pole_lat,pole_lon)['azi1']
@@ -589,11 +592,13 @@ def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate
 
         ax.set_ylabel(r"$\theta$=%.1f"%float(phase_shift),rotation=0,fontsize=14)
         ax.yaxis.set_label_coords(1.05,.45)
-        ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
+        ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
+        ax.patch.set_alpha(0.0)
+
 
         min_proj_dis, max_proj_dis = plot_skewness_data(row,phase_shift,ax,color='k',linestyle='-',picker=leave_plots_open)
 
-    plot_chron_span_on_axes(row['sz_name'],fig.get_axes(),rows[['age_min','age_max']].iloc[0])
+    plot_chron_span_on_axes(row['sz_name'],fig.get_axes(),row[['age_min','age_max']])
 
     ax0.set_xlim(xlims)
     fig.subplots_adjust(hspace=.0) #remove space between subplot axes
@@ -614,14 +619,15 @@ def save_show_plots(fig,out_file,leave_plots_open=True,msg=None):
         fig.savefig(out_file)
         plt.close(fig)
 
-def plot_skewnesses(deskew_path,leave_plots_open=False):
+def plot_skewnesses(deskew_path,**kwargs):
     deskew_df = open_deskew_file(deskew_path)
 
-    check_dir(os.path.join(row['results_dir'],'deskew_plots'))
+    check_dir(os.path.join(deskew_df.iloc[0]['results_dir'],'deskew_plots'))
 
     for i,row in deskew_df.iterrows():
         print("starting process for %s"%row['comp_name'])
-        run_in_parallel(plot_deskew_page,args=[row],kwargs={'leave_plots_open':leave_plots_open})
+        run_in_parallel(plot_deskew_page,args=[row],kwargs=kwargs)
+#        plot_deskew_page(row,**kwargs)
 
 def plot_ridge_loc(deskew_row,ridge_loc_func,ax,**kwargs):
     data_file_path = os.path.join(deskew_row["data_dir"],deskew_row["comp_name"])
@@ -650,15 +656,9 @@ def plot_fz_loc(deskew_row,fz_loc_path,ax,**kwargs):
         fz_dis = (fzi_dict['s12']*np.sin(np.deg2rad(float(deskew_row['strike'])-fzi_dict['azi2'])))/1000
         ax.axvline(fz_dis,**kwargs)
 
-def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,ridge_loc_func=None,fz_loc_path=None, **kwargs):
+def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,ridge_loc_func=None,fz_loc_path=None, xlims=[-500,500], ylims=[-250,250], clip_on = False, **kwargs):
 #    plt.rc('text', usetex=True)
 #    plt.rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
-    if "xlims" in kwargs.keys(): xlim = kwargs.pop("xlims")
-    else: xlim = [-500,500]
-    if "ylims" in kwargs.keys(): ylim = kwargs.pop("ylims")
-    else: ylim = [-250,250]
-    if "clip_on" in kwargs.keys(): clip_on = kwargs.pop("clip_on")
-    else: clip_on = False
 
     fig = plt.figure(figsize=(12, 9), facecolor='white')
 
@@ -667,18 +667,19 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     ax0.set_ylabel(r"synthetic (%s)"%'ship',rotation=0,fontsize=10)
     ax0.yaxis.set_label_coords(-.075,.45)
     ax0.format_coord = format_coord
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', clip_on=clip_on)
-    ylim = ax0.set_ylim(ylim) #MODIFY THIS TO CHANGE Y AXIS
+    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims)
+#    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims)
+    ax0.set_ylim(ylims) #MODIFY THIS TO CHANGE Y AXIS
+    ax0.patch.set_alpha(0.0)
 #    ylim = ax0.get_ylim()
 
-    for j,iterrow in enumerate(rows.iterrows()):
-        i,row = iterrow
+    for j,(i,row) in enumerate(rows.iterrows()):
         ax = fig.add_subplot(8,1,j+2, sharex=ax0)
         ax.set_anchor('W')
 
         remove_axis_lines_and_ticks(ax)
 
-        min_proj_dis, max_proj_dis = plot_skewness_data(row,float(row['phase_shift']),ax,color='k',linestyle='-',picker=True, clip_on=clip_on)
+        min_proj_dis, max_proj_dis = plot_skewness_data(row,float(row['phase_shift']),ax,color='k',linestyle='-',picker=True, clip_on=clip_on, xlims=xlims)
 
         if ridge_loc_func!=None:
             plot_ridge_loc(row,ridge_loc_func,ax,color='r',linestyle='-',alpha=1)
@@ -688,7 +689,20 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
         ax.annotate(r"%s"%row['comp_name']+"\n"+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(row['inter_lat']),convert_to_0_360(row['inter_lon'])),xy=(-.15,.45),xycoords="axes fraction",fontsize=10)
         ax.set_ylabel(r"$\theta$=%.1f"%float(row['phase_shift'])+"\n"+r"$e_a$=%.1f"%float(row['aei']),rotation=0,fontsize=10)
         ax.yaxis.set_label_coords(1.05,.45)
-        ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
+        ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
+        ax.patch.set_alpha(0.0)
+        ax.format_coord = format_coord
+#        for l in ax.lines:
+#            import pdb; pdb.set_trace()
+#            print(ax.transData.inverted().transform(l.get_clip_path().get_xy()),ax.transData.inverted().transform([l.get_clip_path().get_width(),l.get_clip_path().get_height()]))
+#        print("----")
+
+    for j in range(j+1,6):
+        ax = fig.add_subplot(8,1,j+2, sharex=ax0)
+        ax.set_anchor('W')
+        remove_axis_lines_and_ticks(ax)
+        ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
+        ax.patch.set_alpha(0.0)
         ax.format_coord = format_coord
 
     ax = fig.add_subplot(8,1,8, sharex=ax0)
@@ -696,13 +710,14 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     remove_axis_lines_and_ticks(ax)
     ax.set_ylabel(r"synthetic (%s)"%'aero',rotation=0,fontsize=10)
     ax.yaxis.set_label_coords(-.075,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on)
-    ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
+    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims)
+    ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
+    ax.patch.set_alpha(0.0)
     ax.format_coord = format_coord
 
     plot_chron_span_on_axes(rows['sz_name'].iloc[0],fig.get_axes(),rows[['age_min','age_max']].iloc[0])
 
-    ax0.set_xlim(xlim)
+    ax0.set_xlim(xlims)
     fig.subplots_adjust(hspace=.0) #remove space between subplot axes
     if rows.groupby(level=0).agg(lambda x: len(set(x)) == 1)['sz_name'].iloc[0]:
         title = "%s : %.1f$^\circ$N to %.1f$^\circ$N"%(rows['sz_name'].iloc[0],float(rows['inter_lat'].iloc[0]),float(rows['inter_lat'].iloc[-1]))
@@ -724,7 +739,8 @@ def plot_best_skewnesses(deskew_df, best_skews_subdir="best_skews", **kwargs):
     num_profiles_per_page = 6
     prev_i,page_num = 0,0
     for i in list(range(num_profiles_per_page,len(deskew_df.index),num_profiles_per_page))+[-1]:
-        rows = deskew_df.iloc[prev_i:i]
+        if i==-1: rows = deskew_df.iloc[prev_i:]
+        else: rows = deskew_df.iloc[prev_i:i]
         run_in_parallel(plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs=kwargs)
 #        plot_best_skewness_page(rows,results_dir,page_num,**kwargs)
         prev_i,page_num = i,page_num+1
@@ -953,7 +969,6 @@ def plot_spreading_rate_results(sr_path, xlims=[-500,500], ylims=[-200,200], med
 
     i = 0
     for mean_median,std,age,n in zip(sr_df[median_or_mean].tolist(),sr_df['std'].tolist(),nested_ages,sr_df['n'].tolist()):
-        #import pdb; pdb.set_trace()
         anom = sr_df.index.where(sr_df['std'] == std)[i]
         ax.add_patch(Rectangle((age[0], mean_median - (2.0*std)/np.sqrt(n)), age[1]-age[0],  (4.0*std)/np.sqrt(n),color='grey',alpha=.5,zorder=0,linewidth=0))
         ax.annotate('%s'%anom,xy=(sum(age)/len(age),mean_median + (2.0*std)/np.sqrt(n)),va='bottom',ha='center',fontsize=8)

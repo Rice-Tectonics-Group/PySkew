@@ -1,6 +1,7 @@
 import os,sys
 import pandas as pd
 import numpy as np
+from scipy import odr
 from scipy.linalg import invpascal
 import scipy.stats as stats
 from datetime import datetime
@@ -35,8 +36,8 @@ def wrap_180_180(x):
 def wrap_90_90(x):
     try: x = float(x)
     except ValueError: raise ValueError("could not coerce input %s into type float for calculation"%str(x))
-    if x>90: return x-180
-    elif x<-90: return 180+x
+    if x>90: return 90-x%90
+    elif x<-90: return -90-(x%-90)
     else: return x
 
 def wrap_0_360(x):
@@ -282,7 +283,6 @@ def polyenv(pols,x,yerr,xerr=None,center=None):
     return polyerr(new_pols,new_sds,x-center,xerr=xerr)
 
 def odrfit(x,y,sx,sy,func,start_vector):
-    from scipy import odr
     model = odr.Model(func)
     data = odr.RealData(x,y,sx=sx,sy=sy)
     odr = odr.ODR(data,model,beta0=start_vector)

@@ -8,8 +8,6 @@
 
 # ***** Import Statements *****
 #--------------------------------------------
-#import interpies
-
 import os,glob
 import pandas as pd
 import cartopy.feature as cfeature
@@ -18,7 +16,7 @@ from geographiclib.geodesic import Geodesic
 import rasterio
 from rasterio.enums import Resampling
 import pyproj
-import pyskew.utilities as util
+import pyskew.utilities as utl
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -39,7 +37,7 @@ def get_sandwell(window,down_sample_factor,sandwell_files_path="../raw_data/grav
         if "S" in yfile: ylat = -ylat
         if "W" in yfile: ylon = 360-ylon
 
-        if xlat-ylat==0: return (ylon-window[1])%360 - (xlon-window[1])%360
+        if xlat-ylat==0: return (utl.convert_to_0_360(ylon)-utl.convert_to_0_360(window[1]))%360 - (utl.convert_to_0_360(xlon)-utl.convert_to_0_360(window[1]))%360
 #            if (ylon-window[1])==0: return -1
 #            elif (xlon-window[1])==0: return 1
 #            else: return (ylon-window[1])%360 - (xlon-window[1])%360
@@ -50,16 +48,16 @@ def get_sandwell(window,down_sample_factor,sandwell_files_path="../raw_data/grav
         with rasterio.open(filepath) as dataset:
             lats = np.arange(dataset.bounds[3],dataset.bounds[1],-dataset.res[1]*down_sample_factor)
             lons = np.arange(dataset.bounds[0],dataset.bounds[2],dataset.res[0]*down_sample_factor)
-            if round(window[0],3)>round(dataset.bounds[0],3): lon_lb = int((window[0]-dataset.bounds[0])/(dataset.res[0]*down_sample_factor) + .5)
+            if utl.convert_to_0_360(round(window[0],3))>utl.convert_to_0_360(round(dataset.bounds[0],3)): lon_lb = int((utl.convert_to_0_360(window[0])-utl.convert_to_0_360(dataset.bounds[0]))/(dataset.res[0]*down_sample_factor) + .5)
             else: lon_lb = 0
-            if round(window[1],3)<round(dataset.bounds[2],3): lon_ub = int((window[1]-dataset.bounds[2])/(dataset.res[0]*down_sample_factor) + .5)
+            if utl.convert_to_0_360(round(window[1],3))<utl.convert_to_0_360(round(dataset.bounds[2],3)): lon_ub = int((utl.convert_to_0_360(window[1])-utl.convert_to_0_360(dataset.bounds[2]))/(dataset.res[0]*down_sample_factor) + .5)
             else: lon_ub = -1
             if round(window[2],3)>round(dataset.bounds[1],3): lat_lb = int((window[2]-dataset.bounds[1])/(dataset.res[1]*down_sample_factor) + .5)
             else: lat_lb = 0
             if round(window[3],3)<round(dataset.bounds[3],3): lat_ub = int((window[3]-dataset.bounds[3])/(dataset.res[1]*down_sample_factor) + .5)
             else: lat_ub = -1
             lats = lats[-(lat_ub):-lat_lb-1]
-            lons = lons[lon_lb:lon_ub]
+            lons = lons[abs(lon_lb):lon_ub-1]
             if len(lons)==0 or len(lats)==0: continue
             print("Loading: %s"%str(filepath))
             grav = dataset.read(1,
@@ -69,7 +67,7 @@ def get_sandwell(window,down_sample_factor,sandwell_files_path="../raw_data/grav
     #            resampling=Resampling.nearest
                 resampling=resample_method
             )
-            grav = grav[-(lat_ub):-lat_lb-1,lon_lb:lon_ub]
+            grav = grav[-(lat_ub):-lat_lb-1,abs(lon_lb):lon_ub-1]
 
         if len(lats)>grav.shape[0]: lats = lats[:grav.shape[0]]
         if len(lons)>grav.shape[1]: lons = lons[:grav.shape[1]]
@@ -108,7 +106,7 @@ def get_sandwell(window,down_sample_factor,sandwell_files_path="../raw_data/grav
             all_grav = np.vstack([all_grav,next_grav])
     except (UnboundLocalError,IndexError) as err: return [],[],[]
 
-    return all_lons,all_lats,all_grav
+    return all_lons,all_lats,np.array(all_grav)
 
 def plot_deskew_on_grav(*args,**kwargs):
     pass

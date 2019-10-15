@@ -6,30 +6,30 @@ import numpy as np
 import statistics as stat
 import pmagpy.ipmag as ipmag
 from geographiclib.geodesic import Geodesic
-from pyskew.geographic_preprocessing import *
-from pyskew.utilities import *
+import pyskew.geographic_preprocessing as pg
+import pyskew.utilities as utl
 
 def filter_deskew_and_calc_aei(deskew_path,spreading_rate_path=None,anomalous_skewness_model_path=None):
     """Creates Datatable"""
 
-    deskew_df = open_deskew_file(deskew_path)
+    deskew_df = utl.open_deskew_file(deskew_path)
     asf,srf,sz_list = get_asf_srf(spreading_rate_path,anomalous_skewness_model_path)
 
     return calc_aei(deskew_df,srf,asf)
 
 def calc_aei(deskew_df,srf,asf):
 
-    deskew_df["ei"] = [(90 if ".Vd." in comp else 0) for ps,comp in zip(deskew_df["phase_shift"],deskew_df["comp_name"])]
+    deskew_df["ei"] = [(90. if ".Vd." in comp else 0.) for ps,comp in zip(deskew_df["phase_shift"],deskew_df["comp_name"])]
 
-    deskew_df["aei"] = [wrap_90_90(wrap_180_180(180 - wrap_180_180(row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)))) for i,row in deskew_df.iterrows()]
+    deskew_df["aei"] = [utl.wrap_180_180(180. - utl.wrap_180_180(row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))) for i,row in deskew_df.iterrows()]
 
     for i,row in deskew_df[deskew_df['track_type']=='ship'].iterrows():
         decimal_year = get_shipmag_decimal_year(row)
         if decimal_year==None: print("Intersection point could not be found in data file so IGRF could not be calculated and aei could not be found please check your data, skipping %s"%row['comp_name']); continue
         igrf = ipmag.igrf([decimal_year,0,float(row['inter_lat']),float(row['inter_lon'])])
         alpha = float(row['strike']) - igrf[0]
-        e = np.degrees(np.arctan2(np.tan(np.deg2rad(igrf[1])),np.sin(np.deg2rad(alpha))))
-        aei = wrap_90_90(wrap_180_180(180 - e - wrap_180_180(float(row['phase_shift'])) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))))
+        e = np.rad2deg(np.arctan2(np.tan(np.deg2rad(igrf[1])),np.sin(np.deg2rad(alpha))))
+        aei = utl.wrap_180_180(180 - e - float(row['phase_shift']) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)))
         deskew_df.set_value(i,'ei',e)
         deskew_df.set_value(i,'aei',aei)
 
@@ -38,14 +38,14 @@ def calc_aei(deskew_df,srf,asf):
 def row_calc_aei(row,srf,asf):
     if row["track_type"] == "aero":
         row["ei"] = 90 if ".Vd." in row["comp_name"] else 0
-        row["aei"] = wrap_90_90(wrap_180_180(180 - wrap_180_180(row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))))
+        row["aei"] = utl.wrap_180_180(180 - utl.wrap_180_180(row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)))
     else:
         decimal_year = get_shipmag_decimal_year(row)
         if decimal_year==None: raise ValueError("Intersection point could not be found in data file so IGRF could not be calculated and aei could not be found please check your data, skipping %s"%row['comp_name'])
         igrf = ipmag.igrf([decimal_year,0,float(row['inter_lat']),float(row['inter_lon'])])
         alpha = float(row['strike']) - igrf[0]
-        e = np.degrees(np.arctan2(np.tan(np.deg2rad(igrf[1])),np.sin(np.deg2rad(alpha))))
-        aei = wrap_90_90(wrap_180_180(180 - e - wrap_180_180(float(row['phase_shift'])) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))))
+        e = np.rad2deg(np.arctan2(np.tan(np.deg2rad(igrf[1])),np.sin(np.deg2rad(alpha))))
+        aei = utl.wrap_180_180(180 - e - float(row['phase_shift']) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)))
         row['ei'] = e
         row['aei'] = aei
     return row
@@ -106,7 +106,7 @@ def correct_site(site_cor_path,deskew_path,dist_e=.5):
         shutil.copyfile(deskew_path,deskew_path+'.ccbak')
 
     #read in the deskew and site_cor file
-    deskew_df = open_deskew_file(deskew_path)
+    deskew_df = utl.open_deskew_file(deskew_path)
     site_cor_df = pd.read_csv(site_cor_path,sep="\t")
 
     #copy the deskew df so I can change it and save the corrected latitudes and longitudes
@@ -146,13 +146,13 @@ def get_lon_lat_from_plot_pick(deskew_row,plot_pick,dist_e=.01):
     data_file_path = os.path.join(drow["data_dir"],drow["comp_name"])
     data_df = pd.read_csv(data_file_path,names=["dist","idk","mag","lat","lon"],delim_whitespace=True)
 
-    projected_distances = calc_projected_distance(drow['inter_lon'],drow['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),drow['strike'])
+    projected_distances = utl.calc_projected_distance(drow['inter_lon'],drow['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),drow['strike'])
 
     found_dist=False
     for j,row in projected_distances.iterrows():
         if row['dist']>=correction-dist_e and row['dist']<=correction+dist_e:
             picked_lat = round(row['lat'],3) #change lat for the new deskew file
-            picked_lon = round(convert_to_0_360(row['lon']),3) #change lon for the new deskew file
+            picked_lon = round(utl.convert_to_0_360(row['lon']),3) #change lon for the new deskew file
             picked_distance = row['dist']
             found_dist=True
             break
@@ -165,7 +165,7 @@ def get_lon_lat_from_plot_pick(deskew_row,plot_pick,dist_e=.01):
     return picked_lon,picked_lat,picked_distance
 
 def create_maxtab_file(deskew_path,anomoly_name,outfile=None):
-    deskew_df = open_deskew_file(deskew_path)
+    deskew_df = utl.open_deskew_file(deskew_path)
     dates_data = pd.read_csv("../raw_data/dates.aeromag",sep='\t',header=0,index_col=0)
     out_str = ""
     for i,row in deskew_df.iterrows():
@@ -173,7 +173,7 @@ def create_maxtab_file(deskew_path,anomoly_name,outfile=None):
         track_name = row['comp_name'].split('.')[0]
         if row['track_type']=='ship': date = "%.2f"%get_shipmag_decimal_year(row)
         else: date = "%.2f"%float(dates_data.loc[track_name]["decimal_year"])
-        phase_shift = "%.2f"%convert_to_0_360(float(row['phase_shift']))
+        phase_shift = "%.2f"%utl.convert_to_0_360(float(row['phase_shift']))
         out_str += ' '*(17-len(row['comp_name']))+ row['comp_name'] + ' '
         out_str += 'V' if 'Vd' in row['comp_name'] else 'E'
         out_str += ' '*(6-len(anomoly_name)) + str(anomoly_name)
@@ -205,118 +205,6 @@ def create_max_file(deskew_df,srf,asf,outfile="deskew.max"):
         #Write Fake Remanent Amp Factor to prevent singularity in old Max
         fout.write("Fake Amplitude\n")
         fout.write("1.0,0.1,0.0,180.0,90.0")
-
-def generate_synth(ship_or_aero,age_min,age_max,spreading_rate_path,age_path=None,synth_age_lb=-83.64,synth_age_ub=83.64):
-    if ship_or_aero=='aero':
-        synth_age_path = os.path.join('..','raw_data','synout_aero')
-    elif ship_or_aero=='ship':
-        synth_age_path = os.path.join('..','raw_data','synout_ship')
-    elif os.path.isfile(ship_or_aero):
-        synth_age_path = ship_or_aero; ship_or_aero = 'ship' #default calls it a ship synthetic
-    else: print("generate synth wasn't told which synthetic to generate ship or aero default or path to raw data file, was given %s instead"%str(ship_or_aero)); return
-
-    synth_age = np.loadtxt(synth_age_path)
-    NDIM = len(synth_age) #use buffer calculation from synthanom
-    ilb = int(((NDIM-1)*(.15/1.3)) + 1) - 1 #minus 1 because python indexes from 0 unlike fortran :p
-    iub = int((NDIM-1)*(1.15/1.3) + 0.5) - 1
-    index_syn=synth_age[ilb:iub,0]
-    mag_syn=synth_age[ilb:iub,1]*1e5 #converting from Gauss to nT (idk why, CGS master race!!!!)
-
-    age_syn=((synth_age_lb-synth_age_ub)/(iub-ilb))*(index_syn-(ilb+1))+synth_age_ub
-
-    spreading_rate_func,sz_list = generate_spreading_rate_model(spreading_rate_path)
-
-    for sz in sz_list:
-        print("generating %smag synthetic for spreading zone %s"%(ship_or_aero,sz))
-        sz_spreading_rate_func = lambda age: spreading_rate_func(sz,age)
-        dis_syn=np.zeros(len(age_syn))
-        for num in range(1,len(age_syn)):
-            dis_syn[num]=dis_syn[num-1]+(age_syn[num-1]-age_syn[num])*sz_spreading_rate_func(age_syn[num])
-
-        step=-.0001
-
-        sr_max_range = np.array(list(map(sz_spreading_rate_func,np.arange(max(age_syn),age_max+step,step))))
-        dis_max = sum(abs(step)*sr_max_range)
-
-        sr_min_range = np.array(list(map(sz_spreading_rate_func,np.arange(age_max,age_min+step,step))))
-        dis_min = dis_max+sum(abs(step)*sr_min_range)
-
-        center_dis=(dis_min+dis_max)/2
-        dis_min=dis_min-center_dis
-        dis_max=dis_max-center_dis
-        dis_syn=dis_syn-center_dis
-        dis_span=np.array([dis_min,dis_max])
-
-        check_dir(os.path.join('..','raw_data','SynthData'))
-        np.savetxt(os.path.join('..','raw_data','SynthData','dis_syn_%s_%s.txt'%(sz,ship_or_aero)),dis_syn,delimiter=',')
-        np.savetxt(os.path.join('..','raw_data','SynthData','mag_syn_%s_%s.txt'%(sz,ship_or_aero)),mag_syn,delimiter=',')
-        np.savetxt(os.path.join('..','raw_data','SynthData','dis_span_%s.txt'%sz),dis_span,delimiter=',')
-
-        if age_path==None: age_path=os.path.join('..','raw_data','timescale_gradstein2012.txt')
-        if os.path.isfile(age_path):
-            ages_df = pd.read_csv(age_path,sep='\t',header=0,index_col=0)
-
-            step = .0001
-            prev_anom = ages_df.index[0]
-            ages_df.set_value(ages_df.index[0],'age_span',ages_df['base'][prev_anom])
-            ages_df.set_value(ages_df.index[0],'dist',0)
-            for anom,age in ages_df['base'].iloc[1:].iteritems():
-                age_span = age-ages_df['base'][prev_anom]
-                ages_df.set_value(anom,'age_span',age_span)
-                age_span_array = np.arange(ages_df['base'][prev_anom],age+step,step)
-                sr_array = np.array(list(map(sz_spreading_rate_func,age_span_array)))
-                dist = ages_df['dist'][prev_anom]+sum(abs(step)*sr_array)
-                ages_df.set_value(anom,'dist',dist)
-                prev_anom = anom
-
-#        prev_anom = ages_df.index[0]
-#        ages_df.set_value(ages_df.index[0],'age_span',ages_df['base'][prev_anom])
-#        for anom,age in ages_df['base'].iloc[1:].iteritems():
-#            age_span = age-ages_df['base'][prev_anom]
-#            ages_df.set_value(anom,'age_span',age_span)
-#            prev_anom = anom
-
-#        prev_anom = ages_df.index[-1]
-#        ages_df.set_value(ages_df.index[-1],'dist',0)
-#        for anom,age_span in ages_df['age_span'].iloc[-2::-1].iteritems():
-#            dist = ages_df['dist'][prev_anom]+ages_df['age_span'][prev_anom]*spreading_rate_func(ages_df['base'][prev_anom])
-#            ages_df.set_value(anom,'dist',dist)
-#            prev_anom = anom
-
-        [ages_df.set_value(anom,'dist',(max(ages_df['dist'].tolist())-dist)-center_dis) for anom,dist in ages_df['dist'].iteritems()]
-
-        ages_df['dist'].to_csv(os.path.join('..','raw_data','SynthData','anom_spans_%s.txt'%sz),sep=',')
-
-def check_generate_synth(sz_to_check,age_min,age_max,ship_or_aero="both",matlab=False,spreading_rate_path=None,synth_data_location='.'):
-
-    if ship_or_aero!="aero" and ship_or_aero!="both" and ship_or_aero!="ship":
-        raise ValueError("synthetic type must be either both, aero, or ship, but was given %s please check your inputs"%str(ship_or_aero))
-
-    if ship_or_aero=="aero" or ship_or_aero=="both":
-
-        if not os.path.isfile(os.path.join(synth_data_location,os.path.join('..','raw_data','SynthData','dis_span_%s.txt'%sz_to_check))) or \
-           not os.path.isfile(os.path.join(synth_data_location,os.path.join('..','raw_data','SynthData','dis_syn_%s_aero.txt'%sz_to_check))) or \
-           not os.path.isfile(os.path.join(synth_data_location,os.path.join('..','raw_data','SynthData','mag_syn_%s_aero.txt'%sz_to_check))):
-            if spreading_rate_path==None:
-                if os.path.isfile(os.path.join('..','raw_data','spreading_rate_model.txt')):
-                    spreading_rate_path = os.path.join('..','raw_data','spreading_rate_model.txt')
-                else:
-                    spreading_rate_path = input("couldn't find spreading rate model file, please provide a path here: ")
-            generate_synth('aero',float(age_min),float(age_max),spreading_rate_path)
-        else: print("Synthetic files found skipping synthetic generation to save time, please move/remove these files if you would like to force this script to regenerate the synthetic")
-
-    if ship_or_aero=="ship" or ship_or_aero=="both":
-
-        if not os.path.isfile(os.path.join(synth_data_location,os.path.join('..','raw_data','SynthData','dis_span_%s.txt'%sz_to_check))) or \
-           not os.path.isfile(os.path.join(synth_data_location,os.path.join('..','raw_data','SynthData','dis_syn_%s_ship.txt'%sz_to_check))) or \
-           not os.path.isfile(os.path.join(synth_data_location,os.path.join('..','raw_data','SynthData','mag_syn_%s_ship.txt'%sz_to_check))):
-            if spreading_rate_path==None:
-                if os.path.isfile(os.path.join('..','raw_data','spreading_rate_model.txt')):
-                    spreading_rate_path = os.path.join('..','raw_data','spreading_rate_model.txt')
-                else:
-                    spreading_rate_path = input("couldn't find spreading rate model file, please provide a path here: ")
-            generate_synth('ship',float(age_min),float(age_max),spreading_rate_path)
-        else: print("Synthetic files found skipping synthetic generation to save time, please move/remove these files if you would like to force this script to regenerate the synthetic")
 
 def generate_spreading_rate_model(spreading_rate_path):
     sr_file = open(spreading_rate_path,'r')
@@ -350,7 +238,8 @@ def generate_anomalous_skewness_model(anomalous_skewness_path):
                 m = (as_val-as_lists[i-1][1])/(ub_sr-as_lists[i-1][0])
                 b = as_val - m*ub_sr
                 return m*sr+b
-        print("spreading rate %.3f could not be found in the anomalous skewness model"%float(sr))
+        return as_val
+#        print("spreading rate %.3f could not be found in the anomalous skewness model"%float(sr))
 
     return anomalous_skewness_model
 
@@ -367,8 +256,8 @@ def get_shipmag_decimal_year(row,deg_e=.01):
     for j,datarow in data_df.iterrows(): #iterate to find the distance associated with the current lat lon
         if (float(datarow['lat'])>=float(row['inter_lat'])-deg_e and \
           float(datarow['lat'])<=float(row['inter_lat'])+deg_e) and \
-          (convert_to_0_360(datarow['lon'])>=convert_to_0_360(row['inter_lon'])-deg_e and \
-          convert_to_0_360(datarow['lon'])<=convert_to_0_360(row['inter_lon'])+deg_e):
+          (utl.convert_to_0_360(datarow['lon'])>=utl.convert_to_0_360(row['inter_lon'])-deg_e and \
+          utl.convert_to_0_360(datarow['lon'])<=utl.convert_to_0_360(row['inter_lon'])+deg_e):
             decimal_year=float(datarow['decimal_year']); break
     return decimal_year
 
@@ -383,12 +272,12 @@ def new_get_shipmag_decimal_year(row,deg_e=.01):
     data_df = pd.read_csv(data_file_path,names=["dist","decimal_year","mag","lat","lon"],delim_whitespace=True)
     decimal_year,sum_sq=None,1e9
     for j,datarow in data_df.iterrows(): #iterate to find the distance associated with the current lat lon
-        next_sum_sq = (float(row['inter_lat'])-float(datarow['lat']))**2 + (convert_to_0_360(row['inter_lon'])-convert_to_0_360(datarow['lon']))**2
+        next_sum_sq = (float(row['inter_lat'])-float(datarow['lat']))**2 + (utl.convert_to_0_360(row['inter_lon'])-utl.convert_to_0_360(datarow['lon']))**2
         if sum_sq<next_sum_sq: break
         elif (float(datarow['lat'])>=float(row['inter_lat'])-deg_e and \
           float(datarow['lat'])<=float(row['inter_lat'])+deg_e) and \
-          (convert_to_0_360(datarow['lon'])>=convert_to_0_360(row['inter_lon'])-deg_e and \
-          convert_to_0_360(datarow['lon'])<=convert_to_0_360(row['inter_lon'])+deg_e):
+          (utl.convert_to_0_360(datarow['lon'])>=utl.convert_to_0_360(row['inter_lon'])-deg_e and \
+          utl.convert_to_0_360(datarow['lon'])<=utl.convert_to_0_360(row['inter_lon'])+deg_e):
             sum_sq = next_sum_sq
             decimal_year=float(datarow['decimal_year'])
     return decimal_year
@@ -408,7 +297,7 @@ def reduce_to_pole(deskew_path, pole_lon, pole_lat, spreading_rate_path=None, an
 
     old_results_dir = deskew_df['results_dir'].iloc[0]
     new_results_dir = os.path.join(old_results_dir,"pole_%.0f_%.0f_results"%(pole_lon,pole_lat))
-    check_dir(new_results_dir)
+    utl.check_dir(new_results_dir)
     deskew_df['results_dir'] = new_results_dir
 
     reduced_deskew_df = deskew_df[['comp_name','phase_shift','step','age_min','age_max','inter_lat','inter_lon','strike','data_dir','results_dir','track_type','sz_name','r','g','b']]
@@ -423,8 +312,8 @@ def reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf):
 #        strike,arc_len_pole,az_pole = float(row['strike']),geodes_inv_dic['a12'],geodes_inv_dic['azi1']
 #        I = np.arctan(2*np.tan(np.deg2rad(90-arc_len_pole)))
 #        a = az_pole+180-strike
-#        e = wrap_180_180(np.degrees(np.arctan2(np.tan(np.deg2rad(I)),np.sin(np.deg2rad(a)))))
-#        reduced_skewness = wrap_180_180(float(row['phase_shift']) - (e - float(row['ei'])))
+#        e = utl.wrap_180_180(np.degrees(np.arctan2(np.tan(np.deg2rad(I)),np.sin(np.deg2rad(a)))))
+#        reduced_skewness = utl.wrap_180_180(float(row['phase_shift']) - (e - float(row['ei'])))
 
         rad_inter_lat,rad_inter_lon = np.deg2rad(float(row['inter_lat'])),np.deg2rad(float(row['inter_lon']))
         rad_pole_lat,rad_pole_lon = np.deg2rad(pole_lat),np.deg2rad(pole_lon)
@@ -442,7 +331,7 @@ def reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf):
 
         anom_skew = asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))
 
-        reduced_skewness = wrap_0_360(180 - float(row['ei']) - e_r + anom_skew)
+        reduced_skewness = utl.wrap_0_360(180 - float(row['ei']) - e_r + anom_skew)
 
         return reduced_skewness
 
@@ -501,7 +390,7 @@ def create_deskew_file(chron_name,results_directory,age_min,age_max,data_directo
             out_str += str(sz_to_color[sz][1]) + "\t"
             out_str += str(sz_to_color[sz][2]) + "\n"
 
-    check_dir(data_directory)
+    utl.check_dir(data_directory)
     fout = open(os.path.join(data_directory,chron_name+'.deskew'), "w+")
     fout.write(out_str)
     fout.close()
@@ -573,7 +462,7 @@ def create_spreading_rate_file(spreading_rate_picks_path, ages_path):
     return stats_df
 
 def get_lon_lat_from_plot_picks_and_deskew_file(deskew_path,spreading_rate_picks_path):
-    deskew_df = open_deskew_file(deskew_path)
+    deskew_df = utl.open_deskew_file(deskew_path)
     spreading_rate_picks = pd.read_csv(spreading_rate_picks_path,sep='\t',header=0,index_col=0)
 
     iso_dict = {}
@@ -643,7 +532,7 @@ def save_iso_picks(deskew_path,srp_paths):
                 anom_out_str[anom] += "%.3f\t%.3f\n"%(float(lon_lat_dict['lon']),float(lon_lat_dict['lat']))
     for key in anom_out_str.keys():
         out_dir = "new_isochron_picks"
-        check_dir(out_dir)
+        utl.check_dir(out_dir)
         out_file = "%s_chron.txt"%key
         outf = os.path.join(out_dir,out_file)
         f_out = open(outf,"+w")
@@ -665,9 +554,9 @@ def read_and_fit_ridge_data(ridge_loc_path):
     for sz in list(ridge_loc_dict.keys()):
         if ridge_loc_dict[sz]==[]: ridge_loc_dict.pop(sz); continue
         ar = np.array(ridge_loc_dict[sz])
-        dists = [Geodesic.WGS84.Inverse(ar[0,1],convert_to_0_360(ar[0,0]),lat,convert_to_0_360(lon))['s12']/1000 for lat,lon in zip(ar[:,1],convert_to_0_360(ar[:,0]))]
+        dists = [Geodesic.WGS84.Inverse(ar[0,1],utl.convert_to_0_360(ar[0,0]),lat,utl.convert_to_0_360(lon))['s12']/1000 for lat,lon in zip(ar[:,1],utl.convert_to_0_360(ar[:,0]))]
         new_dists = np.arange(0,dists[-1],10)
-        ridge_lons = np.interp(new_dists,dists,convert_to_0_360(ar[:,0]))
+        ridge_lons = np.interp(new_dists,dists,utl.convert_to_0_360(ar[:,0]))
         ridge_min_lon = min(ridge_lons)
         ridge_max_lon = max(ridge_lons)
         ridge_lats = np.interp(new_dists,dists,ar[:,1])
@@ -678,7 +567,7 @@ def read_and_fit_ridge_data(ridge_loc_path):
 
     def get_ridge_loc(sz,track_lon_lats):
         if sz not in ridge_loc_dict.keys(): print("sz not found when looking for ridge location, was given spreading zone %s but only had options %s"%(str(sz),str(ridge_loc_dict.keys()))); return None,None
-        idx = intersect_bf(track_lon_lats, ridge_loc_dict[sz],e=.5)
+        idx = gp.intersect_bf(track_lon_lats, ridge_loc_dict[sz],e=.5)
         if idx == [None,None]: print("could not calculate intersept"); return None,None
         else: return idx[0][0]
 
@@ -689,9 +578,9 @@ def read_and_fit_fz_data(fz_directory=os.path.join('..','raw_data','fracture_zon
     lfz = []
     for fz in fzs:
         fzdf = pd.read_csv(fz,sep='\t')
-        dists = [Geodesic.WGS84.Inverse(fzdf['Latitude'][0],convert_to_0_360(fzdf['Longitude'][0]),lat,convert_to_0_360(lon))['s12']/1000 for lat,lon in zip(fzdf['Latitude'],fzdf['Longitude'])]
+        dists = [Geodesic.WGS84.Inverse(fzdf['Latitude'][0],utl.convert_to_0_360(fzdf['Longitude'][0]),lat,utl.convert_to_0_360(lon))['s12']/1000 for lat,lon in zip(fzdf['Latitude'],fzdf['Longitude'])]
         new_dists = np.arange(0,dists[-1],10)
-        fz_lons = np.interp(new_dists,dists,convert_to_0_360(fzdf['Longitude']))
+        fz_lons = np.interp(new_dists,dists,utl.convert_to_0_360(fzdf['Longitude']))
         fz_lats = np.interp(new_dists,dists,fzdf['Latitude'])
         fz_lon_lats = [[lon,lat] for lon,lat in zip(fz_lons,fz_lats)]
         lfz.append(fz_lon_lats)
@@ -706,14 +595,14 @@ def read_and_fit_fz_data(fz_directory=os.path.join('..','raw_data','fracture_zon
     return get_fz_loc
 
 def find_fz_crossings(deskew_path,fz_directory=os.path.join('..','raw_data','fracture_zones')):
-    deskew_df = open_deskew_file(deskew_path)
+    deskew_df = utl.open_deskew_file(deskew_path)
     get_fz_loc = read_and_fit_fz_data(fz_directory)
 
     fz_inter_dict = {}
     for i,row in deskew_df.iterrows():
         data_path = os.path.join(row['data_dir'],row['comp_name'])
-        data_df = open_mag_file(data_path)
-        track_lon_lats = [[convert_to_0_360(lon),lat] for lon,lat in zip(data_df['lon'],data_df['lat'])]
+        data_df = utl.open_mag_file(data_path)
+        track_lon_lats = [[utl.convert_to_0_360(lon),lat] for lon,lat in zip(data_df['lon'],data_df['lat'])]
         inters = get_fz_loc(track_lon_lats)
         if inters != []: fz_inter_dict[row['comp_name']] = inters
 
@@ -723,7 +612,7 @@ def find_fz_crossings(deskew_path,fz_directory=os.path.join('..','raw_data','fra
 def update_useable_tracks_from_deskew(deskew_path,useable_track_path):
     useable_df = pd.read_csv(useable_track_path, sep='\t', header=None)
     useable_df['tracks'] = list(map(os.path.basename, useable_df[0].tolist()))
-    deskew_df = open_deskew_file(deskew_path)
+    deskew_df = utl.open_deskew_file(deskew_path)
     useable_tracks = list(map(lambda x: x.rstrip('.Ed .lp .Vd'), deskew_df['comp_name'].tolist()))
     new_useable_df = useable_df[useable_df['tracks'].isin(useable_tracks)][[0,1,2]]
     directory = os.path.dirname(useable_track_path)
@@ -733,13 +622,13 @@ def update_useable_tracks_from_deskew(deskew_path,useable_track_path):
 
 def create_deskewed_data_file(deskew_path):
     #read deskew file
-    deskew_df = open_deskew_file(deskew_path)
+    deskew_df = utl.open_deskew_file(deskew_path)
 
     #iterate mag files
     for i,row in deskew_df.iterrows():
         #read mag files
         data_path = os.path.join(row['data_dir'],row['comp_name'])
-        data_df = open_mag_file(data_path)
+        data_df = utl.open_mag_file(data_path)
         #deskew mag data
         data_df['deskewed_mag'] = phase_shift_data(data_df['mag'],float(row['phase_shift']))
         #save deskewed mag data as $DATAFILE.deskew

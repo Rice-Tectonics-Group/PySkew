@@ -3,11 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
 import matplotlib.lines as mlines
-#from mpl_toolkits.basemap import Basemap
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
 from geographiclib.geodesic import Geodesic
-from .utilities import *
+import pyskew.utilities as utl
 
 def plot_chron_info(chrons_info, m, coord_0_360=False, chron_dir=os.path.join("..","raw_data","chrons","cande"), barckhausen_path=os.path.join("..",'raw_data','chrons','Barckhausen2013','GSFML.Barckhausen++_2013_MGR.picks.gmt'),**kwargs):
     #Create Chron markers
@@ -25,38 +24,23 @@ def plot_chron_info(chrons_info, m, coord_0_360=False, chron_dir=os.path.join(".
                 if len(entries[0])<2 or len(entries[1])<2: entries=[[],[]]; continue
                 lats = entries[1]
                 lons = entries[0]
-#                XYM = [None,None]
-#                XYM[0],XYM[1] = m(lons,lats)
-#                XYM[0]=remove_off_map_points(XYM[0])
-#                XYM[1]=remove_off_map_points(XYM[1])
-#                if len(XYM[0])!=len(XYM[1]): print("error plotting chron %s on map, skipping this sz"%str(chron)); continue
                 m.plot(lons,lats,color=chron_color,transform=ccrs.Geodetic(),**kwargs)
                 entries=[[],[]]
             else:
                 if coord_0_360:
                     entries[0].append(float(entry[0])); entries[1].append(float(entry[1]))
                 else:
-                    entries[0].append(convert_to_180_180(entry[0])); entries[1].append(float(entry[1]))
+                    entries[0].append(utl.convert_to_180_180(entry[0])); entries[1].append(float(entry[1]))
         ccz,gcz = get_barckhausen_2013_chrons(barckhausen_path=barckhausen_path)
         if str(chron) in ccz.keys():
             if ccz[str(chron)]:
                 lonlats = np.array(ccz[str(chron)])
-                if coord_0_360: lonlats[:,0] = convert_to_0_360(lonlats[:,0])
-#                XYM = [None,None]
-#                XYM[0],XYM[1] = m(lonlats[:,0],lonlats[:,1])
-#                XYM[0]=remove_off_map_points(XYM[0])
-#                XYM[1]=remove_off_map_points(XYM[1])
-#                if len(XYM[0])!=len(XYM[1]): print("error plotting chron %s on map, skipping this sz"%str(chron)); continue
+                if coord_0_360: lonlats[:,0] = utl.convert_to_0_360(lonlats[:,0])
                 m.plot(lons,lats,color=chron_color,transform=ccrs.Geodetic(),**kwargs)
         if str(chron) in gcz.keys():
             if gcz[str(chron)]:
                 lonlats = np.array(gcz[str(chron)])
-                if coord_0_360: lonlats[:,0] = convert_to_0_360(lonlats[:,0])
-#                XYM = [None,None]
-#                XYM[0],XYM[1] = m(lonlats[:,0],lonlats[:,1])
-#                XYM[0]=remove_off_map_points(XYM[0])
-#                XYM[1]=remove_off_map_points(XYM[1])
-#                if len(XYM[0])!=len(XYM[1]): print("error plotting chron %s on map, skipping this sz"%str(chron)); continue
+                if coord_0_360: lonlats[:,0] = utl.convert_to_0_360(lonlats[:,0])
                 m.plot(lons,lats,color=chron_color,transform=ccrs.Geodetic(),**kwargs)
 
 def create_basic_map(projection='ortho',resolution='110m',center_lat=0, center_lon=0, min_lat=-80, max_lat=80, stereo_bound_lat=60, label_grid=True, grid_spacing=10, fig=None, ax_pos=111, landcolor="grey", return_all=False,llcrnrlat=-80,urcrnrlat=80,llcrnrlon=-180,urcrnrlon=180):
@@ -179,7 +163,7 @@ def plot_tracks(chrons_info, results_directory, tracks=[], track_dir="all_tracks
     if tracks==[]: tracks = glob.glob('../raw_data/hi_alt/**/*.DAT')+glob.glob('../raw_data/ship/**/*.lp')
 
     all_tracks_dir=os.path.join(results_directory,track_dir)
-    check_dir(all_tracks_dir)
+    utl.check_dir(all_tracks_dir)
 
     #Start loop making plots
     for track in tracks:
@@ -198,16 +182,11 @@ def plot_tracks(chrons_info, results_directory, tracks=[], track_dir="all_tracks
         #Create Chron markers
         plot_chron_info(chrons_info,aero_track_map)
 
-        dfin = open_mag_file(track)
+        dfin = utl.open_mag_file(track)
 
         lats = list(map(float,dfin['lat'].tolist()))
         lons = list(map(float,dfin['lon'].tolist()))
 
-#        XYM = [None,None]
-#        XYM[0],XYM[1] = aero_track_map(lons,lats)
-#        XYM[0] = remove_off_map_points(XYM[0])
-#        XYM[1] = remove_off_map_points(XYM[1])
-#        if len(XYM[0])==0 or len(XYM[1])==0: continue
         aero_track_handle, = aero_track_map.plot(lons,lats,color='k',zorder=3,label=track_name,transform=ccrs.Geodetic())
 
         #plot title and labels
@@ -222,9 +201,9 @@ def plot_tracks(chrons_info, results_directory, tracks=[], track_dir="all_tracks
 def plot_track_cuts(x,y,sx,sy,idx,chrons_info,track_name,results_directory):
     fig = plt.figure(figsize=(9, 9), dpi=80) #(comment from here down to stop plotting, so it runs faster)
 
-    llcrnrlon=min(convert_to_0_360(y))-20 if min(convert_to_0_360(y))-20>=0 else 0
+    llcrnrlon=min(utl.convert_to_0_360(y))-20 if min(utl.convert_to_0_360(y))-20>=0 else 0
     llcrnrlat=min(x)-20 if min(x)-20>=-89 else -89
-    urcrnrlon=max(convert_to_0_360(y))+20 if max(convert_to_0_360(y))+20<=359 else 359
+    urcrnrlon=max(utl.convert_to_0_360(y))+20 if max(utl.convert_to_0_360(y))+20<=359 else 359
     urcrnrlat=max(x)+20 if max(x)+20<=90 else 89
 
     #Make a map
@@ -234,15 +213,6 @@ def plot_track_cuts(x,y,sx,sy,idx,chrons_info,track_name,results_directory):
 
     #Create Chron markers
     plot_chron_info(chrons_info,turning_points_map,coord_0_360=True)
-
-    #translate lat lon data into meters (I think, could just be random map values)
-#    XYM = [None,None]
-#    Y,X = turning_points_map(convert_to_0_360(y),x)
-#    SY,SX = turning_points_map(convert_to_0_360(sy),sx)
-#    X=np.array(remove_off_map_points(X))
-#    Y=np.array(remove_off_map_points(Y))
-#    SX=np.array(remove_off_map_points(SX))
-#    SY=np.array(remove_off_map_points(SY))
 
     #Plot the data
     if len(x)!=len(y) or len(sx)!=len(sy): print("error plotting track on map it probably crosses a pole, opening debugger"); import pdb; pdb.set_trace()
@@ -266,8 +236,8 @@ def plot_az_strike(track,spreading_zone_file,idx,az,strike,chron_color,chron_nam
     fig = plt.figure(figsize=(9, 9), dpi=80)
 
     #Create Chron markers
-    dft = open_mag_file(track)
-    lt = [[convert_to_0_360(lon),float(lat)] for lon,lat in zip(dft['lon'],dft['lat'])]
+    dft = utl.open_mag_file(track)
+    lt = [[utl.convert_to_0_360(lon),float(lat)] for lon,lat in zip(dft['lon'],dft['lat'])]
     at = np.array(lt)
     lsz = [list(map(float,line.split())) for line in open(spreading_zone_file).readlines()]
     asz = np.array(lsz)
@@ -301,7 +271,7 @@ def plot_az_strike(track,spreading_zone_file,idx,az,strike,chron_color,chron_nam
     plt.legend(loc='best')
 
     az_plots_dir = os.path.join(results_directory,"azimuth_strike_plots")
-    check_dir(az_plots_dir)
+    utl.check_dir(az_plots_dir)
 
     fig.savefig(os.path.join(az_plots_dir,os.path.basename(fout_name)[:-5]+"png"))
     plt.close(fig)

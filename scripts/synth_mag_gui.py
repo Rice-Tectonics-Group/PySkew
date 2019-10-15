@@ -454,7 +454,8 @@ class SynthMagGUI(wx.Frame):
                 srf = lambda x,y: spreading_rate
         except: #Be wary of Errors here this is done so you can plot just the data and not have a million errors but it can mask true behavior be ready to need to debug this
             synth = [[0],[0],0]
-            srf = lambda x,y: 0
+            if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
+            else: srf = lambda x,y: 0
         if self.anomalous_skewness_path!=None: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
         else: asf = lambda x: 0
 
@@ -465,13 +466,14 @@ class SynthMagGUI(wx.Frame):
         try:
             infile = os.path.join(self.dsk_row["data_dir"],self.dsk_row["comp_name"])
             if not os.path.isfile(infile): self.user_warning("Data file %s could not be found"%infile); return
-            self.dsk_row["strike"] = (azi+270)%360 #rotate an extra 90 degrees because convention here is 180 from old convention for ease of moving synthetic
             self.dsk_row["phase_shift"] = phase_shift
             self.deskew_df.set_value(self.dsk_idx,"strike",(azi+90)%360)
             self.deskew_df.set_value(self.dsk_idx,"phase_shift",phase_shift)
+            self.dsk_row["strike"] = (azi+90)%360 #set strike to normal for aei calculation
             self.dsk_row = sk.row_calc_aei(self.dsk_row,srf,asf)
             self.deskew_df.at[self.dsk_idx,"ei"] = self.dsk_row["ei"]
             self.deskew_df.at[self.dsk_idx,"aei"] = self.dsk_row["aei"]
+            self.dsk_row["strike"] = (azi+270)%360 #rotate an extra 90 degrees because convention here is 180 from old convention for ease of moving synthetic
 
             #Center Synthetic
             if self.max_age!=self.min_age: step = (self.max_age-self.min_age)/(syn_length-1)
@@ -545,11 +547,7 @@ class SynthMagGUI(wx.Frame):
         self.age_max_box.SetItems(tdf["chron"].tolist())
 
     def update_track_box(self):
-        if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
-        else: srf = lambda x,y: float(self.sr_box.GetValue())
-        if self.anomalous_skewness_path!=None: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
-        else: asf = lambda x: 0
-        self.deskew_df = sk.calc_aei(utl.open_deskew_file(self.deskew_path),srf,asf)
+        self.read_deskew_file()
         abs_data_paths = [self.deskew_df["data_dir"][i] if self.deskew_df["data_dir"][i]==os.path.abspath(self.deskew_df["data_dir"][i]) else os.path.abspath(os.path.join(self.WD,self.deskew_df["data_dir"][i])) for i in self.deskew_df.index]
 #        if any(not os.path.isfile(abs_data_paths)): abs_data_paths = [self.deskew_df["data_dir"][i] if self.deskew_df["data_dir"][i]==os.path.abspath(self.deskew_df["data_dir"][i]) else os.path.abspath(os.path.join(os.path.dirname(self.deskew_path),self.deskew_df["data_dir"][i])) for i in self.deskew_df.index]
         self.deskew_df["data_dir"] = abs_data_paths
@@ -951,6 +949,13 @@ class SynthMagGUI(wx.Frame):
         try: self.point_annotation.remove()
         except (AttributeError,ValueError) as e: pass
         self.point_annotation = self.ax.annotate("x = %.2f\ny = %.2f"%(float(pos[0]),float(pos[1])),**kwargs)
+
+    def read_deskew_file(self):
+        if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
+        else: srf = lambda x,y: float(self.sr_box.GetValue())
+        if self.anomalous_skewness_path!=None: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
+        else: asf = lambda x: 0
+        self.deskew_df = sk.calc_aei(utl.open_deskew_file(self.deskew_path),srf,asf)
 
     ##########################Utility Dialogs and Functions################
 

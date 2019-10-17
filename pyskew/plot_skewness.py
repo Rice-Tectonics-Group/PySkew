@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 import pmagpy.ipmag as ipmag
 import matplotlib.pyplot as plt
-#plt.switch_backend('Agg')
 if 'darwin' in sys.platform:
     try:
         plt.switch_backend('QT5Agg')

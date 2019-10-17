@@ -228,7 +228,7 @@ def seperate_chron_into_spreading_zones(chron_to_analyse):
         fchron_out.write(headerless_spreading_zone_string)
         fchron_out.close()
         spreading_zone_files.append(fchron_out_path)
-    ccz,gcz = get_barckhausen_2013_chrons()
+    ccz,gcz = utl.get_barckhausen_2013_chrons()
     if str(chron) in ccz.keys():
         i+=1
         ccz_data = np.array([(utl.convert_to_0_360(lonlat[0]),float(lonlat[1])) for lonlat in ccz[str(chron)]])

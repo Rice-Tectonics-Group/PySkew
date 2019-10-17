@@ -31,7 +31,7 @@ def plot_chron_info(chrons_info, m, coord_0_360=False, chron_dir=os.path.join(".
                     entries[0].append(float(entry[0])); entries[1].append(float(entry[1]))
                 else:
                     entries[0].append(utl.convert_to_180_180(entry[0])); entries[1].append(float(entry[1]))
-        ccz,gcz = get_barckhausen_2013_chrons(barckhausen_path=barckhausen_path)
+        ccz,gcz = utl.get_barckhausen_2013_chrons(barckhausen_path=barckhausen_path)
         if str(chron) in ccz.keys():
             if ccz[str(chron)]:
                 lonlats = np.array(ccz[str(chron)])

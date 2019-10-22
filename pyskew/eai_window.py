@@ -7,7 +7,6 @@ import pyskew.utilities as utl
 from geographiclib.geodesic import Geodesic
 import wx.lib.buttons as buttons
 import wx.lib.mixins.listctrl  as  listmix
-from netCDF4 import Dataset as netcdf_dataset
 import matplotlib as mpl
 import matplotlib.path as mpath
 from matplotlib.figure import Figure
@@ -17,8 +16,6 @@ from functools import cmp_to_key
 from collections import OrderedDict
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
-import rasterio
-import pyproj
 
 class EAIWindow(wx.Frame):
 

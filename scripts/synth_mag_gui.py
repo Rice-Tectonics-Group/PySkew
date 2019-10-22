@@ -611,7 +611,7 @@ class SynthMagGUI(wx.Frame):
             self.spreading_rate_path=dlg.GetPath()
             self.sr_path.SetValue(self.spreading_rate_path)
             srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
-            try: self.sr_box.SetValue("%.1f"%((srf(self.dsk_row["sz_name"],self.dsk_row["age_min"])+srf(self.dsk_row["sz_name"],self.dsk_row["age_max"]))/2))
+            try: self.sr_box.SetValue("%.1f"%(srf(self.dsk_row["sz_name"],self.dsk_row["age_max"])))
             except AttributeError: pass
             if not self.m_use_sr_model.IsChecked(): self.m_use_sr_model.Check()
             try: self.srmw.update()
@@ -647,7 +647,7 @@ class SynthMagGUI(wx.Frame):
         except TypeError: self.user_warning("Invalid Strike or Phase Shift in deskew file for %s"%self.track)
         if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None:
             srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
-            self.sr_box.SetValue("%.1f"%((srf(self.dsk_row["sz_name"],self.dsk_row["age_min"])+srf(self.dsk_row["sz_name"],self.dsk_row["age_max"]))/2))
+            self.sr_box.SetValue("%.1f"%(srf(self.dsk_row["sz_name"],self.dsk_row["age_max"])))
         if self.srmw_open: self.srmw.sz_box.SetValue(self.dsk_row["sz_name"]); self.srmw.on_select_sz(event)
         if self.tvw_open: self.tvw.on_parent_select_track()
         if self.eai_open: self.eai.on_parent_select_track()

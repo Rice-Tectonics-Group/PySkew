@@ -97,7 +97,7 @@ while running:
         print("Plotting Sites")
         site_points = []
         for i,sz_name in enumerate(deskew["sz_name"].drop_duplicates()):
-            site_points.append(ax.scatter(utl.convert_to_0_360(deskew[deskew["sz_name"]==sz_name]["inter_lon"]), deskew[deskew["sz_name"]==sz_name]["inter_lat"], transform=ccrs.PlateCarree(), zorder=10000, s=20, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][i]), ec="k")
+            site_points.append(ax.scatter(utl.convert_to_0_360(deskew[deskew["sz_name"]==sz_name]["inter_lon"]), deskew[deskew["sz_name"]==sz_name]["inter_lat"], transform=ccrs.PlateCarree(), zorder=10000, s=20, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][i], edgecolor="k"))
 
     if "rt" in inp or inp.split()[0] == "r":
         try:

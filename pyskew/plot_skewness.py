@@ -493,7 +493,7 @@ def remove_axis_lines_and_ticks(ax):
     ax.set_xticks([])
     ax.set_yticks([])
 
-def plot_deskew_page(row, leave_plots_open=False, xlims=[-500,500], ylims=[-250,250], **kwargs):
+def plot_deskew_page(row, leave_plots_open=False, xlims=[-500,500], ylims=[-250,250], twf=0, **kwargs):
 #    plt.rc('text', usetex=True)
 
     fig = plt.figure(figsize=(16, 9), facecolor='white')
@@ -505,7 +505,7 @@ def plot_deskew_page(row, leave_plots_open=False, xlims=[-500,500], ylims=[-250,
     ax0.yaxis.set_label_coords(1.07,.45)
     if row['track_type']=="aero": layer_depth = 12.5
     else: layer_depth = 4.5
-    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'], row[['age_min','age_max']], ax0, layer_depth=layer_depth, color='k', linestyle='-')
+    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'], row[['age_min','age_max']], ax0, layer_depth=layer_depth, color='k', linestyle='-', twf=twf)
     ax0.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
     ax0.patch.set_alpha(0.0)
 
@@ -543,7 +543,7 @@ def plot_pole_perturbations(deskew_path,ellipse_path,**kwargs):
     for i,row in deskew_df.iterrows():
         run_in_parallel(plot_trial_pole_reduction_page,args=[row,lon,lat],kwargs=kwargs)
 
-def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate_model_path=None, anomalous_skewness_model_path=None, xlims=[-500,500], ylims=[-200,200], leave_plots_open=False, **kwargs):
+def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate_model_path=None, anomalous_skewness_model_path=None, xlims=[-500,500], ylims=[-200,200], leave_plots_open=False, twf=0, **kwargs):
 
     fig = plt.figure(figsize=(16, 9), facecolor='white')
 
@@ -554,7 +554,7 @@ def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate
     ax0.yaxis.set_label_coords(1.07,.45)
     if row['track_type']=="aero": layer_depth = 12.5
     else: layer_depth = 4.5
-    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'], row[['age_min','age_max']], ax0, layer_depth=layer_depth, color='k', linestyle='-')
+    min_syn_dis,max_syn_dis = plot_synthetic(row['sz_name'], row[['age_min','age_max']], ax0, layer_depth=layer_depth, color='k', linestyle='-', twf=twf)
     ax0.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
     ax0.patch.set_alpha(0.0)
 
@@ -655,7 +655,7 @@ def plot_fz_loc(deskew_row,fz_loc_path,ax,**kwargs):
         fz_dis = (fzi_dict['s12']*np.sin(np.deg2rad(float(deskew_row['strike'])-fzi_dict['azi2'])))/1000
         ax.axvline(fz_dis,**kwargs)
 
-def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,ridge_loc_func=None,fz_loc_path=None, xlims=[-500,500], ylims=[-250,250], clip_on = False, **kwargs):
+def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,ridge_loc_func=None,fz_loc_path=None, xlims=[-500,500], ylims=[-250,250], clip_on = False, twf=0, **kwargs):
 #    plt.rc('text', usetex=True)
 #    plt.rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 
@@ -666,7 +666,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     ax0.set_ylabel(r"synthetic (%s)"%'ship',rotation=0,fontsize=10)
     ax0.yaxis.set_label_coords(-.075,.45)
     ax0.format_coord = format_coord
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims)
+    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims, twf=twf)
 #    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims)
     ax0.set_ylim(ylims) #MODIFY THIS TO CHANGE Y AXIS
     ax0.patch.set_alpha(0.0)
@@ -709,7 +709,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     remove_axis_lines_and_ticks(ax)
     ax.set_ylabel(r"synthetic (%s)"%'aero',rotation=0,fontsize=10)
     ax.yaxis.set_label_coords(-.075,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims)
+    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims, twf=twf)
     ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
     ax.patch.set_alpha(0.0)
     ax.format_coord = format_coord
@@ -740,11 +740,11 @@ def plot_best_skewnesses(deskew_df, best_skews_subdir="best_skews", **kwargs):
     for i in list(range(num_profiles_per_page,len(deskew_df.index),num_profiles_per_page))+[-1]:
         if i==-1: rows = deskew_df.iloc[prev_i:]
         else: rows = deskew_df.iloc[prev_i:i]
-        run_in_parallel(plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs=kwargs)
-#        plot_best_skewness_page(rows,results_dir,page_num,**kwargs)
+#        run_in_parallel(plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs=kwargs)
+        plot_best_skewness_page(rows,results_dir,page_num,**kwargs)
         prev_i,page_num = i,page_num+1
 
-def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None):
+def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None, twf=0):
 #    plt.rc('text', usetex=True)
 #    plt.rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 
@@ -755,7 +755,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
     ax0.set_ylabel("synthetic (%s)"%'ship',rotation=0,fontsize=14)
     ax0.yaxis.set_label_coords(-.1,.45)
     ax0.format_coord = format_coord
-    min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0], rows1[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-')
+    min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0], rows1[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', twf=twf)
     ylim = ax0.set_ylim(-200,200)
 
     for j,iterrow in enumerate(zip(rows1.iterrows(),rows2.iterrows())):
@@ -784,7 +784,7 @@ def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=Fals
     remove_axis_lines_and_ticks(ax)
     ax.set_ylabel("synthetic (%s)"%'aero',rotation=0,fontsize=14)
     ax.yaxis.set_label_coords(-.1,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0], rows1[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-')
+    min_syn_dis,max_syn_dis = plot_synthetic(rows1['sz_name'].iloc[0], rows1[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', twf=twf)
     ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
     ax.format_coord = format_coord
 
@@ -861,7 +861,7 @@ def plot_skewness_by_spreading_zone(deskew_path,leave_plots_open=False,ridge_loc
         sz_deskew_df.sort_values(by="inter_lat",ascending=False,inplace=True)
         plot_best_skewnesses(sz_deskew_df,leave_plots_open=leave_plots_open,ridge_loc_path=ridge_loc_path,best_skews_subdir="skewness_by_spreading_zones/%s"%str(sz), fz_loc_path=fz_loc_path, **kwargs)
 
-def plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page_num, leave_plots_open=False):
+def plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page_num, leave_plots_open=False, twf=0):
 
     check_dir(results_dir)
 
@@ -871,7 +871,7 @@ def plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page
     remove_axis_lines_and_ticks(ax0)
     ax0.set_ylabel("synthetic (%s)"%'ship',rotation=0,fontsize=14)
     ax0.yaxis.set_label_coords(-.1,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', plot_anom_spans=True)
+    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', plot_anom_spans=True, twf=twf)
     ylim = ax0.get_ylim()
 
     for j,iterrow in enumerate(rows.iterrows()):
@@ -906,7 +906,7 @@ def plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page
     remove_axis_lines_and_ticks(ax)
     ax.set_ylabel("synthetic (%s)"%'aero',rotation=0,fontsize=14)
     ax.yaxis.set_label_coords(-.1,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', plot_anom_spans=True)
+    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', plot_anom_spans=True, twf=twf)
     ax.set_ylim(ylim) #insure that all of the plots have the same zoom level in the y direction
 
     ax0.set_xlim(-1000,500)

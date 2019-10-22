@@ -198,10 +198,17 @@ def create_max_file(deskew_df,srf,asf,outfile="deskew.max"):
         #Write Each Track
         deskew_df = calc_aei(deskew_df,srf,asf)
         for i,row in deskew_df.iterrows():
-            fout.write(row["comp_name"]+"\n")
-            if row["track_type"]=="ship": s1aei = 36.2/(row["age_max"]-row["age_min"])
-            else: s1aei = 19.3/(row["age_max"]-row["age_min"])
-            fout.write("%.2f,%.2f,%.2f,%.2f,%.2f\n"%(row["aei"],s1aei,row["inter_lat"],row["inter_lon"],row["strike"]))
+            if row["track_type"]=="ship":
+                s1aei = 30./(row["age_max"]-row["age_min"])
+            else:
+                s1aei = 15./(row["age_max"]-row["age_min"])
+#                if "Ed" in row["comp_name"]:
+#                elif "Hd" in row["comp_name"]:
+#                elif "Vd" in row["comp_name"]:
+#                else: raise ValueError("Unknown aeromagnetic component type for %s"%str(row["comp_name"]))
+
+        fout.write(row["comp_name"]+"\n")
+        fout.write("%.2f,%.2f,%.2f,%.2f,%.2f\n"%(row["aei"],s1aei,row["inter_lat"],row["inter_lon"],row["strike"]))
         #Write Fake Remanent Amp Factor to prevent singularity in old Max
         fout.write("Fake Amplitude\n")
         fout.write("1.0,0.1,0.0,180.0,90.0")

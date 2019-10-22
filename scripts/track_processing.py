@@ -115,6 +115,10 @@ if __name__=="__main__":
         yli = sys.argv.index('-yl')
         kwargs['ylims'] = list(map(float,sys.argv[yli+1].split(',')))
 
+    if "-twf" in sys.argv:
+        twfi = sys.argv.index('-twf')
+        kwargs['twf'] = float(sys.argv[twfi+1])
+
     if "-clip" in sys.argv:
         kwargs['clip_on'] = True
 

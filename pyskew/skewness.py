@@ -207,8 +207,8 @@ def create_max_file(deskew_df,srf,asf,outfile="deskew.max"):
 #                elif "Vd" in row["comp_name"]:
 #                else: raise ValueError("Unknown aeromagnetic component type for %s"%str(row["comp_name"]))
 
-        fout.write(row["comp_name"]+"\n")
-        fout.write("%.2f,%.2f,%.2f,%.2f,%.2f\n"%(row["aei"],s1aei,row["inter_lat"],row["inter_lon"],row["strike"]))
+            fout.write(row["comp_name"]+"\n")
+            fout.write("%.2f,%.2f,%.2f,%.2f,%.2f\n"%(row["aei"],s1aei,row["inter_lat"],row["inter_lon"],row["strike"]))
         #Write Fake Remanent Amp Factor to prevent singularity in old Max
         fout.write("Fake Amplitude\n")
         fout.write("1.0,0.1,0.0,180.0,90.0")

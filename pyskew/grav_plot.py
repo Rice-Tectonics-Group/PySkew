@@ -23,6 +23,7 @@ import pyskew.skewness as sk
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import pyskew.plot_gravity as pg
 from time import time
+from rasterio.enums import Resampling
 
 #deskew1 = pd.read_csv('/home/dtw6/Code/PySkew/24r/data/C24r.deskew', sep='\t')
 if os.path.isfile(sys.argv[1]): dsk_path = sys.argv[1]
@@ -97,7 +98,8 @@ while running:
         print("Plotting Sites")
         site_points = []
         for i,sz_name in enumerate(deskew["sz_name"].drop_duplicates()):
-            site_points.append(ax.scatter(utl.convert_to_0_360(deskew[deskew["sz_name"]==sz_name]["inter_lon"]), deskew[deskew["sz_name"]==sz_name]["inter_lat"], transform=ccrs.PlateCarree(), zorder=10000, s=20, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][i%10], edgecolor="k"))
+            color = (deskew[deskew["sz_name"]==sz_name].iloc[0]["r"],deskew[deskew["sz_name"]==sz_name].iloc[0]["g"],deskew[deskew["sz_name"]==sz_name].iloc[0]["b"])
+            site_points.append(ax.scatter(utl.convert_to_0_360(deskew[deskew["sz_name"]==sz_name]["inter_lon"]), deskew[deskew["sz_name"]==sz_name]["inter_lat"], transform=ccrs.PlateCarree(), zorder=10000, s=20, color=color, edgecolor="k"))
 
     if "rt" in inp or inp.split()[0] == "r":
         try:
@@ -157,12 +159,12 @@ while running:
         if "-d" in inpl: down_sample_factor = float(inpl[inpl.index("-d")+1])
 
         print("Grav Window and Down sample: ",window,down_sample_factor)
-        all_lons,all_lats,all_grav = pg.get_sandwell(window,down_sample_factor)
+        all_lons,all_lats,all_grav = pg.get_sandwell(window,down_sample_factor,resample_method=Resampling.nearest)
 
         print("Plotting Gravity")
         start_time = time()
         print("Grid Sizes: ",all_lons.shape,all_lats.shape,all_grav.shape)
-        fcm = ax.contourf(all_lons, all_lats, all_grav, 60, cmap="viridis", alpha=.75, transform=ccrs.PlateCarree(), zorder=0)
+        fcm = ax.contourf(all_lons, all_lats, all_grav, 60, cmap="viridis", alpha=.75, transform=ccrs.PlateCarree(), zorder=0, vmin=0, vmax=255)
         print("Runtime: ",time()-start_time)
 
         ax.set_extent(window, ccrs.PlateCarree())

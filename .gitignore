@@ -29,7 +29,7 @@ Essentials_Problem_Datafiles
 Data_Storage_Directories
 
 SynthData/*
-spreading_zones/*
+*spreading_zones/*
 new_isochron_picks/*
 raw_data/ship/*/
 raw_data/hi_alt/*/
@@ -49,6 +49,7 @@ data*
 0000_group_meeting_files/*
 raw_data/fracture_zones/*
 **/NCEI
+*spreading_zones*
 
 Results_File_Types
 

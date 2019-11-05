@@ -332,7 +332,7 @@ def cut_tracks_and_flip(track_cuts, data_directory, heading="east"):
     for track,cuts in track_cuts.items():
         print("Starting Track: %s"%track)
         directory,path = os.path.split(track)
-        dfin = open_mag_file(track)
+        dfin = utl.open_mag_file(track)
 #        fin = open(track,'r')
 #        lines = fin.readlines()
 #        fin.close()

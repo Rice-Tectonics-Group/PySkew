@@ -403,7 +403,7 @@ def generate_az_strike_files(track_sz_and_inters, chron_to_analyse, heading, res
     chron_name = "chron%s"%(str(chron))
     tracks,az_files = [],[]
     for track,spreading_zone_file,inter in track_sz_and_inters:
-        idx = read_idx_from_string(inter)
+        idx = utl.read_idx_from_string(inter)
 
         gcp_lon,gcp_lat = open(spreading_zone_file[:-3]+'gcp').readlines()[5].split()[0:2] #GMT has varriable ouutput to fitcircle so some of these files will have the N eigin value pole here and some the South this may need to be adapted
 

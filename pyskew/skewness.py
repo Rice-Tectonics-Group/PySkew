@@ -358,7 +358,7 @@ def create_deskew_file(chron_name,results_directory,age_min,age_max,data_directo
     sz_to_color,sz_to_name = {},{}
     for track,sz,inter in track_sz_and_inters:
 
-        idx = read_idx_from_string(inter)
+        idx = utl.read_idx_from_string(inter)
         if 'aero' in track:
             Ef = os.path.basename(track) + '.Ed.lp'
             Vf = os.path.basename(track) + '.Vd.lp'

@@ -138,8 +138,8 @@ def plot_transit_locations(chron_to_analyse, chrons_info, results_directory, dat
     for loc in transiting_locations:
         if loc[1]=='aero': marker,edgecolor,facecolor,label='x','black','black',"Aeromag Data Crossing"
         else:  marker,edgecolor,facecolor,label='+','grey','grey',"Shipmag Data Crossing"
-        anom_inter_lon = read_idx_from_string(loc[0])[0][1][0]
-        anom_inter_lat = read_idx_from_string(loc[0])[0][1][1]
+        anom_inter_lon = utl.read_idx_from_string(loc[0])[0][1][0]
+        anom_inter_lat = utl.read_idx_from_string(loc[0])[0][1][1]
 #        XYM[0],XYM[1] = crossed_anom_map(anom_inter_lon,anom_inter_lat)
         data_handle = crossed_anom_map.scatter(anom_inter_lon,anom_inter_lat,facecolors=facecolor,edgecolors=edgecolor,marker=marker,zorder=3,label=label,transform=ccrs.Geodetic())
         if loc[1]=='aero' and 'aero' not in handle_types_saved:

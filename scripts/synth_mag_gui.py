@@ -516,11 +516,11 @@ class SynthMagGUI(wx.Frame):
             else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.dsk_row["track_type"]))
 
         try:
-            psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,color='k',zorder=3,picker=True)
+            psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,zorder=3,picker=True)
             if self.max_age>=self.dsk_row["age_min"]: self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
             if self.min_age<=-self.dsk_row["age_min"]: self.ax.axvspan(neg_anom-neg_anom_width,neg_anom+neg_anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
             self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,va='top',ha='left')
-        except AttributeError: pass
+        except AttributeError: import pdb; pdb.set_trace()
 
         self.ax.plot(dis_synth,np.array(synth[0])+synth_shift,'r-',alpha=.4,zorder=1)
         self.ax.plot(dis_synth,np.zeros(len(dis_synth)),'k--')
@@ -831,7 +831,7 @@ class SynthMagGUI(wx.Frame):
             else: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
             if not self.m_use_as_model.IsChecked() or self.anomalous_skewness_path==None: asf = lambda x: 0
             else: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
-            sk.create_max_file(self.deskew_df,srf,asf,outfile=outfile)
+            sk.create_max_file(self.deskew_df[self.deskew_df["quality"]=="g"],srf,asf,outfile=outfile)
         dlg.Destroy()
 
     def on_save_maxtab_file(self,event):
@@ -848,7 +848,7 @@ class SynthMagGUI(wx.Frame):
             )
         if dlg.ShowModal() == wx.ID_OK:
             outfile = dlg.GetPath()
-            self.deskew_df.to_csv(".tmp.deskew",sep="\t",index=False)
+            self.deskew_df[self.deskew_df["quality"]=="g"].to_csv(".tmp.deskew",sep="\t",index=False)
             sk.create_maxtab_file(".tmp.deskew",chron,outfile=outfile)
             os.remove(".tmp.deskew")
         dlg.Destroy()

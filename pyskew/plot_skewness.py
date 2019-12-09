@@ -475,7 +475,18 @@ def plot_skewness_data(deskew_row, phase_shift, ax, xlims=[-500,500], clip_on=Fa
     shifted_mag = phase_shift_data(data_df['mag'].tolist(),phase_shift)
 
     proj_dist = projected_distances['dist'].tolist()
-    zln = ax.plot(proj_dist,np.zeros(len(proj_dist)),'k--')
+    if deskew_row["quality"]=="g": #is "good" data
+        if "color" in kwargs.keys(): pass
+        else: kwargs["color"] = "k"
+        zcolor = "k"
+        zalpha = 1.0
+    else: #is bad" data
+        if "color" in kwargs.keys(): pass
+        else: kwargs["color"] = "grey"
+        zcolor = "grey"
+        zalpha = .7
+    zlinestyle = "--"
+    zln = ax.plot(proj_dist,np.zeros(len(proj_dist)),linestyle=zlinestyle,color=zcolor,alpha=zalpha)
     sln = ax.plot(proj_dist,shifted_mag,**kwargs)
 
     if not clip_on:
@@ -518,7 +529,7 @@ def plot_deskew_page(row, leave_plots_open=False, xlims=[-500,500], ylims=[-250,
 
         ax.set_ylabel(r"$\theta$=%.1f"%float(phase_shift),rotation=0,fontsize=14)
         ax.yaxis.set_label_coords(1.05,.45)
-        min_proj_dis, max_proj_dis = plot_skewness_data(row,phase_shift,ax,color='k',linestyle='-',picker=leave_plots_open)
+        min_proj_dis, max_proj_dis = plot_skewness_data(row,phase_shift,ax,picker=leave_plots_open)
         ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
         ax.patch.set_alpha(0.0)
 
@@ -595,7 +606,7 @@ def plot_trial_pole_reduction_page(row,pole_lon, pole_lat, dis=5, spreading_rate
         ax.patch.set_alpha(0.0)
 
 
-        min_proj_dis, max_proj_dis = plot_skewness_data(row,phase_shift,ax,color='k',linestyle='-',picker=leave_plots_open)
+        min_proj_dis, max_proj_dis = plot_skewness_data(row,phase_shift,ax,picker=leave_plots_open)
 
     plot_chron_span_on_axes(row['sz_name'],fig.get_axes(),row[['age_min','age_max']])
 
@@ -615,7 +626,7 @@ def save_show_plots(fig,out_file,leave_plots_open=True,msg=None):
     if leave_plots_open:
         plt.show()
     else:
-        fig.savefig(out_file)
+        fig.savefig(out_file,transparent=False,facecolor="white")
         plt.close(fig)
 
 def plot_skewnesses(deskew_path,**kwargs):
@@ -678,7 +689,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 
         remove_axis_lines_and_ticks(ax)
 
-        min_proj_dis, max_proj_dis = plot_skewness_data(row,float(row['phase_shift']),ax,color='k',linestyle='-',picker=True, clip_on=clip_on, xlims=xlims)
+        min_proj_dis, max_proj_dis = plot_skewness_data(row,float(row['phase_shift']),ax,picker=True, clip_on=clip_on, xlims=xlims)
 
         if ridge_loc_func!=None:
             plot_ridge_loc(row,ridge_loc_func,ax,color='r',linestyle='-',alpha=1)
@@ -740,8 +751,8 @@ def plot_best_skewnesses(deskew_df, best_skews_subdir="best_skews", **kwargs):
     for i in list(range(num_profiles_per_page,len(deskew_df.index),num_profiles_per_page))+[-1]:
         if i==-1: rows = deskew_df.iloc[prev_i:]
         else: rows = deskew_df.iloc[prev_i:i]
-#        run_in_parallel(plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs=kwargs)
-        plot_best_skewness_page(rows,results_dir,page_num,**kwargs)
+        run_in_parallel(plot_best_skewness_page,args=[rows,results_dir,page_num],kwargs=kwargs)
+#        plot_best_skewness_page(rows,results_dir,page_num,**kwargs)
         prev_i,page_num = i,page_num+1
 
 def overlay_skewness_page(rows1,rows2,results_dir,page_num,leave_plots_open=False,pole_name1='pole 1', pole_name2='pole 2', fz_loc_path=None, twf=0):
@@ -887,7 +898,7 @@ def plot_spreading_rate_picks_page(rows, spreading_rate_picks, results_dir, page
             row['comp_name'] += '.lp'
         else: print("could not determine data type (ship or aero) of %s, skipping"%row['comp_name']); continue
 
-        min_proj_dis, max_proj_dis = plot_skewness_data(row,float(row['phase_shift']),ax,color='k',linestyle='-',picker=True)
+        min_proj_dis, max_proj_dis = plot_skewness_data(row,float(row['phase_shift']),ax,picker=True)
 
         ax.annotate(r"%s"%row['comp_name'].rstrip('.Ed .Vd .lp')+"\n"+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(row['inter_lat']),convert_to_0_360(row['inter_lon'])),xy=(-.15,.45),xycoords="axes fraction")
         ax.set_ylabel(r"$\theta$=%.1f"%float(row['phase_shift']),rotation=0,fontsize=14)

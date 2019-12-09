@@ -180,7 +180,7 @@ class EAIWindow(wx.Frame):
             else: aei = row["aei"]
             if dsk_idx==i: marker = "s"
             else: marker = "o"
-            self.ax.scatter(aei,row["inter_lat"],marker=marker,facecolor=(row["r"],row["g"],row["b"]),edgecolor="k",label=row["sz_name"])
+            self.ax.scatter(aei,row["inter_lat"],marker=marker,facecolor=(float(row["r"]),float(row["g"]),float(row["b"])),edgecolor="k",label=row["sz_name"])
         handles,labels = self.ax.get_legend_handles_labels()
         by_label = OrderedDict(zip(labels, handles))
         self.ax.legend(by_label.values(), by_label.keys(), fontsize=10, framealpha=.7)

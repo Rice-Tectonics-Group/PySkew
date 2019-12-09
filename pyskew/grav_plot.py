@@ -104,11 +104,11 @@ while running:
     if "rt" in inp or inp.split()[0] == "r":
         try:
             for dt in deskew_tracks:
-                dt.remove()
+                dt[0].remove()
             for df in deskew_fill:
-                df.remove()
-            import pdb; pdb.set_trace()
+                df[0].remove()
         except NameError: pass
+        except TypeError: pass
         print("Plotting Tracks: ")
         deskew,deskew_tracks,deskew_fill = utl.open_deskew_file(dsk_path),[],[]
         for j,(i,row) in enumerate(deskew.iterrows()):
@@ -122,9 +122,11 @@ while running:
 
             # Define the angle along which to project
             perp = row["strike"]-180
-            lon = dskd["lon"]
-            lat = dskd["lat"]
+            lon = dskd["lon"].tolist()
+            lat = dskd["lat"].tolist()
             mag = sk.phase_shift_data(dskd["mag"].tolist(),row["phase_shift"])
+#            print("\t\t",perp)
+#            print("\t\t",np.array(lon).shape,np.array(lat).shape,np.array(mag).shape)
 
             # Find distance to project
             if row["track_type"] == 'ship':
@@ -138,16 +140,21 @@ while running:
                 scle = 0.5*1e3
 
             # Project amplitude onto map
-            mlats,mlons = [],[]
+            mlats,mlons,fill_lats = [],[],[]
             for i in range(len(mag)):
                 gdsc = geod.Direct(lat[i], lon[i], perp, mag[i]*scle)
                 mlons.append(gdsc['lon2'])
                 mlats.append(gdsc['lat2'])
+                if mag[i]>0: fill_lats.append(gdsc['lat2'])
+                else: fill_lats.append(gdsc['lat1'])
 
             # Plot map elements
-            deskew_tracks.append(ax.plot(utl.convert_to_0_360(lon), lat, '--', linewidth=1.0, transform=ccrs.PlateCarree(), color=pcol, zorder=990))
-            deskew_tracks.append(ax.plot(utl.convert_to_0_360(mlons), mlats, '-', linewidth=1.0, transform=ccrs.PlateCarree(), color=pcol, zorder=1000))
-            deskew_fill.append(ax.fill_between(utl.convert_to_0_360(np.array(mlons)[mag>0]), np.array(mlats)[mag>0], lat[mag>0], transform=ccrs.PlateCarree(), alpha=0.5, color=pcol))
+            geotrack = proj.transform_points(ccrs.PlateCarree(),np.array(utl.convert_to_0_360(lon)),np.array(lat))
+            magtrack = proj.transform_points(ccrs.PlateCarree(),np.array(utl.convert_to_0_360(mlons)),np.array(mlats))
+            filltrack = proj.transform_points(ccrs.PlateCarree(),np.array(utl.convert_to_0_360(mlons)),np.array(fill_lats))
+            deskew_tracks.append(ax.plot(geotrack[:,0], geotrack[:,1], '--', linewidth=1.0, color=pcol, zorder=990))
+            deskew_tracks.append(ax.plot(magtrack[:,0], magtrack[:,1], '-', linewidth=1.0, color=pcol, zorder=1000))
+            deskew_fill.append(ax.fill_between(filltrack[:,0], filltrack[:,1], geotrack[:,1], alpha=0.5, color=pcol))
 
     if "rg" in inp or inp.split()[0] == "r":
 

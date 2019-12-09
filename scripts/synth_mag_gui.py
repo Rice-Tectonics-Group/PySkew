@@ -806,9 +806,10 @@ class SynthMagGUI(wx.Frame):
     def on_save_plot(self,event):
         try: self.point_annotation.remove()
         except (AttributeError,ValueError) as e: pass
-        self.ax.annotate(r"%$\theta=.f$"%(self.dsk_row["phase_shift"])+"\n"+r"%$e_a=.1f$"%(self.dsk_row["aei"]),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
+        tmp_an = self.ax.annotate(r"$\theta=%.f$"%(self.dsk_row["phase_shift"])+"\n"+r"$e_a=%.1f$"%(self.dsk_row["aei"]),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
         self.canvas.draw()
         self.toolbar.save_figure()
+        tmp_an.remove()
 
     def on_save_max_file(self,event):
         avg_age = (self.deskew_df.iloc[0]["age_min"]+self.deskew_df.iloc[0]["age_max"])/2

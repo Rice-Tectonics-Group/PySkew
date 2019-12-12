@@ -45,6 +45,8 @@ class SynthMagGUI(wx.Frame):
 
         #Configure self if there is a config file
         self.configure(config_file)
+        self.synth_art,self.other_art,self.data_art = [],[],[] #placeholders for artist objects cache to speed updates
+        self.update_synth,self.update_data=False,False
         self.update(-1)
 
     def init_UI(self):
@@ -391,38 +393,68 @@ class SynthMagGUI(wx.Frame):
 
     def configure(self,config_file):
         if config_file==None: #Set up default values
+            self.fix_sta,self.fix_end = False,False
             self.dir_path.SetValue(self.WD)
             self.age_min_box.SetValue("%.1f"%float(self.min_age))
             self.age_max_box.SetValue("%.1f"%float(self.max_age))
-            self.sr_box.SetValue("%.1f"%40.0)
-            self.phase_shift_box.SetValue("%.1f"%0.0)
-            self.layer_depth_box.SetValue("%.2f"%4.5)
-            self.layer_thickness_box.SetValue("%.2f"%.5)
-            self.layer_mag_box.SetValue("%.1f"%(.01*1e5))
-            self.azi_box.SetValue("%.1f"%0.0)
-            self.ad_box.SetValue("%.1f"%0.0)
-            self.ai_box.SetValue("%.1f"%90.0)
-            self.rd_box.SetValue("%.1f"%0.0)
-            self.ri_box.SetValue("%.1f"%90.0)
-            self.shift_synth_box.SetValue("%.1f"%0.0)
-            self.twf_box.SetValue("%.1f"%0.0)
-            self.samp_n_box.SetValue("%d"%4096)
+            self.spreading_rate = 40.0
+            self.sr_box.SetValue("%.1f"%self.spreading_rate)
+            self.phase_shift = 0.0
+            self.phase_shift_box.SetValue("%.1f"%self.phase_shift)
+            self.layer_depth = 4.5
+            self.layer_depth_box.SetValue("%.2f"%self.layer_depth)
+            self.layer_thickness = .5
+            self.layer_thickness_box.SetValue("%.2f"%self.layer_thickness)
+            self.layer_mag = .01*1e5
+            self.layer_mag_box.SetValue("%.1f"%(self.layer_mag))
+            self.azi = 0.0
+            self.azi_box.SetValue("%.1f"%self.azi)
+            self.ad = 0.0
+            self.ad_box.SetValue("%.1f"%self.ad)
+            self.ai = 90.0
+            self.ai_box.SetValue("%.1f"%self.ai)
+            self.rd = 0.0
+            self.rd_box.SetValue("%.1f"%self.rd)
+            self.ri = 90.0
+            self.ri_box.SetValue("%.1f"%self.ri)
+            self.synth_shift = 0.0
+            self.shift_synth_box.SetValue("%.1f"%self.synth_shift)
+            self.twf = 0.0
+            self.twf_box.SetValue("%.1f"%self.twf)
+            self.syn_length = 4096
+            self.samp_n_box.SetValue("%d"%self.syn_length)
         else:# TODO
             sconf = pd.read_csv(config_path,sep='\t',header=0)
+            self.fix_sta,self.fix_end = False,False
             self.dir_path.SetValue(self.WD)
-            self.sr_box.SetValue("%.1f"%40.0)
-            self.phase_shift_box.SetValue("%.1f"%0.0)
-            self.layer_depth_box.SetValue("%.2f"%4.5)
-            self.layer_thickness_box.SetValue("%.2f"%.5)
-            self.layer_mag_box.SetValue("%.1f"%(.01*1e5))
-            self.azi_box.SetValue("%.1f"%0.0)
-            self.ad_box.SetValue("%.1f"%0.0)
-            self.ai_box.SetValue("%.1f"%90.0)
-            self.rd_box.SetValue("%.1f"%0.0)
-            self.ri_box.SetValue("%.1f"%90.0)
-            self.shift_synth_box.SetValue("%.1f"%0.0)
-            self.twf_box.SetValue("%.1f"%0.0)
-            self.samp_n_box.SetValue("%d"%4096)
+            self.age_min_box.SetValue("%.1f"%float(self.min_age))
+            self.age_max_box.SetValue("%.1f"%float(self.max_age))
+            self.spreading_rate = 40.0
+            self.sr_box.SetValue("%.1f"%self.spreading_rate)
+            self.phase_shift = 0.0
+            self.phase_shift_box.SetValue("%.1f"%self.phase_shift)
+            self.layer_depth = 4.5
+            self.layer_depth_box.SetValue("%.2f"%self.layer_depth)
+            self.layer_thickness = .5
+            self.layer_thickness_box.SetValue("%.2f"%self.layer_thickness)
+            self.layer_mag = .01*1e5
+            self.layer_mag_box.SetValue("%.1f"%(self.layer_mag))
+            self.azi = 0.0
+            self.azi_box.SetValue("%.1f"%self.azi)
+            self.ad = 0.0
+            self.ad_box.SetValue("%.1f"%self.ad)
+            self.ai = 90.0
+            self.ai_box.SetValue("%.1f"%self.ai)
+            self.rd = 0.0
+            self.rd_box.SetValue("%.1f"%self.rd)
+            self.ri = 90.0
+            self.ri_box.SetValue("%.1f"%self.ri)
+            self.synth_shift = 0.0
+            self.shift_synth_box.SetValue("%.1f"%self.synth_shift)
+            self.twf = 0.0
+            self.twf_box.SetValue("%.1f"%self.twf)
+            self.syn_length = 4096
+            self.samp_n_box.SetValue("%d"%self.syn_length)
 
     def update(self,event):
 
@@ -430,29 +462,35 @@ class SynthMagGUI(wx.Frame):
 
         #Update Synthetic
         try:
-            layer_depth = float(self.layer_depth_box.GetValue())
-            layer_thickness = float(self.layer_thickness_box.GetValue())
-            layer_mag = float(self.layer_mag_box.GetValue())
-            azi = float(self.azi_box.GetValue())
-            rd = float(self.rd_box.GetValue())
-            ri = float(self.ri_box.GetValue())
-            ad = float(self.ad_box.GetValue())
-            ai = float(self.ai_box.GetValue())
-            twf = float(self.twf_box.GetValue())
-            spreading_rate = float(self.sr_box.GetValue())
-            phase_shift = float(self.phase_shift_box.GetValue())
-            synth_shift = float(self.shift_synth_box.GetValue())
-            syn_length = int(self.samp_n_box.GetValue())
+            if self.layer_depth!=float(self.layer_depth_box.GetValue()): self.layer_depth = float(self.layer_depth_box.GetValue()); self.update_synth = True
+            if self.layer_thickness!=float(self.layer_thickness_box.GetValue()): self.layer_thickness = float(self.layer_thickness_box.GetValue()); self.update_synth = True
+            if self.layer_mag!=float(self.layer_mag_box.GetValue()): self.layer_mag = float(self.layer_mag_box.GetValue()); self.update_synth = True
+            if self.azi!=float(self.azi_box.GetValue()): self.azi = float(self.azi_box.GetValue()); self.update_synth,self.update_data = True,True
+            if self.rd!=float(self.rd_box.GetValue()): self.rd = float(self.rd_box.GetValue()); self.update_synth = True
+            if self.ri!=float(self.ri_box.GetValue()): self.ri = float(self.ri_box.GetValue()); self.update_synth = True
+            if self.ad!=float(self.ad_box.GetValue()): self.ad = float(self.ad_box.GetValue()); self.update_synth = True
+            if self.ai!=float(self.ai_box.GetValue()): self.ai = float(self.ai_box.GetValue()); self.update_synth = True
+            if self.twf!=float(self.twf_box.GetValue()): self.twf = float(self.twf_box.GetValue()); self.update_synth = True
+            if self.spreading_rate!=float(self.sr_box.GetValue()): self.spreading_rate = float(self.sr_box.GetValue()); self.update_synth = True
+            if self.phase_shift!=float(self.phase_shift_box.GetValue()): self.phase_shift = float(self.phase_shift_box.GetValue()); self.update_data = True
+            if self.synth_shift!=float(self.shift_synth_box.GetValue()): self.synth_shift = float(self.shift_synth_box.GetValue()); self.update_synth = True
+            if self.syn_length!=int(self.samp_n_box.GetValue()): self.syn_length = int(self.samp_n_box.GetValue()); self.update_synth = True
         except ValueError: self.user_warning("At least one value is not numeric"); return
-        fix_sta,fix_end = self.zero_start_button.GetValue(),self.zero_end_button.GetValue()
-        try:
-            if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None:
-                synth = psk.make_synthetic(self.min_age,self.max_age,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,self.timescale_path,spreading_rate_path=self.spreading_rate_path,sz_name=self.dsk_row["sz_name"],length=syn_length,buff=self.syn_buff)
-                srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
-            else:
-                synth = psk.make_synthetic(self.min_age,self.max_age,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,self.timescale_path,spreading_rate=spreading_rate,length=syn_length,buff=self.syn_buff)
-                srf = lambda x,y: spreading_rate
-        except: #Be wary of Errors here this is done so you can plot just the data and not have a million errors but it can mask true behavior be ready to need to debug this
+        if self.fix_sta!=self.zero_start_button.GetValue(): self.fix_sta = self.zero_start_button.GetValue(); self.update_synth = True
+        if self.fix_end!=self.zero_end_button.GetValue(): self.fix_end = self.zero_end_button.GetValue(); self.update_synth = True
+        if self.update_synth:
+            try:
+                if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None:
+                    synth = psk.make_synthetic(self.min_age,self.max_age,self.layer_depth,self.layer_thickness,self.layer_mag,self.azi,self.rd,self.ri,self.ad,self.ai,self.fix_sta,self.fix_end,self.twf,self.timescale_path,spreading_rate_path=self.spreading_rate_path,sz_name=self.dsk_row["sz_name"],length=self.syn_length,buff=self.syn_buff)
+                    srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
+                else:
+                    synth = psk.make_synthetic(self.min_age,self.max_age,self.layer_depth,self.layer_thickness,self.layer_mag,self.azi,self.rd,self.ri,self.ad,self.ai,self.fix_sta,self.fix_end,self.twf,self.timescale_path,spreading_rate=self.spreading_rate,length=self.syn_length,buff=self.syn_buff)
+                    srf = lambda x,y: self.spreading_rate
+            except: #Be wary of Errors here this is done so you can plot just the data and not have a million errors but it can mask true behavior be ready to need to debug this
+                synth = [[0],[0],0]
+                if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
+                else: srf = lambda x,y: 0
+        else:
             synth = [[0],[0],0]
             if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
             else: srf = lambda x,y: 0
@@ -463,20 +501,21 @@ class SynthMagGUI(wx.Frame):
         self.samp_dis_box.SetValue("%.2f"%float(synth[2]))
 
         #Update Data
-        try:
+        if self.update_data:
             infile = os.path.join(self.dsk_row["data_dir"],self.dsk_row["comp_name"])
             if not os.path.isfile(infile): self.user_warning("Data file %s could not be found"%infile); return
-            self.dsk_row["phase_shift"] = phase_shift
-            self.deskew_df.set_value(self.dsk_idx,"strike",(azi+90)%360)
-            self.deskew_df.set_value(self.dsk_idx,"phase_shift",phase_shift)
-            self.dsk_row["strike"] = (azi+90)%360 #set strike to normal for aei calculation
+            self.dsk_row["phase_shift"] = self.phase_shift
+            self.deskew_df.set_value(self.dsk_idx,"strike",(self.azi+90)%360)
+            self.deskew_df.set_value(self.dsk_idx,"phase_shift",self.phase_shift)
+            self.dsk_row["strike"] = (self.azi+90)%360 #set strike to normal for aei calculation
             self.dsk_row = sk.row_calc_aei(self.dsk_row,srf,asf)
             self.deskew_df.at[self.dsk_idx,"ei"] = self.dsk_row["ei"]
             self.deskew_df.at[self.dsk_idx,"aei"] = self.dsk_row["aei"]
-            self.dsk_row["strike"] = (azi+270)%360 #rotate an extra 90 degrees because convention here is 180 from old convention for ease of moving synthetic
+            self.dsk_row["strike"] = (self.azi+270)%360 #rotate an extra 90 degrees because convention here is 180 from old convention for ease of moving synthetic
 
+        try:
             #Center Synthetic
-            if self.max_age!=self.min_age: step = (self.max_age-self.min_age)/(syn_length-1)
+            if self.max_age!=self.min_age: step = (self.max_age-self.min_age)/(self.syn_length-1)
             else: step = .01
             srf_sz = lambda x: step*srf(self.dsk_row["sz_name"],x)
             dis_anom_min = sum(map(srf_sz,np.arange(0,self.dsk_row["age_min"]+step,step)))
@@ -491,39 +530,47 @@ class SynthMagGUI(wx.Frame):
         except AttributeError: dis_synth,anom_width=synth[1],0
 
         ylim,xlim = self.ax.get_ylim(),self.ax.get_xlim()
-        self.ax.clear()
+#        self.ax.clear()
 
 #        psk.remove_axis_lines_and_ticks(self.ax)
 
         if self.m_show_anoms.IsChecked() or self.m_show_major_anoms.IsChecked(): self.plot_anomaly_names(major_anomolies_only=self.m_show_major_anoms.IsChecked(),anom_width=anom_width)
 
-        if self.show_component_button.GetValue():
-            if self.dsk_row["track_type"]=="aero":
-                if "Ed.lp" in self.track:
-                    other_track = self.track.replace("Ed.lp","Vd.lp")
-                    other_phase = phase_shift-90
-                elif "Hd.lp" in self.track:
-                    other_track = self.track.replace("Hd.lp","Vd.lp")
-                    other_phase = phase_shift-90
-                elif "Vd.lp" in self.track:
-                    other_track = self.track.replace("Vd.lp","Ed.lp")
-                    if other_track not in self.deskew_df["comp_name"].tolist(): other_track = self.track.replace("Vd.lp","Hd.lp")
-                    other_phase = phase_shift+90
-                else: self.user_warning("Improperly named component files should have either Ed.lp, Hd.lp, or Vd.lp got: %s"%self.track); return
-                other_dsk_row = self.deskew_df[self.deskew_df["comp_name"]==other_track].iloc[0]
-                other_dsk_row["strike"] = (azi+270)%360
-                psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7)
-            else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.dsk_row["track_type"]))
+        if self.update_data:
+            if self.show_component_button.GetValue():
+                if self.dsk_row["track_type"]=="aero":
+                    for oa in self.other_art:
+                        oa.remove()
+                    if "Ed.lp" in self.track:
+                        other_track = self.track.replace("Ed.lp","Vd.lp")
+                        other_phase = self.phase_shift-90
+                    elif "Hd.lp" in self.track:
+                        other_track = self.track.replace("Hd.lp","Vd.lp")
+                        other_phase = self.phase_shift-90
+                    elif "Vd.lp" in self.track:
+                        other_track = self.track.replace("Vd.lp","Ed.lp")
+                        if other_track not in self.deskew_df["comp_name"].tolist(): other_track = self.track.replace("Vd.lp","Hd.lp")
+                        other_phase = self.phase_shift+90
+                    else: self.user_warning("Improperly named component files should have either Ed.lp, Hd.lp, or Vd.lp got: %s"%self.track); return
+                    other_dsk_row = self.deskew_df[self.deskew_df["comp_name"]==other_track].iloc[0]
+                    other_dsk_row["strike"] = (self.azi+270)%360
+                    self.other_art = psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7,return_objects=True)
+                else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.dsk_row["track_type"]))
 
-        try:
-            psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,zorder=3,picker=True)
-            if self.max_age>=self.dsk_row["age_min"]: self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
-            if self.min_age<=-self.dsk_row["age_min"]: self.ax.axvspan(neg_anom-neg_anom_width,neg_anom+neg_anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
-            self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,va='top',ha='left')
-        except AttributeError: import pdb; pdb.set_trace()
+            try:
+                for da in self.data_art:
+                    da.remove()
+                self.data_art = list(psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,zorder=3,picker=True,return_objects=True))
+                self.data_art.append(self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,va='top',ha='left'))
+            except AttributeError as e: import pdb; pdb.set_trace()
 
-        self.ax.plot(dis_synth,np.array(synth[0])+synth_shift,'r-',alpha=.4,zorder=1)
-        self.ax.plot(dis_synth,np.zeros(len(dis_synth)),'k--')
+        if self.update_synth:
+            for sd in self.synth_art:
+                sd.remove()
+            self.synth_art = self.ax.plot(dis_synth,np.array(synth[0])+self.synth_shift,'r-',alpha=.4,zorder=1)
+            self.synth_art.append(self.ax.plot(dis_synth,np.zeros(len(dis_synth)),'k--')[0])
+            if self.max_age>=self.dsk_row["age_min"]: self.synth_art.append(self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0))
+            if self.min_age<=-self.dsk_row["age_min"]: self.synth_art.append(self.ax.axvspan(neg_anom-neg_anom_width,neg_anom+neg_anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0))
 
 #        psk.plot_scale_bars(self.ax,offset_of_bars = .05)
 
@@ -536,6 +583,7 @@ class SynthMagGUI(wx.Frame):
 
         #update external windows if necessary
         if self.eai_open: self.eai.update()
+        self.update_synth,self.update_data=False,False
 
     def update_age_boxes(self):
         tdf = pd.read_csv(self.timescale_path,sep='\t',header=0)
@@ -676,6 +724,7 @@ class SynthMagGUI(wx.Frame):
             try: self.min_age = float(min_value)
             except ValueError: self.user_warning("%s is not a valid minimum age value"%str(min_value))
         if self.min_age>self.max_age: self.min_age,self.max_age = self.swap(self.min_age,self.max_age)
+        self.update_synth = True
         self.update(event)
 
     def on_enter_age_max(self,event):
@@ -688,6 +737,7 @@ class SynthMagGUI(wx.Frame):
             try: self.max_age = float(max_value)
             except ValueError: self.user_warning("%s is not a valid minimum age value"%str(max_value))
         if self.min_age>self.max_age: self.min_age,self.max_age = self.swap(self.min_age,self.max_age)
+        self.update_synth = True
         self.update(event)
 
     def on_enter_sr(self,event):
@@ -785,6 +835,7 @@ class SynthMagGUI(wx.Frame):
         pos = [pos[0],height-pos[1]]
         pos = self.ax.transData.inverted().transform(pos)
         if self.set_new_intercept(pos[0]):
+            self.update_data = True
             self.update(event)
             if self.tvw_open: self.tvw.update()
 
@@ -985,7 +1036,9 @@ class SynthMagGUI(wx.Frame):
         return b,a
 
     def set_new_intercept(self,dis,dist_e=.5):
-        new_lon,new_lat,cor_dis = sk.get_lon_lat_from_plot_pick(self.dsk_row,dis,dist_e=dist_e)
+        try:
+            new_lon,new_lat,cor_dis = sk.get_lon_lat_from_plot_pick(self.dsk_row,dis,dist_e=dist_e)
+        except AttributeError as e: return self.user_warning("You must select a track before correcting crossing location")
         if self.user_warning("Are you sure you want to correct site location by %.2f to coordinates (%.2f,%.2f)"%(cor_dis,new_lat,new_lon)):
             self.deskew_df.set_value(self.dsk_idx,"inter_lat",new_lat)
             self.deskew_df.set_value(self.dsk_idx,"inter_lon",new_lon)

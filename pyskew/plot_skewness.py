@@ -466,7 +466,7 @@ def plot_scale_bars(ax,size_x=100,size_y=100,x_unit='km',y_unit='nT', scale_bar_
     ax.annotate('',xy=ybar_xy_figure_location, xycoords='figure fraction', xytext=(ybar_xytext_figure_location), textcoords='figure fraction', arrowprops=dict(arrowstyle='|-|'))
     ax.annotate('%d %s'%(size_y,y_unit),xy=ybar_xy_figure_location, xycoords='figure fraction', va='top', ha='center', fontsize=10)
 
-def plot_skewness_data(deskew_row, phase_shift, ax, xlims=[-500,500], clip_on=False, **kwargs):
+def plot_skewness_data(deskew_row, phase_shift, ax, xlims=[-500,500], clip_on=False, return_objects=False, **kwargs):
     data_file_path = os.path.join(deskew_row["data_dir"],deskew_row["comp_name"])
     data_df = pd.read_csv(data_file_path,names=["dist","dec_year","mag","lat","lon"],delim_whitespace=True)
 
@@ -497,7 +497,8 @@ def plot_skewness_data(deskew_row, phase_shift, ax, xlims=[-500,500], clip_on=Fa
         ax.lines[0].set_clip_path(clip_patch)
         ax.lines[1].set_clip_path(clip_patch)
 
-    return min(proj_dist), max(proj_dist)
+    if return_objects: return sln[0], zln[0]
+    else: return min(proj_dist), max(proj_dist)
 
 def remove_axis_lines_and_ticks(ax):
     [spline.set_visible(False) for spline in ax.spines.values()]

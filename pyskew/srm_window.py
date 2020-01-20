@@ -134,6 +134,7 @@ class SRMWindow(wx.Frame):
         except (AttributeError,KeyError) as e: pass
 
         self.update()
+        self.parent.update_synth = True
         self.parent.update(-1)
 
     def update(self): #Populates Logger and makes plot

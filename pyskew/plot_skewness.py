@@ -667,7 +667,7 @@ def plot_fz_loc(deskew_row,fz_loc_path,ax,**kwargs):
         fz_dis = (fzi_dict['s12']*np.sin(np.deg2rad(float(deskew_row['strike'])-fzi_dict['azi2'])))/1000
         ax.axvline(fz_dis,**kwargs)
 
-def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,ridge_loc_func=None,fz_loc_path=None, xlims=[-500,500], ylims=[-250,250], clip_on = False, twf=0, **kwargs):
+def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,ridge_loc_func=None,fz_loc_path=None, xlims=[-500,500], ylims=[-250,250], clip_on = False, twf=0, layer_mag=1000, **kwargs):
 #    plt.rc('text', usetex=True)
 #    plt.rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 
@@ -678,7 +678,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     ax0.set_ylabel(r"synthetic (%s)"%'ship',rotation=0,fontsize=10)
     ax0.yaxis.set_label_coords(-.075,.45)
     ax0.format_coord = format_coord
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims, twf=twf)
+    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims, twf=twf, layer_mag=layer_mag)
 #    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims)
     ax0.set_ylim(ylims) #MODIFY THIS TO CHANGE Y AXIS
     ax0.patch.set_alpha(0.0)
@@ -721,7 +721,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     remove_axis_lines_and_ticks(ax)
     ax.set_ylabel(r"synthetic (%s)"%'aero',rotation=0,fontsize=10)
     ax.yaxis.set_label_coords(-.075,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims, twf=twf)
+    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims, twf=twf, layer_mag=layer_mag)
     ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
     ax.patch.set_alpha(0.0)
     ax.format_coord = format_coord

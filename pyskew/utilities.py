@@ -100,7 +100,7 @@ def open_deskew_file(deskew_path):
 #    return deskew_df.reset_index()[cols]
     return deskew_df
 
-def write_deskew_file(deskew_path,deskew_df): #need to impleent with , float_format="%.3f" for prettyness
+def write_deskew_file(deskew_path,deskew_df): #need to implement with , float_format="%.3f" for prettyness
     deskew_df["comp_name"] = np.where(deskew_df["quality"]=="b", "#" + deskew_df["comp_name"], deskew_df["comp_name"])
     deskew_df.drop("quality",inplace=True,axis=1)
     deskew_df.to_csv(deskew_path,sep="\t",index=False,float_format="%.3f")

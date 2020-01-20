@@ -21,7 +21,7 @@ def calc_aei(deskew_df,srf,asf):
 
     deskew_df["ei"] = [(90. if ".Vd." in comp else 0.) for ps,comp in zip(deskew_df["phase_shift"],deskew_df["comp_name"])]
 
-    deskew_df["aei"] = [utl.wrap_180_180(180. - utl.wrap_180_180(row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))) for i,row in deskew_df.iterrows()]
+    deskew_df["aei"] = [utl.wrap_180_180(180. - row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)) for i,row in deskew_df.iterrows()]
 
     for i,row in deskew_df[deskew_df['track_type']=='ship'].iterrows():
         decimal_year = get_shipmag_decimal_year(row)
@@ -38,7 +38,7 @@ def calc_aei(deskew_df,srf,asf):
 def row_calc_aei(row,srf,asf):
     if row["track_type"] == "aero":
         row["ei"] = 90 if ".Vd." in row["comp_name"] else 0
-        row["aei"] = utl.wrap_180_180(180 - utl.wrap_180_180(row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)))
+        row["aei"] = utl.wrap_180_180(180 - (row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)))
     else:
         decimal_year = get_shipmag_decimal_year(row)
         if decimal_year==None: raise ValueError("Intersection point could not be found in data file so IGRF could not be calculated and aei could not be found please check your data, skipping %s"%row['comp_name'])
@@ -163,6 +163,29 @@ def get_lon_lat_from_plot_pick(deskew_row,plot_pick,dist_e=.01):
         print("couldn't find picked distance in datafile to calculate lat and lon for %s"%drow["comp_name"]); return (drow['inter_lon'],drow['inter_lat'],0)
 
     return picked_lon,picked_lat,picked_distance
+
+def get_idx_from_plot_pick(deskew_row,plot_pick,dist_e=.01):
+    drow,correction=deskew_row,plot_pick
+
+    data_file_path = os.path.join(drow["data_dir"],drow["comp_name"])
+    data_df = pd.read_csv(data_file_path,names=["dist","idk","mag","lat","lon"],delim_whitespace=True)
+
+    projected_distances = utl.calc_projected_distance(drow['inter_lon'],drow['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),drow['strike'])
+
+    found_dist=False
+    for j,row in projected_distances.iterrows():
+        if row['dist']>=correction-dist_e and row['dist']<=correction+dist_e:
+            picked_idx = j
+            picked_distance = row['dist']
+            found_dist=True
+            break
+
+    if found_dist:
+        print("found lat lon of %s at a distance %.3f"%(drow["comp_name"],picked_distance))
+    else:
+        print("couldn't find picked distance in datafile to calculate lat and lon for %s"%drow["comp_name"]); return (drow['inter_lon'],drow['inter_lat'],0)
+
+    return picked_idx,picked_distance
 
 def create_maxtab_file(deskew_path,anomoly_name,outfile=None):
     deskew_df = utl.open_deskew_file(deskew_path)
@@ -297,21 +320,29 @@ def reduce_to_pole(deskew_path, pole_lon, pole_lat, spreading_rate_path=None, an
 
     print("reducing to pole - lat: %.3f, lon: %.3f"%(pole_lat,pole_lon))
 
-    for i,row in deskew_df.iterrows():
-        reduced_skewness = reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf)
+    if "phase_shift" not in deskew_df.columns: deskew_df["phase_shift"] = 0.
+    if "rel_amp" not in deskew_df.columns: deskew_df["rel_amp"] = 0.
+
+    for i,row in deskew_df.sort_values("comp_name",ascending=False).iterrows():
+        reduced_skewness,rel_reduced_amplitude = reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf)
 
         deskew_df.set_value(i,'phase_shift',round(reduced_skewness,3))
+        if "Ed.lp" in row["comp_name"]:
+            rel_reduced_amplitude = deskew_df[deskew_df["comp_name"]==row["comp_name"].replace("Ed.lp","Vd.lp")].iloc[0]["rel_amp"]
+        elif "Hd.lp" in row["comp_name"]:
+            rel_reduced_amplitude = deskew_df[deskew_df["comp_name"]==row["comp_name"].replace("Hd.lp","Vd.lp")].iloc[0]["rel_amp"]
+        deskew_df.set_value(i,'rel_amp',round(rel_reduced_amplitude,3))
 
     old_results_dir = deskew_df['results_dir'].iloc[0]
     new_results_dir = os.path.join(old_results_dir,"pole_%.0f_%.0f_results"%(pole_lon,pole_lat))
     utl.check_dir(new_results_dir)
     deskew_df['results_dir'] = new_results_dir
 
-    reduced_deskew_df = deskew_df[['comp_name','phase_shift','step','age_min','age_max','inter_lat','inter_lon','strike','data_dir','results_dir','track_type','sz_name','r','g','b']]
+#    reduced_deskew_df = deskew_df[['comp_name','phase_shift','step','rel_amp','age_min','age_max','inter_lat','inter_lon','strike','data_dir','results_dir','track_type','sz_name','r','g','b']]
 
     out_path = os.path.join(os.path.dirname(deskew_path),"pole_%.0f_%.0f.deskew"%(pole_lon,pole_lat))   
     print("writing to %s"%out_path)
-    reduced_deskew_df.to_csv(out_path,sep='\t',index=False)
+    utl.write_deskew_file(out_path,deskew_df)
 
 def reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf):
         #taken from Lin's Matlab Code (doesn't seem to work)
@@ -339,8 +370,9 @@ def reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf):
         anom_skew = asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))
 
         reduced_skewness = utl.wrap_0_360(180 - float(row['ei']) - e_r + anom_skew)
+        rel_reduced_amplitude = (np.sin(np.deg2rad(float(e_r)))/np.sin(np.deg2rad(row['ei'])))*np.sqrt(1+3*np.cos(np.deg2rad(90-row["inter_lat"]))**2)
 
-        return reduced_skewness
+        return reduced_skewness,rel_reduced_amplitude
 
 def create_deskew_file(chron_name,results_directory,age_min,age_max,data_directory='.',phase_shift=180,step=60):
     cut_tracks_path=os.path.join(data_directory,"usable_tracks_and_intersects_for_%s.txt"%str(chron_name))
@@ -649,7 +681,7 @@ def config_synthetic(synth_config_path,timescale_path,spreading_rate_path,length
         synth_and_domains.append(make_synthetic(*row.values,timescale_path,spreading_rate_path,length=length,buff=buff))
     return synth_and_domains
 
-def make_synthetic(age_min,age_max,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,timescale_path,spreading_rate=None,sz_name=None,spreading_rate_path=None,length=4096,buff=.2):
+def make_synthetic(age_min,age_max,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,timescale_path,spreading_rate=None,sz_name=None,spreading_rate_path=None,length=4096):
 
     tdf = pd.read_csv(timescale_path,sep='\t',header=0)
     if spreading_rate_path!=None and sz_name!=None:
@@ -676,10 +708,13 @@ def make_synthetic(age_min,age_max,layer_depth,layer_thickness,layer_mag,azi,rd,
     samp_dis = (tot_dis)/(length-1) #Distance sampling rate
 
     #Pad Signal before processing
-    if not fix_sta: lbuff = mag_sig[0]*np.ones([int(buff*length)])
-    else: lbuff = np.zeros([int(buff*length)])
-    if not fix_sta: rbuff = mag_sig[-1]*np.ones([int(buff*length)])
-    else: rbuff = np.zeros([int(buff*length)])
+    # ibegin = (NDIM-1)*(.15/1.3)+1
+    # iend = int((NDIM-1)*(1.15/1.3) + 0.5)
+    buff = int((2**(int(np.log2(length))+1)-length)/2)
+    if not fix_sta: lbuff = mag_sig[0]*np.ones([int(buff)])
+    else: lbuff = np.zeros([int(buff)])
+    if not fix_sta: rbuff = mag_sig[-1]*np.ones([int(buff)])
+    else: rbuff = np.zeros([int(buff)])
 
     mag_sig = np.hstack((lbuff,mag_sig,rbuff))
 
@@ -693,14 +728,15 @@ def make_synthetic(age_min,age_max,layer_depth,layer_thickness,layer_mag,azi,rd,
 
     dis_nyquist = np.pi/samp_dis #We're really concerned with distance domain so consider sampling in that space
     #This is the important step where we convolve with the earth's response
-    fte_mag_sig = mag_earth_filter(ft_mag_sig,length+2*buff*length,layer_depth,layer_depth+layer_thickness,rtheta,afac,dis_nyquist)
+    fte_mag_sig = mag_earth_filter(ft_mag_sig,length+2*buff,layer_depth,layer_depth+layer_thickness,rtheta,afac,dis_nyquist)
 
     if twf: #Guess what this does.
-        fte_mag_sig = transition_width_filter(fte_mag_sig,length+2*buff*length,dis_nyquist,twf/4)
+        fte_mag_sig = transition_width_filter(fte_mag_sig,length+2*buff,dis_nyquist,twf/4)
 
     synth = np.fft.ifft(fte_mag_sig)
 
-    return synth[int(buff*length):-int(buff*length)],dis_domain,samp_dis
+    return synth[int(buff):-int(buff)],dis_domain,samp_dis
+#    return synth,dis_domain,samp_dis
 
 def mag_earth_filter(ft_mag_sig,length,top,bot,rtheta,afac,dis_nyquist):
     z = np.cos(rtheta)+1j*np.sin(rtheta)

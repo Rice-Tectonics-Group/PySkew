@@ -30,7 +30,6 @@ class SynthMagGUI(wx.Frame):
         self.dpi=dpi
         self.WD=os.getcwd()
         self.track = None #default no data
-        self.syn_buff = .2
         self.min_age,self.max_age = 0,0
         self.spreading_rate_path,self.anomalous_skewness_path,self.timescale_path,self.deskew_path = None,None,None,None
         self.srmw_open,self.tvw_open,self.eai_open = False,False,False
@@ -239,7 +238,7 @@ class SynthMagGUI(wx.Frame):
 
         #----------------Update Button-----------------
 
-        self.update_button = wx.Button(self.panel, id=wx.ID_ANY, label='Update',size=(200,25))
+        self.update_button = wx.Button(self.panel, id=wx.ID_ANY, label='Update All',size=(200,25))
         self.Bind(wx.EVT_BUTTON, self.on_update_button, self.update_button)
 
         #----------------Update Button-----------------
@@ -256,6 +255,7 @@ class SynthMagGUI(wx.Frame):
         self.canvas.Bind(wx.EVT_MIDDLE_DOWN,self.on_middle_click_plot)
         self.canvas.Bind(wx.EVT_MOTION,self.on_move_mouse_plot)
         self.canvas.Bind(wx.EVT_LEFT_DCLICK, self.on_select_dleft_click)
+        self.canvas.Bind(wx.EVT_RIGHT_DCLICK, self.on_select_dright_click)
 
         #------------------------------------Finish Building UI---------------------------------------------------
 
@@ -393,7 +393,7 @@ class SynthMagGUI(wx.Frame):
 
     def configure(self,config_file):
         if config_file==None: #Set up default values
-            self.fix_sta,self.fix_end = False,False
+            self.show_other_comp,self.fix_sta,self.fix_end = False,False,False
             self.dir_path.SetValue(self.WD)
             self.age_min_box.SetValue("%.1f"%float(self.min_age))
             self.age_max_box.SetValue("%.1f"%float(self.max_age))
@@ -425,7 +425,7 @@ class SynthMagGUI(wx.Frame):
             self.samp_n_box.SetValue("%d"%self.syn_length)
         else:# TODO
             sconf = pd.read_csv(config_path,sep='\t',header=0)
-            self.fix_sta,self.fix_end = False,False
+            self.show_other_comp,self.fix_sta,self.fix_end = False,False,False
             self.dir_path.SetValue(self.WD)
             self.age_min_box.SetValue("%.1f"%float(self.min_age))
             self.age_max_box.SetValue("%.1f"%float(self.max_age))
@@ -476,15 +476,16 @@ class SynthMagGUI(wx.Frame):
             if self.synth_shift!=float(self.shift_synth_box.GetValue()): self.synth_shift = float(self.shift_synth_box.GetValue()); self.update_synth = True
             if self.syn_length!=int(self.samp_n_box.GetValue()): self.syn_length = int(self.samp_n_box.GetValue()); self.update_synth = True
         except ValueError: self.user_warning("At least one value is not numeric"); return
+        if self.show_other_comp!=self.show_component_button.GetValue(): self.show_other_comp = self.show_component_button.GetValue(); self.update_data = True
         if self.fix_sta!=self.zero_start_button.GetValue(): self.fix_sta = self.zero_start_button.GetValue(); self.update_synth = True
         if self.fix_end!=self.zero_end_button.GetValue(): self.fix_end = self.zero_end_button.GetValue(); self.update_synth = True
         if self.update_synth:
             try:
                 if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None:
-                    synth = psk.make_synthetic(self.min_age,self.max_age,self.layer_depth,self.layer_thickness,self.layer_mag,self.azi,self.rd,self.ri,self.ad,self.ai,self.fix_sta,self.fix_end,self.twf,self.timescale_path,spreading_rate_path=self.spreading_rate_path,sz_name=self.dsk_row["sz_name"],length=self.syn_length,buff=self.syn_buff)
+                    synth = psk.make_synthetic(self.min_age,self.max_age,self.layer_depth,self.layer_thickness,self.layer_mag,self.azi,self.rd,self.ri,self.ad,self.ai,self.fix_sta,self.fix_end,self.twf,self.timescale_path,spreading_rate_path=self.spreading_rate_path,sz_name=self.dsk_row["sz_name"],length=self.syn_length)
                     srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
                 else:
-                    synth = psk.make_synthetic(self.min_age,self.max_age,self.layer_depth,self.layer_thickness,self.layer_mag,self.azi,self.rd,self.ri,self.ad,self.ai,self.fix_sta,self.fix_end,self.twf,self.timescale_path,spreading_rate=self.spreading_rate,length=self.syn_length,buff=self.syn_buff)
+                    synth = psk.make_synthetic(self.min_age,self.max_age,self.layer_depth,self.layer_thickness,self.layer_mag,self.azi,self.rd,self.ri,self.ad,self.ai,self.fix_sta,self.fix_end,self.twf,self.timescale_path,spreading_rate=self.spreading_rate,length=self.syn_length)
                     srf = lambda x,y: self.spreading_rate
             except: #Be wary of Errors here this is done so you can plot just the data and not have a million errors but it can mask true behavior be ready to need to debug this
                 synth = [[0],[0],0]
@@ -537,10 +538,13 @@ class SynthMagGUI(wx.Frame):
         if self.m_show_anoms.IsChecked() or self.m_show_major_anoms.IsChecked(): self.plot_anomaly_names(major_anomolies_only=self.m_show_major_anoms.IsChecked(),anom_width=anom_width)
 
         if self.update_data:
-            if self.show_component_button.GetValue():
+            try: #Remove other comp even if it's not shown in case it was shown previously, but catch error if attribute doesn't exist yet
+                for oa in self.other_art:
+                    oa.remove()
+                del self.other_art #This is very hacky but I don't want to except a ValueError here
+            except (AttributeError,NameError) as e: pass
+            if self.show_other_comp:
                 if self.dsk_row["track_type"]=="aero":
-                    for oa in self.other_art:
-                        oa.remove()
                     if "Ed.lp" in self.track:
                         other_track = self.track.replace("Ed.lp","Vd.lp")
                         other_phase = self.phase_shift-90
@@ -569,8 +573,10 @@ class SynthMagGUI(wx.Frame):
                 sd.remove()
             self.synth_art = self.ax.plot(dis_synth,np.array(synth[0])+self.synth_shift,'r-',alpha=.4,zorder=1)
             self.synth_art.append(self.ax.plot(dis_synth,np.zeros(len(dis_synth)),'k--')[0])
-            if self.max_age>=self.dsk_row["age_min"]: self.synth_art.append(self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0))
-            if self.min_age<=-self.dsk_row["age_min"]: self.synth_art.append(self.ax.axvspan(neg_anom-neg_anom_width,neg_anom+neg_anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0))
+            try:
+                if self.max_age>=self.dsk_row["age_min"]: self.synth_art.append(self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0))
+                if self.min_age<=-self.dsk_row["age_min"]: self.synth_art.append(self.ax.axvspan(neg_anom-neg_anom_width,neg_anom+neg_anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0))
+            except AttributeError as e: pass
 
 #        psk.plot_scale_bars(self.ax,offset_of_bars = .05)
 
@@ -699,6 +705,8 @@ class SynthMagGUI(wx.Frame):
         if self.srmw_open: self.srmw.sz_box.SetValue(self.dsk_row["sz_name"]); self.srmw.on_select_sz(event)
         if self.tvw_open: self.tvw.on_parent_select_track()
         if self.eai_open: self.eai.on_parent_select_track()
+        if "rel_amp" in self.dsk_row: self.layer_mag_box.SetValue("%.1f"%(abs(500*self.dsk_row["rel_amp"]))); self.update_synth = True
+        self.update_data = True
         self.update(event)
 
     def on_select_age_min(self,event):
@@ -796,6 +804,7 @@ class SynthMagGUI(wx.Frame):
     ##########################Buttons!!!!!!################################
 
     def on_update_button(self,event):
+        self.update_synth,self.update_data = True,True
         self.update(event)
 #        utl.run_in_parallel(self.update,args=[event])
 
@@ -839,6 +848,16 @@ class SynthMagGUI(wx.Frame):
             self.update(event)
             if self.tvw_open: self.tvw.update()
 
+    def on_select_dright_click(self,event):
+        pos=event.GetPosition()
+        width, height = self.canvas.get_width_height()
+        pos = [pos[0],height-pos[1]]
+        pos = self.ax.transData.inverted().transform(pos)
+        if self.cut_track(pos[0]):
+            self.update_data = True
+            self.update(event)
+            if self.tvw_open: self.tvw.update()
+
     ##########################Menu Functions################################
 
     def on_save_deskew(self,event):
@@ -851,7 +870,7 @@ class SynthMagGUI(wx.Frame):
             )
         if dlg.ShowModal() == wx.ID_OK:
             outfile = dlg.GetPath()
-            self.deskew_df.to_csv(outfile,sep="\t",index=False)
+            utl.write_deskew_file(outfile,self.deskew_df)
         dlg.Destroy()
 
     def on_save_plot(self,event):
@@ -943,7 +962,7 @@ class SynthMagGUI(wx.Frame):
             self.tvw_open=True
 
     def on_eai(self,event):
-        if not self.tvw_open:
+        if not self.eai_open:
             self.eai = EAIWindow(parent=self,dpi=self.dpi)
             self.eai.Center()
             self.eai.Show()
@@ -1043,6 +1062,44 @@ class SynthMagGUI(wx.Frame):
             self.deskew_df.set_value(self.dsk_idx,"inter_lat",new_lat)
             self.deskew_df.set_value(self.dsk_idx,"inter_lon",new_lon)
             self.dsk_row = self.deskew_df.loc[self.dsk_idx].iloc[0]
+            return True
+        else: return False
+
+    def cut_track(self,dis,dist_e=.5):
+        try:
+            new_idx,cor_dis = sk.get_idx_from_plot_pick(self.dsk_row,dis,dist_e=dist_e)
+        except AttributeError as e: return self.user_warning("You must select a track before correcting crossing location")
+        msg = "WARNING: This process is not reversable without manually reprocessing the main .lp file are you sure you want to cut the data at %.2f"%cor_dis
+        if self.user_warning(msg):
+            #Cut the current file
+            mag_path = os.path.join(self.dsk_row["data_dir"],self.dsk_row["comp_name"])
+            mag_df = utl.open_mag_file(mag_path)
+            if cor_dis>0:
+                mag_df = mag_df.iloc[new_idx:]
+            else:
+                mag_df = mag_df.iloc[:new_idx]
+            utl.write_mag_file_df(mag_df,mag_path)
+
+            if self.dsk_row["track_type"]=="aero": #Cut the other component so they match if aero
+                if "Ed.lp" in self.track:
+                    other_track = self.track.replace("Ed.lp","Vd.lp")
+                elif "Hd.lp" in self.track:
+                    other_track = self.track.replace("Hd.lp","Vd.lp")
+                elif "Vd.lp" in self.track:
+                    other_track = self.track.replace("Vd.lp","Ed.lp")
+                    if other_track not in self.deskew_df["comp_name"].tolist(): other_track = self.track.replace("Vd.lp","Hd.lp")
+                other_dsk_row = self.deskew_df[self.deskew_df["comp_name"]==other_track].iloc[0]
+
+                mag_path = os.path.join(other_dsk_row["data_dir"],other_dsk_row["comp_name"])
+                mag_df = utl.open_mag_file(mag_path)
+                if cor_dis>0:
+                    mag_df = mag_df.iloc[new_idx:]
+                else:
+                    mag_df = mag_df.iloc[:new_idx]
+                utl.write_mag_file_df(mag_df,mag_path)
+
+            else: self.user_warning("Improperly named component files should have either Ed.lp, Hd.lp, or Vd.lp got: %s"%self.track); return
+
             return True
         else: return False
 

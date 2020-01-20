@@ -119,6 +119,10 @@ if __name__=="__main__":
         twfi = sys.argv.index('-twf')
         kwargs['twf'] = float(sys.argv[twfi+1])
 
+    if "-lm" in sys.argv:
+        lmi = sys.argv.index('-lm')
+        kwargs['layer_mag'] = float(sys.argv[lmi+1])
+
     if "-clip" in sys.argv:
         kwargs['clip_on'] = True
 

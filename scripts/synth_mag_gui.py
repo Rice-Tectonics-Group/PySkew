@@ -9,6 +9,7 @@ import pyskew.skewness as sk
 from pyskew.srm_window import SRMWindow
 from pyskew.tv_window import TVWindow
 from pyskew.eai_window import EAIWindow
+from pyskew.dt_window import DetrendWindow
 import pyskew.utilities as utl
 import matplotlib
 from matplotlib.figure import Figure
@@ -32,7 +33,7 @@ class SynthMagGUI(wx.Frame):
         self.track = None #default no data
         self.min_age,self.max_age = 0,0
         self.spreading_rate_path,self.anomalous_skewness_path,self.timescale_path,self.deskew_path = None,None,None,None
-        self.srmw_open,self.tvw_open,self.eai_open = False,False,False
+        self.srmw_open,self.tvw_open,self.eai_open,self.dtw_open = False,False,False,False
 
         #make the Panel
         self.panel = wx.Panel(self,-1,size=(1200,900))
@@ -244,7 +245,9 @@ class SynthMagGUI(wx.Frame):
         #----------------Update Button-----------------
 
         self.fig = Figure((5, 5), dpi=self.dpi)
-#        self.fig.subplots_adjust(top = .95, bottom = 0.05, right = .95, left = .05, hspace = 0.05, wspace = 0.05)
+        self.fig.tight_layout()
+        pad = .05
+        self.fig.subplots_adjust(top = 1-pad, bottom = pad, right = 1-pad, left = pad, hspace = pad, wspace = pad)
         self.canvas = FigCanvas(self.panel, -1, self.fig)
         self.toolbar = NavigationToolbar(self.canvas)
         self.ax = self.fig.add_subplot(111)
@@ -370,6 +373,9 @@ class SynthMagGUI(wx.Frame):
 
         self.m_eai = menu_tools.Append(-1, "&Effective Inclination Viewer\tAlt-E", "")
         self.Bind(wx.EVT_MENU, self.on_eai, self.m_eai)
+
+        self.m_dt = menu_tools.Append(-1, "&Detrend Utility\tAlt-T", "")
+        self.Bind(wx.EVT_MENU, self.on_dt, self.m_dt)
 
         #-----------------
         # Help Menu
@@ -538,6 +544,7 @@ class SynthMagGUI(wx.Frame):
         if self.m_show_anoms.IsChecked() or self.m_show_major_anoms.IsChecked(): self.plot_anomaly_names(major_anomolies_only=self.m_show_major_anoms.IsChecked(),anom_width=anom_width)
 
         if self.update_data:
+            #Data Update if there's another component to a vector profile
             try: #Remove other comp even if it's not shown in case it was shown previously, but catch error if attribute doesn't exist yet
                 for oa in self.other_art:
                     oa.remove()
@@ -562,11 +569,16 @@ class SynthMagGUI(wx.Frame):
                 else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.dsk_row["track_type"]))
 
             try:
+                #Standard Data Update
                 for da in self.data_art:
                     da.remove()
                 self.data_art = list(psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,zorder=3,picker=True,return_objects=True))
                 self.data_art.append(self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,va='top',ha='left'))
-            except AttributeError as e: import pdb; pdb.set_trace()
+
+                #Data Update if there's a polynomial fit
+                if self.dtw_open: self.dtw.on_plot_btn(-1)
+                else: self.dtw.line.remove()
+            except AttributeError as e: pass
 
         if self.update_synth:
             for sd in self.synth_art:
@@ -960,6 +972,13 @@ class SynthMagGUI(wx.Frame):
             self.tvw.Center()
             self.tvw.Show()
             self.tvw_open=True
+
+    def on_dt(self,event):
+        if not self.dtw_open:
+            self.dtw = DetrendWindow(parent=self,dpi=self.dpi)
+            self.dtw.Center()
+            self.dtw.Show()
+            self.dtw_open=True
 
     def on_eai(self,event):
         if not self.eai_open:

@@ -149,9 +149,10 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
 
         #remove a second order polynomial fromm the magnetic data I don't know why but this is something done
         for col in ['res_e_comp','res_h_comp','res_v_comp','res_t_comp']:
-            pols = np.polyfit(adf['dis'].tolist(),adf[col].tolist(),2)
-            mag_fit = np.polyval(pols,adf['dis'].tolist())
-            adf['cor'+col.lstrip('res')] = np.array(adf[col].tolist()) - mag_fit
+#            pols = np.polyfit(adf['dis'].tolist(),adf[col].tolist(),2)
+#            mag_fit = np.polyval(pols,adf['dis'].tolist())
+#            adf['cor'+col.lstrip('res')] = np.array(adf[col].tolist()) - mag_fit
+            adf['cor'+col.lstrip('res')] = np.array(adf[col].tolist())
 
         #iterpolate and round data
         round3_func = lambda x: round(x,3)

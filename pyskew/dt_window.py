@@ -82,7 +82,7 @@ class DetrendWindow(wx.Frame):
 
     def on_close_main(self,event):
         self.parent.dtw_open=False
-        self.parent.update()
+        self.parent.update(event)
         self.Destroy()
 
     ###################Button Functions#########################

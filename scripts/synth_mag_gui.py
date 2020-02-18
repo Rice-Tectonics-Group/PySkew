@@ -45,7 +45,7 @@ class SynthMagGUI(wx.Frame):
 
         #Configure self if there is a config file
         self.configure(config_file)
-        self.synth_art,self.other_art,self.data_art = [],[],[] #placeholders for artist objects cache to speed updates
+        self.synth_art,self.other_art,self.data_art,self.alt_data = [],[],[],[] #placeholders for artist objects cache to speed updates
         self.update_synth,self.update_data=False,False
         self.update(-1)
 
@@ -126,6 +126,7 @@ class SynthMagGUI(wx.Frame):
         #----------------Track Selection Box-----------------
 
         inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        lower_sizer = wx.BoxSizer(wx.HORIZONTAL)
         track_sizer = wx.StaticBoxSizer(wx.StaticBox(self.panel, wx.ID_ANY, "Choose Track Parameters"), wx.VERTICAL)
 
         self.track_box = wx.ComboBox(self.panel, id=wx.ID_ANY,size=(150, 25),choices=[], style=wx.CB_DROPDOWN|wx.TE_READONLY)
@@ -134,17 +135,22 @@ class SynthMagGUI(wx.Frame):
         self.phase_shift_box = wx.TextCtrl(self.panel, id=wx.ID_ANY, size=(50,25), style=wx.TE_PROCESS_ENTER)
         self.Bind(wx.EVT_TEXT_ENTER, self.on_enter_phase_shift, self.phase_shift_box)
 
-        self.show_component_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Show Other Component", size=(200,25))
+        self.show_component_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Show Other Component", size=(125,25))
         self.Bind(wx.EVT_TEXT_ENTER, self.on_show_component, self.show_component_button)
+
+        self.show_alt_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Show Altitude", size=(75,25))
+        self.Bind(wx.EVT_TEXT_ENTER, self.on_show_alt, self.show_alt_button)
 
 #        self.show_adjacent_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Show Adjacent Components", size=(200,25))
 #        self.Bind(wx.EVT_TEXT_ENTER, self.on_show_adjacent, self.show_adjacent_button)
 
         inner_sizer.AddMany([(self.track_box, 3, wx.ALIGN_CENTER|wx.EXPAND|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.TOP,side_bar_h_space),
                              (self.phase_shift_box, 1, wx.ALIGN_LEFT|wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND|wx.TOP,side_bar_h_space)])
+        lower_sizer.AddMany([(self.show_component_button, 1, wx.ALIGN_CENTER|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.TOP,0),
+                             (self.show_alt_button, 1, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.TOP,side_bar_h_space)])
 
         track_sizer.AddMany([(inner_sizer, 1, wx.ALIGN_CENTER|wx.EXPAND),
-                             (self.show_component_button, 1, wx.ALIGN_LEFT|wx.ALIGN_BOTTOM|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND,side_bar_h_space)])
+                             (lower_sizer, 1, wx.ALIGN_LEFT|wx.ALIGN_BOTTOM|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND,side_bar_h_space)])
 #                             (self.show_adjacent_button, 1, wx.ALIGN_LEFT|wx.ALIGN_BOTTOM|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND,side_bar_h_space)])
 
         #----------------Age bounds sand Spreading Rate Box-----------------
@@ -251,7 +257,7 @@ class SynthMagGUI(wx.Frame):
         self.canvas = FigCanvas(self.panel, -1, self.fig)
         self.toolbar = NavigationToolbar(self.canvas)
         self.ax = self.fig.add_subplot(111)
-        psk.remove_axis_lines_and_ticks(self.ax)
+#        psk.remove_axis_lines_and_ticks(self.ax)
         self.toolbar.Hide()
         self.plot_setting = "Zoom"
         self.toolbar.zoom()
@@ -399,7 +405,7 @@ class SynthMagGUI(wx.Frame):
 
     def configure(self,config_file):
         if config_file==None: #Set up default values
-            self.show_other_comp,self.fix_sta,self.fix_end = False,False,False
+            self.show_alt,self.show_other_comp,self.fix_sta,self.fix_end = False,False,False,False
             self.dir_path.SetValue(self.WD)
             self.age_min_box.SetValue("%.1f"%float(self.min_age))
             self.age_max_box.SetValue("%.1f"%float(self.max_age))
@@ -483,6 +489,7 @@ class SynthMagGUI(wx.Frame):
             if self.syn_length!=int(self.samp_n_box.GetValue()): self.syn_length = int(self.samp_n_box.GetValue()); self.update_synth = True
         except ValueError: self.user_warning("At least one value is not numeric"); return
         if self.show_other_comp!=self.show_component_button.GetValue(): self.show_other_comp = self.show_component_button.GetValue(); self.update_data = True
+        if self.show_alt!=self.show_alt_button.GetValue(): self.show_alt = self.show_alt_button.GetValue(); self.update_data,self.update_synth = True,True
         if self.fix_sta!=self.zero_start_button.GetValue(): self.fix_sta = self.zero_start_button.GetValue(); self.update_synth = True
         if self.fix_end!=self.zero_end_button.GetValue(): self.fix_end = self.zero_end_button.GetValue(); self.update_synth = True
         if self.update_synth:
@@ -503,6 +510,14 @@ class SynthMagGUI(wx.Frame):
             else: srf = lambda x,y: 0
         if self.anomalous_skewness_path!=None: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
         else: asf = lambda x: 0
+
+        #Change axes if change in showing altitude data
+        if self.show_alt and len(self.fig.get_axes())==1 and self.dsk_row["track_type"]=="aero":
+            self.fig.clf()
+            self.ax,self.alt_ax = self.fig.subplots(2,1,sharex=True)
+        elif not self.show_alt and len(self.fig.get_axes())>1:
+            self.fig.clf()
+            self.ax,self.alt_ax = self.fig.subplots(1,1),None
 
         #Update Readouts on synthetic
         self.samp_dis_box.SetValue("%.2f"%float(synth[2]))
@@ -575,10 +590,18 @@ class SynthMagGUI(wx.Frame):
                 self.data_art = list(psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,zorder=3,picker=True,return_objects=True))
                 self.data_art.append(self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,va='top',ha='left'))
 
+                #Add altitude data if applicable
+                if self.show_alt and self.dsk_row["track_type"]=="aero":
+                    for ad in self.alt_data:
+                        ad.remove()
+                    dsk_df = utl.open_mag_file(os.path.join(self.dsk_row["data_dir"],self.dsk_row["comp_name"].replace(".Ed","").replace(".Vd","").replace(".Hd","")))
+                    dsk_dis = utl.calc_projected_distance(self.dsk_row["inter_lon"],self.dsk_row["inter_lat"],dsk_df["lon"],dsk_df["lat"],self.dsk_row["strike"])["dist"]
+                    self.alt_data = self.alt_ax.plot(dsk_dis,dsk_df["alt"],color="k")
+
                 #Data Update if there's a polynomial fit
                 if self.dtw_open: self.dtw.on_plot_btn(-1)
-                else: self.dtw.line.remove()
-            except AttributeError as e: pass
+                else: self.dtw.line[0].remove()
+            except (AttributeError,ValueError) as e: pass
 
         if self.update_synth:
             for sd in self.synth_art:
@@ -808,6 +831,9 @@ class SynthMagGUI(wx.Frame):
         self.update(event)
 
     def on_show_component(self,event):
+        pass
+
+    def on_show_alt(self,event):
         pass
 
     def on_show_adjacent(self,event):
@@ -1107,6 +1133,7 @@ class SynthMagGUI(wx.Frame):
                 elif "Vd.lp" in self.track:
                     other_track = self.track.replace("Vd.lp","Ed.lp")
                     if other_track not in self.deskew_df["comp_name"].tolist(): other_track = self.track.replace("Vd.lp","Hd.lp")
+                else: self.user_warning("Improperly named component files should have either Ed.lp, Hd.lp, or Vd.lp got: %s"%self.track); return
                 other_dsk_row = self.deskew_df[self.deskew_df["comp_name"]==other_track].iloc[0]
 
                 mag_path = os.path.join(other_dsk_row["data_dir"],other_dsk_row["comp_name"])
@@ -1116,8 +1143,6 @@ class SynthMagGUI(wx.Frame):
                 else:
                     mag_df = mag_df.iloc[:new_idx]
                 utl.write_mag_file_df(mag_df,mag_path)
-
-            else: self.user_warning("Improperly named component files should have either Ed.lp, Hd.lp, or Vd.lp got: %s"%self.track); return
 
             return True
         else: return False

@@ -171,13 +171,14 @@ while running:
         print("Plotting Gravity")
         start_time = time()
         print("Grid Sizes: ",all_lons.shape,all_lats.shape,all_grav.shape)
-        fcm = ax.contourf(all_lons, all_lats, all_grav, 60, cmap="viridis", alpha=.75, transform=ccrs.PlateCarree(), zorder=0, vmin=0, vmax=255)
+        fcm = ax.contourf(all_lons, all_lats, all_grav, 60, cmap="Blues_r", alpha=.75, transform=ccrs.PlateCarree(), zorder=0, vmin=0, vmax=255)
         print("Runtime: ",time()-start_time)
 
         ax.set_extent(window, ccrs.PlateCarree())
 
     if inp == "q": running = False; break
 
+    ax.set_facecolor('w')
     plt.draw()
     plt.pause(.001)
     inp = input("Plot Command: ")

@@ -81,6 +81,7 @@ class DetrendWindow(wx.Frame):
     #########################Update UI Funcions#############################
 
     def on_close_main(self,event):
+        self.parent.dtw=None
         self.parent.dtw_open=False
         self.parent.update(event)
         self.Destroy()

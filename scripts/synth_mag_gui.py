@@ -27,6 +27,13 @@ class SynthMagGUI(wx.Frame):
         wx.Frame.__init__(self, None, title="SynthMagGUI V0.2.1",style=default_style, size=(400*3,300*3))
         self.Bind(wx.EVT_CLOSE, self.on_close_main)
 
+        #Set Matplotlib fontsize to match WX
+        font = {'family' : 'normal',
+        #        'weight' : 'bold',
+                'size'   : fontsize}
+        matplotlib.rc('font', **font)
+        self.fontsize = fontsize
+
         #Save input variables
         self.dpi=dpi
         self.WD=os.getcwd()
@@ -352,6 +359,11 @@ class SynthMagGUI(wx.Frame):
 
         self.m_use_as_model = menu_edit.AppendCheckItem(-1, "&Toggle Anomalous Skewness Correction\tCtrl-Shift-M", "")
         self.Bind(wx.EVT_MENU, self.on_use_as_model, self.m_use_as_model)
+
+        menu_edit.AppendSeparator()
+
+        self.m_change_fontsize = menu_edit.Append(-1, "&Change fontsize", "")
+        self.Bind(wx.EVT_MENU, self.on_change_fontsize, self.m_change_fontsize)
 
         #-----------------
         # View Menu
@@ -982,6 +994,24 @@ class SynthMagGUI(wx.Frame):
 
     def on_use_as_model(self,event):
         self.update(event)
+
+    def on_change_fontsize(self,event):
+        dlg = wx.TextEntryDialog(self, "Enter Fontsize", caption="Edit Fontsize",
+                    value=str(self.fontsize), style=wx.TextEntryDialogStyle)
+        if dlg.ShowModal() == wx.ID_OK:
+            try:
+                self.fontsize = int(dlg.GetValue())
+                matplotlib.rcParams.update({'font.size': self.fontsize})
+            except ValueError: self.user_warning("Value entered was non-numeric canceling fontsize change.")
+        dlg.Destroy()
+        for item in ([self.ax.title, self.ax.xaxis.label, self.ax.yaxis.label] +
+                     self.ax.get_xticklabels() + self.ax.get_yticklabels()):
+            item.set_fontsize(self.fontsize)
+        if not isinstance(self.alt_ax,type(None)):
+            for item in ([self.alt_ax.title, self.alt_ax.xaxis.label, self.alt_ax.yaxis.label] +
+                         self.alt_ax.get_xticklabels() + self.alt_ax.get_yticklabels()):
+                item.set_fontsize(self.fontsize)
+        self.canvas.draw()
 
     def on_srm_edit(self,event):
         if not self.srmw_open:

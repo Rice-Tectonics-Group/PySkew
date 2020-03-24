@@ -135,7 +135,7 @@ def plot_small_circles(plon,plat,m=None,range_arcdis=(10,180,10),range_azis=(-18
 
     return m
 
-def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1), alpha_line=1.0, filled=True, **kwargs):
+def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1), alpha_line=1.0, filled=True, geoid=Geodesic.WGS84, transform=ccrs.Geodetic(), **kwargs):
     if m==None:
         # Create figure
         fig = plt.figure(figsize=(16,9), dpi=200)
@@ -144,16 +144,16 @@ def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1)
 
     sml_circ_points = []
     for azi in np.arange(*range_azis):
-        geo_dict = Geodesic.WGS84.ArcDirect(plat,plon,azi,arcdis)
+        geo_dict = geoid.ArcDirect(plat,plon,azi,arcdis)
         sml_circ_points.append([geo_dict['lon2'],geo_dict['lat2']])
     sml_circ_points.append(sml_circ_points[0])
 
     if isinstance(error,float) or isinstance(error,int):
         lb_sml_circ_points,ub_sml_circ_points = [],[]
         for azi in range(*range_azis):
-            geo_dict = Geodesic.WGS84.ArcDirect(plat,plon,azi,arcdis+error)
+            geo_dict = geoid.ArcDirect(plat,plon,azi,arcdis+error)
             ub_sml_circ_points.append([geo_dict['lon2'],geo_dict['lat2']])
-            geo_dict = Geodesic.WGS84.ArcDirect(plat,plon,azi,arcdis-error)
+            geo_dict = geoid.ArcDirect(plat,plon,azi,arcdis-error)
             lb_sml_circ_points.append([geo_dict['lon2'],geo_dict['lat2']])
         ub_sml_circ_points.append(ub_sml_circ_points[0])
         lb_sml_circ_points.append(lb_sml_circ_points[0])
@@ -166,15 +166,15 @@ def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1)
             if 'linewidth' in kwargs.keys():
                 linewidth = kwargs['linewidth']
                 kwargs.pop('linewidth')
-            m.fill_between(ub_asml_circ_points[:,0],lb_asml_circ_points[:,1],ub_asml_circ_points[:,1],transform=ccrs.Geodetic(),linewidth=0,**kwargs)
+            m.fill_between(ub_asml_circ_points[:,0],lb_asml_circ_points[:,1],ub_asml_circ_points[:,1],transform=transform,linewidth=0,**kwargs)
             kwargs['linewidth'] = linewidth
         else:
-            m.plot(ub_asml_circ_points[:,0],ub_asml_circ_points[:,1],transform=ccrs.Geodetic(),linestyle='--',**kwargs)
-            m.plot(lb_asml_circ_points[:,0],lb_asml_circ_points[:,1],transform=ccrs.Geodetic(),linestyle='--',**kwargs)
+            m.plot(ub_asml_circ_points[:,0],ub_asml_circ_points[:,1],transform=transform,linestyle='--',**kwargs)
+            m.plot(lb_asml_circ_points[:,0],lb_asml_circ_points[:,1],transform=transform,linestyle='--',**kwargs)
 
     asml_circ_points = np.array(sml_circ_points)
     if "alpha" in kwargs.keys(): kwargs.pop("alpha")
-    m.plot(asml_circ_points[:,0][:-1],asml_circ_points[:,1][:-1],transform=ccrs.Geodetic(), alpha=alpha_line, **kwargs)
+    m.plot(asml_circ_points[:,0][:-1],asml_circ_points[:,1][:-1],transform=transform, alpha=alpha_line, **kwargs)
 
     return m
 
@@ -673,7 +673,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 
     fig = plt.figure(figsize=(12, 9), facecolor='white')
 
-    ax0 = fig.add_subplot(8,1,1)
+    ax0 = fig.add_subplot(len(rows)+2,1,1)
     remove_axis_lines_and_ticks(ax0)
     ax0.set_ylabel(r"synthetic (%s)"%'ship',rotation=0,fontsize=10)
     ax0.yaxis.set_label_coords(-.075,.45)
@@ -685,7 +685,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 #    ylim = ax0.get_ylim()
 
     for j,(i,row) in enumerate(rows.iterrows()):
-        ax = fig.add_subplot(8,1,j+2, sharex=ax0)
+        ax = fig.add_subplot(len(rows)+2,1,j+2, sharex=ax0)
         ax.set_anchor('W')
 
         remove_axis_lines_and_ticks(ax)
@@ -708,15 +708,15 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 #            print(ax.transData.inverted().transform(l.get_clip_path().get_xy()),ax.transData.inverted().transform([l.get_clip_path().get_width(),l.get_clip_path().get_height()]))
 #        print("----")
 
-    for j in range(j+1,6):
-        ax = fig.add_subplot(8,1,j+2, sharex=ax0)
+    for j in range(j+1,len(rows)):
+        ax = fig.add_subplot(len(rows)+2,1,j+2, sharex=ax0)
         ax.set_anchor('W')
         remove_axis_lines_and_ticks(ax)
         ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
         ax.patch.set_alpha(0.0)
         ax.format_coord = format_coord
 
-    ax = fig.add_subplot(8,1,8, sharex=ax0)
+    ax = fig.add_subplot(len(rows)+2,1,len(rows)+2, sharex=ax0)
     ax.set_anchor('W')
     remove_axis_lines_and_ticks(ax)
     ax.set_ylabel(r"synthetic (%s)"%'aero',rotation=0,fontsize=10)
@@ -737,7 +737,7 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     fig.suptitle(title,fontsize=16)
     plot_scale_bars(ax)
 
-    out_file = os.path.join(results_dir,"page_%d.png"%page_num)
+    out_file = os.path.join(results_dir,"page_%d.pdf"%page_num)
 
     save_show_plots(fig,out_file,leave_plots_open=leave_plots_open)
 

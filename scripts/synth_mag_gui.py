@@ -9,6 +9,8 @@ import pyskew.skewness as sk
 from pyskew.srm_window import SRMWindow
 from pyskew.tv_window import TVWindow
 from pyskew.eai_window import EAIWindow
+from pyskew.rtp_window import RTPWindow
+from pyskew.skw_by_lat_window import SkwLatWindow
 from pyskew.dt_window import DetrendWindow
 import pyskew.utilities as utl
 import matplotlib
@@ -18,13 +20,15 @@ from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as Navigat
 
 class SynthMagGUI(wx.Frame):
 
+    __version__ = "V0.3.1"
+
     #########################Init Funcions#############################
 
     def __init__(self,config_file=None,fontsize=8,dpi=200):
         """Constructor"""
         #call init of super class
         default_style = wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.RESIZE_BORDER | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN | wx.NO_FULL_REPAINT_ON_RESIZE | wx.WS_EX_CONTEXTHELP | wx.FRAME_EX_CONTEXTHELP
-        wx.Frame.__init__(self, None, title="SynthMagGUI V0.2.1",style=default_style, size=(400*3,300*3))
+        wx.Frame.__init__(self, None, title="SynthMagGUI %s"%self.__version__,style=default_style, size=(400*3,300*3))
         self.Bind(wx.EVT_CLOSE, self.on_close_main)
 
         #Set Matplotlib fontsize to match WX
@@ -40,7 +44,7 @@ class SynthMagGUI(wx.Frame):
         self.track = None #default no data
         self.min_age,self.max_age = 0,0
         self.spreading_rate_path,self.anomalous_skewness_path,self.timescale_path,self.deskew_path = None,None,None,None
-        self.srmw_open,self.tvw_open,self.eai_open,self.dtw_open = False,False,False,False
+        self.srmw_open,self.tvw_open,self.eai_open,self.skw_lat_open,self.rtp_open,self.dtw_open = False,False,False,False,False,False
 
         #make the Panel
         self.panel = wx.Panel(self,-1,size=(1200,900))
@@ -392,6 +396,12 @@ class SynthMagGUI(wx.Frame):
         self.m_eai = menu_tools.Append(-1, "&Effective Inclination Viewer\tAlt-E", "")
         self.Bind(wx.EVT_MENU, self.on_eai, self.m_eai)
 
+        self.m_skw_lat = menu_tools.Append(-1, "&Skewness by Latitude\tAlt-L", "")
+        self.Bind(wx.EVT_MENU, self.on_skw_lat, self.m_skw_lat)
+
+        self.m_rtp = menu_tools.Append(-1, "&Pole Plot\tAlt-P", "")
+        self.Bind(wx.EVT_MENU, self.on_rtp, self.m_rtp)
+
         self.m_dt = menu_tools.Append(-1, "&Detrend Utility\tAlt-T", "")
         self.Bind(wx.EVT_MENU, self.on_dt, self.m_dt)
 
@@ -636,6 +646,7 @@ class SynthMagGUI(wx.Frame):
 
         #update external windows if necessary
         if self.eai_open: self.eai.update()
+        if self.skw_lat_open: self.skw_lat.update()
         self.update_synth,self.update_data=False,False
 
     def update_age_boxes(self):
@@ -945,13 +956,7 @@ class SynthMagGUI(wx.Frame):
             )
         if dlg.ShowModal() == wx.ID_OK:
             outfile = dlg.GetPath()
-            if not self.m_use_sr_model.IsChecked() or self.spreading_rate_path==None:
-                sr_value = self.sr_box.GetValue()
-                srf = lambda x,y: sr_value
-            else: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
-            if not self.m_use_as_model.IsChecked() or self.anomalous_skewness_path==None: asf = lambda x: 0
-            else: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
-            sk.create_max_file(self.deskew_df[self.deskew_df["quality"]=="g"],srf,asf,outfile=outfile)
+            self.save_max_file(outfile)
         dlg.Destroy()
 
     def on_save_maxtab_file(self,event):
@@ -1038,10 +1043,24 @@ class SynthMagGUI(wx.Frame):
 
     def on_eai(self,event):
         if not self.eai_open:
-            self.eai = EAIWindow(parent=self,dpi=self.dpi)
+            self.eai = EAIWindow(parent=self,dpi=self.dpi,fontsize=self.fontsize)
             self.eai.Center()
             self.eai.Show()
             self.eai_open=True
+
+    def on_rtp(self,event):
+        if not self.rtp_open:
+            self.rtp = RTPWindow(parent=self,fontsize=self.fontsize)
+            self.rtp.Center()
+            self.rtp.Show()
+            self.rtp_open=True
+
+    def on_skw_lat(self,event):
+        if not self.skw_lat_open:
+            self.skw_lat = SkwLatWindow(parent=self,dpi=self.dpi)
+            self.skw_lat.Center()
+            self.skw_lat.Show()
+            self.skw_lat_open=True
 
     def on_open_debug(self,event):
         pdb.set_trace()
@@ -1097,10 +1116,11 @@ class SynthMagGUI(wx.Frame):
         self.point_annotation = self.ax.annotate("x = %.2f\ny = %.2f"%(float(pos[0]),float(pos[1])),**kwargs)
 
     def read_deskew_file(self):
-        if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
-        else: srf = lambda x,y: float(self.sr_box.GetValue())
-        if self.anomalous_skewness_path!=None: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
-        else: asf = lambda x: 0
+#        if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
+#        else: srf = lambda x,y: float(self.sr_box.GetValue())
+#        if self.anomalous_skewness_path!=None: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
+#        else: asf = lambda x: 0
+        srf,asf = self.get_srf_asf()
         self.deskew_df = sk.calc_aei(utl.open_deskew_file(self.deskew_path),srf,asf)
 
     ##########################Utility Dialogs and Functions################
@@ -1128,6 +1148,19 @@ class SynthMagGUI(wx.Frame):
 
     def swap(self,a,b):
         return b,a
+
+    def save_max_file(self,outfile):
+        srf,asf = self.get_srf_asf()
+        sk.create_max_file(self.deskew_df[self.deskew_df["quality"]=="g"],srf,asf,outfile=outfile)
+
+    def get_srf_asf(self):
+        if not self.m_use_sr_model.IsChecked() or self.spreading_rate_path==None:
+            sr_value = self.sr_box.GetValue()
+            srf = lambda x,y: sr_value
+        else: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
+        if not self.m_use_as_model.IsChecked() or self.anomalous_skewness_path==None: asf = lambda x: 0
+        else: asf = sk.generate_anomalous_skewness_model(self.anomalous_skewness_path)
+        return srf,asf
 
     def set_new_intercept(self,dis,dist_e=.5):
         try:

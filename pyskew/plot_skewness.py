@@ -224,8 +224,8 @@ def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=Non
             tazi = 90
             geodict=Geodesic.WGS84.ArcDirect(lat,lon,tazi,1)
             plt.text(geodict["lon2"],geodict["lat2"],pole_text,zorder=500,va='top',ha='center',transform=ccrs.Geodetic())
-    if filled: ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=filled, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
-    else: ipmag.ellipse(m, lon, lat, (a*111.11)/2, (b*111.11)/2, az, n=360, filled=filled, color=color, zorder=zorder-1,alpha=alpha)
+    if filled: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
+    else: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, color=color, zorder=zorder-1,alpha=alpha)
 
     return m
 
@@ -332,7 +332,7 @@ def plot_lunes_and_save(deskew_path):
     plt.close(fig)
 
 
-def plot_lunes(comps,gcm,pole_lat=None):
+def plot_lunes(comps,gcm,pole_lat=None,idx_selected=None):
 
     if pole_lat==None: pole_lat=0
 
@@ -367,9 +367,9 @@ def plot_lunes(comps,gcm,pole_lat=None):
         gc_lon = [gcd["lon2"] for gcd in gc_points_and_azis]
         gc_lat = [gcd["lat2"] for gcd in gc_points_and_azis]
 
-        # Draw great circle
+        # Draw great semi-circle
         gcm.scatter([gc_lon[0],gc_lon[-1]], [gc_lat[0],gc_lat[-1]], edgecolor='k', facecolor='none', zorder=10,transform=ccrs.Geodetic())
-        if row["inter_lat"]<-11: color = "pink"
+        if (not isinstance(idx_selected,type(None))) and i==idx_selected: color = "#FF6C6C"
         else: color = (float(row["r"]),float(row["g"]),float(row["b"]))
         gcm.plot(gc_lon, gc_lat, color=color, linestyle=linestyle, linewidth=linewidth,transform=ccrs.Geodetic())
 

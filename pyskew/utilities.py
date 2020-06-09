@@ -224,8 +224,8 @@ def polyfit(x,y,degree,err=None,full=False):
     x,y,err,N = np.array(x),np.array(y),np.array(err),len(x)
 
     #calculate fit and chi2
-    if full: pols,res,rank,sv,rcond = np.polyfit(x,y,degree,w=(1/err),full=full)
-    else: pols = np.polyfit(x,y,degree,w=(1/err),full=full)
+    pols = np.polyfit(x,y,degree,w=(1/err),full=full)
+    if full: pols,res,rank,sv,rcond = pols
     yp = np.polyval(pols,x)
     chi2 = sum(((y-yp)/err)**2)
     deg_free = (N-degree-1)
@@ -261,10 +261,17 @@ def polyfit(x,y,degree,err=None,full=False):
 def polyerr(pols,sds,x,xerr=None):
     if isinstance(xerr,type(None)): xerr = np.zeros(len(x))
     pols,sds,x,xerr = np.array(pols)[::-1],np.array(sds)[::-1],np.array([e if e!=0 else .01 for e in x]),np.array(xerr)
-    return np.sqrt(len(x)*sum(np.array([((pols[i]*(x**i))**2) * ( ((i*(x**(i-1))*xerr)**2)/(x**2) + (sds[i]**2)/(pols[i]**2) ) for i in range(len(pols))])))
+    return np.sqrt(len(x)*sum([((pols[i]*(x**i))**2) * ( ((i*(x**(i-1))*xerr)**2)/(x**2) + (sds[i]**2)/(pols[i]**2) ) for i in range(len(pols))]))
 
 def polyenv(pols,x,yerr,xerr=None,center=None):
     if center==None: center = sum(x)/len(x) #by default center the error env on the mean of the independent var.
+    x = np.array(x)
+
+    new_pols,new_sds = polyrecenter(pols,x,yerr,center)
+
+    return polyerr(new_pols,new_sds,x-center,xerr=xerr)
+
+def polyrecenter(pols,x,yerr,center):
     n,pols,x,yerr = len(pols),np.array(pols)[::-1],np.array(x),np.array(yerr)
 
     P = invpascal(n,kind='lower').T
@@ -284,7 +291,7 @@ def polyenv(pols,x,yerr,xerr=None,center=None):
     error_matrix = np.linalg.inv(alpha)
     new_sds = list(np.sqrt(np.diag(error_matrix)))[::-1]
 
-    return polyerr(new_pols,new_sds,x-center,xerr=xerr)
+    return new_pols, new_sds
 
 def odrfit(x,y,sx,sy,func,start_vector):
     model = odr.Model(func)

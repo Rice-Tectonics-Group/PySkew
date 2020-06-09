@@ -26,7 +26,7 @@ class TVWindow(wx.Frame):
         """Constructor"""
         #call init of super class
         default_style = wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.RESIZE_BORDER | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN | wx.NO_FULL_REPAINT_ON_RESIZE | wx.WS_EX_CONTEXTHELP | wx.FRAME_EX_CONTEXTHELP
-        wx.Frame.__init__(self, parent, title="Track Viewer V0.1.1",style=default_style, size=(400*2,300*2))
+        wx.Frame.__init__(self, parent, title="Track Viewer %s"%parent.__version__,style=default_style, size=(400*2,300*2))
         self.Bind(wx.EVT_CLOSE, self.on_close_main)
 
         self.parent=parent

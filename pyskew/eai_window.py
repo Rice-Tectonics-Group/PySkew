@@ -21,15 +21,16 @@ class EAIWindow(wx.Frame):
 
     #########################Init Funcions#############################
 
-    def __init__(self,parent=None,dpi=200):
+    def __init__(self,parent=None,dpi=200,fontsize=8):
         """Constructor"""
         #call init of super class
         default_style = wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.RESIZE_BORDER | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN | wx.NO_FULL_REPAINT_ON_RESIZE | wx.WS_EX_CONTEXTHELP | wx.FRAME_EX_CONTEXTHELP
-        wx.Frame.__init__(self, parent, title="Effective Inclination Viewer",style=default_style, size=(400*2,300*2))
+        wx.Frame.__init__(self, parent, title="Effective Inclination Viewer %s"%parent.__version__,style=default_style, size=(400*2,300*2))
         self.Bind(wx.EVT_CLOSE, self.on_close_main)
 
         self.parent=parent
         self.dpi=dpi
+        self.fontsize=fontsize
 
         self.panel = wx.Panel(self,-1,size=(400*2,300*2))
 
@@ -98,8 +99,15 @@ class EAIWindow(wx.Frame):
 
         menu_file = wx.Menu()
 
-#        m_tiff = menu_file.Append(-1, "&Add GeoTiff\tCtrl-O", "AddTiff")
-#        self.Bind(wx.EVT_MENU, self.on_add_tiff, m_tiff)
+        self.m_plot_legend = menu_file.AppendCheckItem(-1, "&Plot Legend\tCtrl-L", "PlotLeg")
+        self.m_plot_legend.Check()
+        self.Bind(wx.EVT_MENU, self.on_plot_legend, self.m_plot_legend)
+
+        self.m_show_both_aero = menu_file.AppendCheckItem(-1, "&Show Both Components\tCtrl-A", "ShowBothComp")
+        self.Bind(wx.EVT_MENU, self.on_show_both_components, self.m_show_both_aero)
+
+        self.m_change_fontsize = menu_file.Append(-1, "&Change fontsize", "")
+        self.Bind(wx.EVT_MENU, self.on_change_fontsize, self.m_change_fontsize)
 
         menu_file.AppendSeparator()
         m_exit = menu_file.Append(-1, "&Exit\tCtrl-Q", "Exit")
@@ -120,6 +128,28 @@ class EAIWindow(wx.Frame):
     def on_close_main(self,event):
         self.parent.eai_open=False
         self.Destroy()
+
+    ############################Menu Funcions################################
+
+    def on_change_fontsize(self,event):
+        dlg = wx.TextEntryDialog(self, "Enter Fontsize", caption="Edit Fontsize",
+                    value=str(self.fontsize), style=wx.TextEntryDialogStyle)
+        if dlg.ShowModal() == wx.ID_OK:
+            try:
+                self.fontsize = int(dlg.GetValue())
+                mpl.rcParams.update({'font.size': self.fontsize})
+            except ValueError: self.user_warning("Value entered was non-numeric canceling fontsize change.")
+        dlg.Destroy()
+        for item in ([self.ax.title, self.ax.xaxis.label, self.ax.yaxis.label] +
+                     self.ax.get_xticklabels() + self.ax.get_yticklabels() + self.ax.get_legend().get_texts()):
+            item.set_fontsize(self.fontsize)
+        self.canvas.draw()
+
+    def on_show_both_components(self,event):
+        self.update()
+
+    def on_plot_legend(self,event):
+        self.update()
 
     ###########################Figure Funcions###############################
 
@@ -145,7 +175,7 @@ class EAIWindow(wx.Frame):
         min_dis,min_row = np.inf,None
         ylim = self.ax.get_ylim()
         for i,row in dsk_df.iterrows():
-            dis = ((row["aei"]-pos[0])/ylim[0])**2 + ((row["inter_lat"]-pos[1])/ylim[1])**2
+            dis = ((row["inter_lat"]-pos[0])/ylim[0])**2 + ((row["aei"]-pos[1])/ylim[1])**2
             if dis < min_dis:
                 min_dis = dis
                 min_row = row
@@ -157,32 +187,56 @@ class EAIWindow(wx.Frame):
 
     def on_parent_select_track(self):
         pass
-#        self.update()
 
     def plot_eai(self):
         try: dsk_df = self.parent.deskew_df
         except AttributeError: return
         try: dsk_idx = self.parent.dsk_idx
         except AttributeError: dsk_idx = None
+
         for i,row in dsk_df.iterrows():
+
+            other_idx = np.nan
             if row["track_type"]=="aero":
                 if "Ed.lp" in row["comp_name"]:
+                    if self.m_show_both_aero.IsChecked(): marker = ">"
+                    else: marker = "s"
                     other_track = row["comp_name"].replace("Ed.lp","Vd.lp")
                 elif "Hd.lp" in row["comp_name"]:
+                    if self.m_show_both_aero.IsChecked(): marker = ">"
+                    else: marker = "s"
                     other_track = row["comp_name"].replace("Hd.lp","Vd.lp")
                 elif "Vd.lp" in row["comp_name"]:
-                    continue
+                    if self.m_show_both_aero.IsChecked(): marker = "^"
+                    else: continue
 #                    other_track = row["comp_name"].replace("Vd.lp","Ed.lp")
 #                    if other_track not in dsk_df["comp_name"].tolist(): other_track = row["comp_name"].replace("Vd.lp","Hd.lp")
                 else: self.parent.user_warning("Improperly named component files should have either Ed.lp, Hd.lp, or Vd.lp got: %s"%row["comp_name"]); return
-                other_dsk_row = dsk_df[dsk_df["comp_name"]==other_track].iloc[0]
-                aei = (row["aei"]+other_dsk_row["aei"])/2
-            else: aei = row["aei"]
-            if dsk_idx==i: marker = "s"
-            else: marker = "o"
-            self.ax.scatter(aei,row["inter_lat"],marker=marker,facecolor=(float(row["r"]),float(row["g"]),float(row["b"])),edgecolor="k",label=row["sz_name"])
-        handles,labels = self.ax.get_legend_handles_labels()
-        by_label = OrderedDict(zip(labels, handles))
-        self.ax.legend(by_label.values(), by_label.keys(), fontsize=10, framealpha=.7)
+                if not self.m_show_both_aero.IsChecked():
+                    other_dsk_row = dsk_df[dsk_df["comp_name"]==other_track].iloc[0]
+                    other_idx = other_dsk_row.name
+                    aei = (row["aei"]+other_dsk_row["aei"])/2
+                else: aei = row["aei"]
+            else: aei = row["aei"]; marker = "o"
+
+            if dsk_idx==i or other_idx==dsk_idx: self.ax.scatter(row["inter_lat"],aei,marker=marker,facecolor="None",edgecolor=(float(row["r"]),float(row["g"]),float(row["b"])))
+            else: self.ax.scatter(row["inter_lat"],aei,marker=marker,facecolor=(float(row["r"]),float(row["g"]),float(row["b"])),edgecolor="k")
+
+        if self.m_plot_legend.IsChecked():
+            for j,(r_col,g_col,b_col,sz_name) in dsk_df[["r","g","b","sz_name"]].drop_duplicates().iterrows():
+                self.ax.scatter([],[],color=(r_col,g_col,b_col),label=sz_name,marker="s")
+            self.ax.scatter([],[],color="grey",label="Ship Board Data",marker="o")
+            if not self.m_show_both_aero.IsChecked(): self.ax.scatter([],[],color="grey",label="Aeromag Data",marker="s")
+            else:
+                self.ax.scatter([],[],color="grey",label="Vertical Aeromag Data",marker="^")
+                self.ax.scatter([],[],color="grey",label="East Aeromag Data",marker=">")
+            self.ax.scatter([],[],edgecolor="grey",facecolor="None",label="Selected Data",marker="s")
+            self.ax.legend(fontsize=self.fontsize, framealpha=.7)
+#            handles,labels = self.ax.get_legend_handles_labels()
+#            by_label = OrderedDict(zip(labels, handles))
+#            self.ax.legend(by_label.values(), by_label.keys(), fontsize=self.fontsize, framealpha=.7)
+
+        self.ax.set_xlabel("Present Latitude")
+        self.ax.set_ylabel("Effective Remanent Inclination")
 
 

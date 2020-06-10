@@ -1057,7 +1057,7 @@ class SynthMagGUI(wx.Frame):
 
     def on_skw_lat(self,event):
         if not self.skw_lat_open:
-            self.skw_lat = SkwLatWindow(parent=self,dpi=self.dpi)
+            self.skw_lat = SkwLatWindow(parent=self)
             self.skw_lat.Center()
             self.skw_lat.Show()
             self.skw_lat_open=True

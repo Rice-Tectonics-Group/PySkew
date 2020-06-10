@@ -22,7 +22,7 @@ class SkwLatWindow(wx.Frame):
 
     #########################Init Funcions#############################
 
-    def __init__(self,parent=None,dpi=200,fontsize=8):
+    def __init__(self,parent=None,dpi=200,fontsize=6):
         """Constructor"""
         #call init of super class
         default_style = wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.RESIZE_BORDER | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN | wx.NO_FULL_REPAINT_ON_RESIZE | wx.WS_EX_CONTEXTHELP | wx.FRAME_EX_CONTEXTHELP
@@ -46,7 +46,7 @@ class SkwLatWindow(wx.Frame):
         self.update()
 
     def init_UI(self):
-        spacing,padding = 0,.1
+        spacing,vpadding,hpadding = 0.,.01,.15
 
         #------------------------------------Make DropDown Box-----------------------------------------------------#
 
@@ -66,8 +66,8 @@ class SkwLatWindow(wx.Frame):
 
 #        canvas_sizer = wx.BoxSizer(wx.VERTICAL)
 
-        self.fig = Figure((2, 1.*self.maximum_profiles), dpi=self.dpi)
-        self.fig.subplots_adjust(top=1.-padding,right=1.-padding,left=padding,bottom=padding,wspace=.0,hspace=.0)
+        self.fig = Figure((2., 1.*self.maximum_profiles), dpi=self.dpi)
+        self.fig.subplots_adjust(top=1.-vpadding,right=1.-hpadding,left=hpadding,bottom=vpadding,wspace=.0,hspace=.0)
         self.canvas = FigCanvas(self.scrolled_panel, wx.ID_ANY, self.fig)
         self.toolbar = NavigationToolbar(self.canvas)
         self.toolbar.Hide()
@@ -177,6 +177,8 @@ class SkwLatWindow(wx.Frame):
             ylims = self.parent.ax.get_ylim()
         except AttributeError: xlims,ylims = (-300,300),(-150,150)
         axs = self.fig.subplots(self.maximum_profiles,1,sharex=True,sharey=True)
+#        for ax in axs:
+#            ax.set_facecolor("grey")
         axs = axs[:len(rows)]
 
         for j,(ax,(i,row)) in enumerate(zip(axs,rows.iterrows())):
@@ -187,15 +189,20 @@ class SkwLatWindow(wx.Frame):
 
             min_proj_dis, max_proj_dis = psk.plot_skewness_data(row,float(row['phase_shift']),ax,picker=True, clip_on=clip_on, xlims=xlims)
 
-            ax.annotate(r"%s"%row['comp_name']+"\n"+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(row['inter_lat']),utl.convert_to_0_360(row['inter_lon'])),xy=(-.15,.45),xycoords="axes fraction",fontsize=self.fontsize)
-            ax.set_ylabel(r"$\theta$=%.1f"%float(row['phase_shift'])+"\n"+r"$e_a$=%.1f"%float(row['aei']),rotation=0,fontsize=self.fontsize)
+            ax.annotate(r"%s"%row['comp_name']+"\n"+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(row['inter_lat']),utl.convert_to_0_360(row['inter_lon'])),xy=(-.215,.5),xycoords="axes fraction",fontsize=self.fontsize,va="center",ha="left")
+            ax.annotate(r"$\theta$=%.1f"%float(row['phase_shift'])+"\n"+r"$e_a$=%.1f"%float(row['aei']),xy=(1.15,.5),xycoords="axes fraction",fontsize=self.fontsize,va="center",ha="right")
+#            ax.set_ylabel(r"$\theta$=%.1f"%float(row['phase_shift'])+"\n"+r"$e_a$=%.1f"%float(row['aei']),rotation=0,fontsize=self.fontsize)
             ax.yaxis.set_label_coords(1.05,.45)
-            ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
             ax.patch.set_alpha(0.0)
 #            ax.format_coord = format_coord
 
-            try: ax.lines.append(self.parent.synth_art[0])
-            except (AttributeError,IndexError): print("No synthetic found to render in skewness by latitude window")
+        scale = np.sqrt(sum(np.array(xlims)**2))
+        if not scale<20 or scale>3000:
+            ax.set_xlim(xlims)
+            ax.set_ylim(ylims)
+
+#            try: ax.lines.append(self.parent.synth_art[0])
+#            except (AttributeError,IndexError): print("No synthetic found to render in skewness by latitude window")
 
         if self.parent.spreading_rate_path!=None:
             psk.plot_chron_span_on_axes(sz_name,self.fig.get_axes(),rows[['age_min','age_max']].iloc[0],spreading_rate_path=self.parent.spreading_rate_path)

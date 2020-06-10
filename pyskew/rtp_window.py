@@ -156,6 +156,7 @@ class RTPWindow(wx.Frame):
             self.parent.save_max_file(".tmp.max")
             comment,header,data = pymax.read_max_file(".tmp.max")
             (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
+            self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
             self.ax = psk.plot_pole(plon,plat,phi,maj_se,min_se,m=self.ax)
             self.ax = psk.plot_lunes(self.parent.deskew_df,self.ax,idx_selected=self.parent.dsk_idx)
         except AttributeError: return

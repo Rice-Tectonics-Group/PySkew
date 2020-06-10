@@ -466,11 +466,14 @@ def plot_scale_bars(ax,size_x=100,size_y=100,x_unit='km',y_unit='nT', scale_bar_
     ax.annotate('',xy=ybar_xy_figure_location, xycoords='figure fraction', xytext=(ybar_xytext_figure_location), textcoords='figure fraction', arrowprops=dict(arrowstyle='|-|'))
     ax.annotate('%d %s'%(size_y,y_unit),xy=ybar_xy_figure_location, xycoords='figure fraction', va='top', ha='center', fontsize=10)
 
-def plot_skewness_data(deskew_row, phase_shift, ax, xlims=[-500,500], clip_on=False, return_objects=False, **kwargs):
+def plot_skewness_data(deskew_row, phase_shift, ax, xlims=[-500,500], clip_on=False, return_objects=False, flip=False, **kwargs):
     data_file_path = os.path.join(deskew_row["data_dir"],deskew_row["comp_name"])
     data_df = pd.read_csv(data_file_path,names=["dist","dec_year","mag","lat","lon"],delim_whitespace=True)
 
-    projected_distances = calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),deskew_row['strike'])
+    if flip:
+        projected_distances = calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),180-deskew_row['strike'])
+    else:
+        projected_distances = calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),deskew_row['strike'])
 
     shifted_mag = phase_shift_data(data_df['mag'].tolist(),phase_shift)
 

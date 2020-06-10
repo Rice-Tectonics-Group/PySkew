@@ -628,8 +628,10 @@ class SynthMagGUI(wx.Frame):
         if self.update_synth:
             for sd in self.synth_art:
                 sd.remove()
-            self.synth_art = self.ax.plot(dis_synth,np.array(synth[0])+self.synth_shift,'r-',alpha=.4,zorder=1)
-            self.synth_art.append(self.ax.plot(dis_synth,np.zeros(len(dis_synth)),'k--')[0])
+            self.dis_synth = dis_synth
+            self.synth = np.array(synth[0])+self.synth_shift
+            self.synth_art = self.ax.plot(self.dis_synth,self.synth,'r-',alpha=.4,zorder=1)
+#            self.synth_art.append(self.ax.plot(self.dis_synth,np.zeros(len(dis_synth)),'k--')[0])
             try:
                 if self.max_age>=self.dsk_row["age_min"]: self.synth_art.append(self.ax.axvspan(-anom_width,anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0))
                 if self.min_age<=-self.dsk_row["age_min"]: self.synth_art.append(self.ax.axvspan(neg_anom-neg_anom_width,neg_anom+neg_anom_width, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0))

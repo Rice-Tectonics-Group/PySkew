@@ -50,21 +50,25 @@ class SkwLatWindow(wx.Frame):
 
         #------------------------------------Make DropDown Box-----------------------------------------------------#
 
-        sz_names_sizer = wx.StaticBoxSizer(wx.StaticBox(self.scrolled_panel, wx.ID_ANY, "Spreading Zone"), wx.VERTICAL)
+        sz_names_sizer = wx.StaticBoxSizer(wx.StaticBox(self.scrolled_panel, wx.ID_ANY, "Spreading Zone"), wx.HORIZONTAL)
 
         try:
             sz_names = self.parent.deskew_df["sz_name"].drop_duplicates().tolist()
             self.maximum_profiles = max([len(self.parent.deskew_df[self.parent.deskew_df==sz_name])for sz_name in sz_names])
         except AttributeError: sz_names,self.maximum_profiles = [""],6
-        self.sz_names_box = wx.ComboBox(self.scrolled_panel, id=wx.ID_ANY, size=(600, 50), value=sz_names[0], choices=sz_names, style=wx.CB_DROPDOWN|wx.TE_READONLY)
+        self.sz_names_box = wx.ComboBox(self.scrolled_panel, id=wx.ID_ANY, size=(300, 50), value=sz_names[0], choices=sz_names, style=wx.CB_DROPDOWN|wx.TE_READONLY)
         self.Bind(wx.EVT_COMBOBOX, self.on_select_sz, self.sz_names_box)
 
-        sz_names_sizer.Add(self.sz_names_box, 0, wx.ALIGN_CENTER|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.ALL, spacing)
+        self.show_synth_button = wx.CheckBox(self.scrolled_panel, id=wx.ID_ANY, label="Plot Synthetic", size=(300,50))
+        self.Bind(wx.EVT_CHECKBOX, self.on_show_synth_button, self.show_synth_button)
+
+        sz_names_sizer.AddMany([(self.sz_names_box, 0, wx.ALIGN_CENTER|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_LEFT|wx.EXPAND|wx.ALL, spacing),
+                                (self.show_synth_button, 0, wx.ALIGN_CENTER|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.EXPAND|wx.ALL, spacing)])
 #        self.panel.SetSizerAndFit(sz_names_sizer)
 
         #-------------------------------------Make Figure----------------------------------------------------------#
 
-#        canvas_sizer = wx.BoxSizer(wx.VERTICAL)
+        canvas_sizer = wx.BoxSizer(wx.VERTICAL)
 
         self.fig = Figure((2., 1.*self.maximum_profiles), dpi=self.dpi)
         self.fig.subplots_adjust(top=1.-vpadding,right=1.-hpadding,left=hpadding,bottom=vpadding,wspace=.0,hspace=.0)
@@ -76,11 +80,12 @@ class SkwLatWindow(wx.Frame):
         self.canvas.Bind(wx.EVT_MIDDLE_DOWN,self.on_middle_click_plot)
         self.canvas.Bind(wx.EVT_LEFT_DCLICK, self.on_select_dleft_click)
 
-        sz_names_sizer.Add(self.canvas, 1, wx.ALIGN_CENTER|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.ALL, spacing)
+        canvas_sizer.AddMany([(sz_names_sizer, 0, wx.ALIGN_CENTER|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.ALL, spacing),
+                              (self.canvas, 1, wx.ALIGN_CENTER|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.ALL, spacing)])
 
         #----------------------------------Build UI and Fit--------------------------------------------------------#
 
-        self.scrolled_panel.SetSizerAndFit(sz_names_sizer)
+        self.scrolled_panel.SetSizerAndFit(canvas_sizer)
 
 #        outer_sizer = wx.BoxSizer(wx.VERTICAL)
 #        outer_sizer.AddMany([(self.panel,1,wx.ALIGN_CENTER|wx.EXPAND),
@@ -127,6 +132,9 @@ class SkwLatWindow(wx.Frame):
     def on_select_sz(self,event):
         self.update()
 
+    def on_show_synth_button(self,event):
+        self.update()
+
     ###########################Figure Funcions###############################
 
     def on_middle_click_plot(self,event):
@@ -170,7 +178,7 @@ class SkwLatWindow(wx.Frame):
         try:
             sz_name = self.sz_names_box.GetValue()
             rows = self.parent.deskew_df[self.parent.deskew_df["sz_name"]==sz_name]
-            rows.sort_values("inter_lat",inplace=True,ascending=True)
+            rows.sort_values("inter_lat",inplace=True,ascending=False)
         except (AttributeError,KeyError) as e: print("Spreading Zone %s not found in deskew file"%str(self.sz_names_box.GetValue())); return
         try:
             xlims = self.parent.ax.get_xlim()
@@ -187,7 +195,7 @@ class SkwLatWindow(wx.Frame):
 
             psk.remove_axis_lines_and_ticks(ax)
 
-            min_proj_dis, max_proj_dis = psk.plot_skewness_data(row,float(row['phase_shift']),ax,picker=True, clip_on=clip_on, xlims=xlims)
+            min_proj_dis, max_proj_dis = psk.plot_skewness_data(row,float(row['phase_shift']),ax,picker=True, clip_on=clip_on, xlims=xlims, flip=True)
 
             ax.annotate(r"%s"%row['comp_name']+"\n"+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(row['inter_lat']),utl.convert_to_0_360(row['inter_lon'])),xy=(-.215,.5),xycoords="axes fraction",fontsize=self.fontsize,va="center",ha="left")
             ax.annotate(r"$\theta$=%.1f"%float(row['phase_shift'])+"\n"+r"$e_a$=%.1f"%float(row['aei']),xy=(1.15,.5),xycoords="axes fraction",fontsize=self.fontsize,va="center",ha="right")
@@ -196,13 +204,15 @@ class SkwLatWindow(wx.Frame):
             ax.patch.set_alpha(0.0)
 #            ax.format_coord = format_coord
 
+            if self.show_synth_button.GetValue():
+                try:
+                    ax.plot(self.parent.dis_synth,self.parent.synth,'r-',alpha=.4,zorder=1)
+                except (AttributeError,IndexError): print("No synthetic found to render in skewness by latitude window")
+
         scale = np.sqrt(sum(np.array(xlims)**2))
         if not scale<20 or scale>3000:
             ax.set_xlim(xlims)
             ax.set_ylim(ylims)
-
-#            try: ax.lines.append(self.parent.synth_art[0])
-#            except (AttributeError,IndexError): print("No synthetic found to render in skewness by latitude window")
 
         if self.parent.spreading_rate_path!=None:
             psk.plot_chron_span_on_axes(sz_name,self.fig.get_axes(),rows[['age_min','age_max']].iloc[0],spreading_rate_path=self.parent.spreading_rate_path)

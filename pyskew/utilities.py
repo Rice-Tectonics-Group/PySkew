@@ -117,7 +117,7 @@ def open_shipmag_file(shipmag_file):
     fin.close()
     lines = [line.split() for line in lines]
     try: dfin = pd.DataFrame(lines,columns=["dist","dec_year","mag","lat","lon"],dtype=float)
-    except AssertionError:
+    except (ValueError,AssertionError) as e:
 #        print("ship mag file %s does not have the standard 5 rows, you should check this data and see if something happened during processing. Returning a empty dataframe"%shipmag_file)
         dfin = pd.DataFrame()
     return dfin
@@ -128,7 +128,7 @@ def open_aeromag_file(aeromag_file):
     fin.close()
     lines = [line.split() for line in lines]
     try: dfin = pd.DataFrame(lines,columns=["time","lat","lon","n_comp","e_comp","h_comp","v_comp","mag","dec","inc","None","alt"],dtype=float)
-    except AssertionError:
+    except (ValueError,AssertionError) as e:
 #        print("aeromag file %s does not have the standard 12 rows, you should check this data and see if something happened during processing. Returning a empty dataframe"%aeromag_file)
         dfin = pd.DataFrame()
     return dfin

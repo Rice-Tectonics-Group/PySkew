@@ -219,6 +219,8 @@ class EAIWindow(wx.Frame):
                 else: aei = row["aei"]
             else: aei = row["aei"]; marker = "o"
 
+            if row["quality"]!="g": marker = "X"
+
             if dsk_idx==i or other_idx==dsk_idx: self.ax.scatter(row["inter_lat"],aei,marker=marker,facecolor="None",edgecolor=(float(row["r"]),float(row["g"]),float(row["b"])))
             else: self.ax.scatter(row["inter_lat"],aei,marker=marker,facecolor=(float(row["r"]),float(row["g"]),float(row["b"])),edgecolor="k")
 

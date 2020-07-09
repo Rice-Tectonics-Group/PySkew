@@ -53,19 +53,19 @@ def preprocess_m77t(m77tf,data_directory="shipmag_data"):
         if date==str(np.nan): print("no date info for record %d of survey %s, skipping this record"%(i,row['SURVEY_ID'])); continue
         dt_row = datetime(int(date[0:4]),int(date[4:6]),int(date[6:8]))
         dec_year = dt_to_dec(dt_row)
-        m77t_df.set_value(i,'DECIMAL_YEAR',round(dec_year,5))
+        m77t_df.at[i,'DECIMAL_YEAR'] = round(dec_year,5))
 
         #calculate distance from last point and add to total distance
         if prev_lat_lon!=[]:
             #/1000 to convert m to km
             current_dis += Geodesic.WGS84.Inverse(float(row['LAT']),float(row['LON']),prev_lat_lon[0],prev_lat_lon[1])['s12']/1000
         prev_lat_lon = [float(row['LAT']),float(row['LON'])]
-        m77t_df.set_value(i,'DIS',round(current_dis,5))
+        m77t_df.at[i,'DIS'] = round(current_dis,5))
 
         #determine IGRF and remove from uncorrected intensity
         igrf_cor = ipmag.igrf([dec_year,0,float(row['LAT']),float(row['LON'])])[2]
         mag_cor = float(row['MAG_TOT']) - igrf_cor
-        if mag_cor<3000 or mag_cor>-3000: m77t_df.set_value(i,'MAG_COR',round(mag_cor,5))
+        if mag_cor<3000 or mag_cor>-3000: m77t_df.at[i,'MAG_COR'] = round(mag_cor,5))
 
     round3_func = lambda x: round(x,3)
     dis_array = list(map(round3_func,np.arange(float(m77t_df['DIS'].tolist()[0]),float(m77t_df['DIS'].tolist()[-1]),1))) #spacing of 1 km, because I can
@@ -85,7 +85,7 @@ def preprocess_m77t(m77tf,data_directory="shipmag_data"):
 #            #/1000 to convert m to km
 #            current_dis += Geodesic.WGS84.Inverse(float(row['lat']),float(row['lon']),prev_lat_lon[0],prev_lat_lon[1])['s12']/1000
 #        prev_lat_lon = [float(row['lat']),float(row['lon'])]
-#        interp_df.set_value(i,'dis_check',round(current_dis,5))
+#        interp_df.at[i,'dis_check'] = round(current_dis,5))
 
     #write to .lp file
     print("saving %s"%fout_name)

@@ -257,8 +257,8 @@ class RTPWindow(wx.Frame):
         srf,asf = self.parent.get_srf_asf()
         reduced_skewness,rel_reduced_amplitude = sk.reduce_dsk_row_to_pole(self.parent.dsk_row,*plonlat,asf,srf)
         self.parent.phase_shift_box.SetValue("%.1f"%reduced_skewness)
-        self.parent.deskew_df.set_value(self.parent.dsk_idx,'phase_shift',reduced_skewness)
-        self.parent.deskew_df.set_value(self.parent.dsk_idx,'rel_amp',rel_reduced_amplitude)
+        self.parent.deskew_df.at[self.parent.dsk_idx,'phase_shift'] = reduced_skewness
+        self.parent.deskew_df.at[self.parent.dsk_idx,'rel_amp'] = rel_reduced_amplitude
         self.parent.dsk_row = self.parent.deskew_df.loc[self.parent.dsk_idx].iloc[0]
 
         self.parent.update(event)
@@ -277,8 +277,8 @@ class RTPWindow(wx.Frame):
         srf,asf = self.parent.get_srf_asf()
         for i,row in self.parent.deskew_df.iterrows():
             reduced_skewness,rel_reduced_amplitude = sk.reduce_dsk_row_to_pole(row,*plonlat,asf,srf)
-            self.parent.deskew_df.set_value(i,'phase_shift',reduced_skewness)
-            self.parent.deskew_df.set_value(i,'rel_amp',rel_reduced_amplitude)
+            self.parent.deskew_df.at[i,'phase_shift'] = reduced_skewness
+            self.parent.deskew_df.at[i,'rel_amp'] = rel_reduced_amplitude
         self.parent.deskew_df = sk.calc_aei(self.parent.deskew_df,srf,asf)
         try: self.parent.dsk_row = self.parent.deskew_df.loc[self.parent.dsk_idx].iloc[0]
         except (AttributeError,KeyError) as e: pass

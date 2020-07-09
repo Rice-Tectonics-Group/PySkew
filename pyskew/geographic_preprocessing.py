@@ -129,7 +129,7 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
 
             if prev_lat!=None and prev_lon!=None: #calculate distance
                 dis += Geodesic.WGS84.Inverse(float(row['lat']),float(row['lon']),prev_lat,prev_lon)['s12']/1000
-            adf.set_value(i,'dis',dis)
+            adf.at[i,'dis'] = dis
 
             #calculate and remove IGRF
             dec,inc,mag = ipmag.igrf([decimal_year,float(row['alt'])*0.3048e-3,float(row['lat']),float(row['lon'])])
@@ -138,10 +138,10 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
             res_h_comp = mag*np.cos(np.deg2rad(inc))
             res_t_comp = mag
 
-            adf.set_value(i,'res_v_comp',float(row['v_comp'])-res_v_comp)
-            adf.set_value(i,'res_e_comp',float(row['e_comp'])-res_e_comp)
-            adf.set_value(i,'res_h_comp',float(row['h_comp'])-res_e_comp)
-            adf.set_value(i,'res_t_comp',float(row['mag'])-res_t_comp)
+            adf.at[i,'res_v_comp'] = float(row['v_comp'])-res_v_comp)
+            adf.at[i,'res_e_comp'] = float(row['e_comp'])-res_e_comp)
+            adf.at[i,'res_h_comp'] = float(row['h_comp'])-res_e_comp)
+            adf.at[i,'res_t_comp'] = float(row['mag'])-res_t_comp)
 
             prev_lat,prev_lon = float(row['lat']),float(row['lon'])
 

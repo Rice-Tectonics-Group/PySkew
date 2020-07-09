@@ -471,7 +471,7 @@ def plot_skewness_data(deskew_row, phase_shift, ax, xlims=[-500,500], clip_on=Fa
     data_df = pd.read_csv(data_file_path,names=["dist","dec_year","mag","lat","lon"],delim_whitespace=True)
 
     if flip:
-        projected_distances = calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),180-deskew_row['strike'])
+        projected_distances = calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),(180+deskew_row['strike'])%360)
     else:
         projected_distances = calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),deskew_row['strike'])
 

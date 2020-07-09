@@ -1,6 +1,8 @@
 import wx, os, sys
 import numpy as np
-import pyrot.max as pymax
+pymax_found = True
+try: import pyrot.max as pymax
+except ImportError: pymax_found = False
 import pyskew.skewness as sk
 import pyskew.plot_skewness as psk
 import pyskew.plot_geographic as pgeo
@@ -23,7 +25,7 @@ class RTPWindow(wx.Frame):
 
     #########################Init Funcions#############################
 
-    def __init__(self,parent=None,dpi=100,geoid=Geodesic.WGS84,resolution="10m",center_lon=0.,fontsize=8, verbose=False):
+    def __init__(self,parent=None,dpi=100,geoid=Geodesic.WGS84,resolution="50m",center_lon=0.,fontsize=8, verbose=False):
         """Constructor"""
         #call init of super class
         default_style = wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.RESIZE_BORDER | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN | wx.NO_FULL_REPAINT_ON_RESIZE | wx.WS_EX_CONTEXTHELP | wx.FRAME_EX_CONTEXTHELP
@@ -31,6 +33,8 @@ class RTPWindow(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.on_close_main)
 
         self.parent=parent
+        if not pymax_found: self.parent.user_warning("PyRot module PyMax not found, pole plot viewer will not be usable"); self.on_close_window(-1)
+        else: self.parent.rtp_open=True
         self.center_lon = center_lon
         self.dpi = dpi
         self.geoid = geoid
@@ -52,7 +56,7 @@ class RTPWindow(wx.Frame):
 
         #------------------------------------Make DropDown Box-----------------------------------------------------#
 
-        latlon_sizer = wx.StaticBoxSizer(wx.StaticBox(self.panel, wx.ID_ANY, "Choose Gravity Window"), wx.VERTICAL)
+        latlon_sizer = wx.StaticBoxSizer(wx.StaticBox(self.panel, wx.ID_ANY, "Window Boundaries"), wx.VERTICAL)
         proj_sizer = wx.StaticBoxSizer(wx.StaticBox(self.panel, wx.ID_ANY, "Choose Projection"), wx.VERTICAL)
         refresh_sizer = wx.StaticBoxSizer(wx.StaticBox(self.panel, wx.ID_ANY, "Refresh Figure"), wx.HORIZONTAL)
 
@@ -152,15 +156,38 @@ class RTPWindow(wx.Frame):
 
     def update(self): #Populates Logger and makes plot
         self.make_map()
-        try:
-            self.parent.save_max_file(".tmp.max")
-            comment,header,data = pymax.read_max_file(".tmp.max")
-            (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
-            self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
-            self.ax = psk.plot_pole(plon,plat,phi,maj_se,min_se,m=self.ax)
-            self.ax = psk.plot_lunes(self.parent.deskew_df,self.ax,idx_selected=self.parent.dsk_idx)
-        except AttributeError: return
+        # try:
+        self.parent.save_max_file(".tmp.max",ship_only=True)
+        comment,header,ship_data = pymax.read_max_file(".tmp.max")
+        if len(ship_data["phs"])>2:
+            (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(ship_data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
+            s1_ship = np.sqrt(chisq/dof)*ship_data["phs"][0][1][1]
 
+        self.parent.save_max_file(".tmp.max",aero_only=True)
+        comment,header,aero_data = pymax.read_max_file(".tmp.max")
+        if len(aero_data["phs"])>2:
+            (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(aero_data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
+            s1_aero = np.sqrt(chisq/dof)*aero_data["phs"][0][1][1]
+        
+        self.parent.save_max_file(".tmp.max")
+        comment,header,data = pymax.read_max_file(".tmp.max")
+        if len(data["phs"])==0: return
+        for i in range(len(data["phs"])):
+            if data["phs"][i][1][1]==ship_data["phs"][0][1][1]:
+                data["phs"][i][1][1] = s1_ship
+            elif data["phs"][i][1][1]==aero_data["phs"][0][1][1]:
+                data["phs"][i][1][1] = s1_aero
+
+        (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
+        
+        self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
+        self.ax = psk.plot_pole(plon,plat,phi,(chisq/dof)*maj_se,(chisq/dof)*min_se,m=self.ax)
+        dsk_to_plot = self.parent.deskew_df[self.parent.deskew_df["quality"]=="g"]
+        try: self.ax = psk.plot_lunes(dsk_to_plot,self.ax,idx_selected=self.parent.dsk_idx)
+        except AttributeError: self.ax = psk.plot_lunes(dsk_to_plot,self.ax)
+        os.remove(".tmp.max")
+
+        print([float(self.min_lon_box.GetValue()),float(self.max_lon_box.GetValue()),float(self.min_lat_box.GetValue()),float(self.max_lat_box.GetValue())])
         self.ax.set_extent([float(self.min_lon_box.GetValue()),float(self.max_lon_box.GetValue()),float(self.min_lat_box.GetValue()),float(self.max_lat_box.GetValue())], ccrs.PlateCarree())
 
         self.canvas.draw()

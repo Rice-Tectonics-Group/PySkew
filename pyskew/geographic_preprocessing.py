@@ -138,10 +138,10 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
             res_h_comp = mag*np.cos(np.deg2rad(inc))
             res_t_comp = mag
 
-            adf.at[i,'res_v_comp'] = float(row['v_comp'])-res_v_comp)
-            adf.at[i,'res_e_comp'] = float(row['e_comp'])-res_e_comp)
-            adf.at[i,'res_h_comp'] = float(row['h_comp'])-res_e_comp)
-            adf.at[i,'res_t_comp'] = float(row['mag'])-res_t_comp)
+            adf.at[i,'res_v_comp'] = float(row['v_comp'])-res_v_comp
+            adf.at[i,'res_e_comp'] = float(row['e_comp'])-res_e_comp
+            adf.at[i,'res_h_comp'] = float(row['h_comp'])-res_e_comp
+            adf.at[i,'res_t_comp'] = float(row['mag'])-res_t_comp
 
             prev_lat,prev_lon = float(row['lat']),float(row['lon'])
 

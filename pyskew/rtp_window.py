@@ -41,6 +41,7 @@ class RTPWindow(wx.Frame):
         self.resolution = resolution
         self.fontsize = fontsize
         self.verbose = verbose
+        self.poles_to_plot = []
 
         self.panel = wx.Panel(self,-1,size=(400*2,300*2))
 
@@ -68,9 +69,12 @@ class RTPWindow(wx.Frame):
         self.min_lat_box = wx.TextCtrl(self.panel, id=wx.ID_ANY|wx.TE_CENTRE, size=(25,25))
         self.max_lon_box = wx.TextCtrl(self.panel, id=wx.ID_ANY|wx.TE_CENTRE, size=(25,25))
         self.min_lon_box = wx.TextCtrl(self.panel, id=wx.ID_ANY|wx.TE_CENTRE, size=(25,25))
-#        self.down_sample_box = wx.TextCtrl(self.panel, id=wx.ID_ANY|wx.TE_CENTRE, size=(50,25))
-        self.re_render_button = wx.Button(self.panel, id=wx.ID_ANY, label='Refresh Figure',size=(100,25))
+#        self.down_sample_box = wx.TextCtrl(self.panel, id=wx.ID_ANY|wx.TE_CENTRE, size=(50,25))\
+
+        self.re_render_button = wx.Button(self.panel, id=wx.ID_ANY, label='Refresh Figure',size=(50,25))
         self.Bind(wx.EVT_BUTTON, self.on_re_render_button, self.re_render_button)
+        self.add_pole_button = wx.Button(self.panel, id=wx.ID_ANY, label='Add Pole',size=(50,25))
+        self.Bind(wx.EVT_BUTTON, self.on_add_pole_button, self.add_pole_button)
 
         #Projection sizer
         proj_sizer.Add(self.proj_box, 1, wx.ALIGN_LEFT|wx.ALIGN_TOP|wx.EXPAND|wx.ALL, spacing)
@@ -86,8 +90,8 @@ class RTPWindow(wx.Frame):
                               (lon_sizer, 1, wx.ALIGN_BOTTOM|wx.EXPAND, spacing)])
 
         #Downsample sizer with downsample box and refresh button
-        refresh_sizer.AddMany([(self.re_render_button, 1, wx.ALIGN_LEFT|wx.ALIGN_BOTTOM|wx.EXPAND|wx.ALL, spacing)])
-#                                   (self.down_sample_box, 1, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM|wx.EXPAND|wx.ALL, spacing)])
+        refresh_sizer.AddMany([(self.re_render_button, 1, wx.ALIGN_LEFT|wx.ALIGN_BOTTOM|wx.EXPAND|wx.ALL, spacing),
+                               (self.add_pole_button, 1, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM|wx.EXPAND|wx.ALL, spacing)])
 
         #Combine projection and downsample sizers
         proj_ds_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -155,21 +159,21 @@ class RTPWindow(wx.Frame):
     #########################Update UI Funcions#############################
 
     def update(self): #Populates Logger and makes plot
-        self.make_map()
-        # try:
-        self.parent.save_max_file(".tmp.max",ship_only=True)
-        comment,header,ship_data = pymax.read_max_file(".tmp.max")
-        if len(ship_data["phs"])>2:
+        self.make_map() #Make Background Map
+        
+        self.parent.save_max_file(".tmp.max",ship_only=True) #Save tmp max file to disk for debugging purposes and to more easily punch data into format using previous functions
+        comment,header,ship_data = pymax.read_max_file(".tmp.max") #Read max file
+        if len(ship_data["phs"])>2: #If more than 2 profiles (even-determined) invert ship
             (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(ship_data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
-            s1_ship = np.sqrt(chisq/dof)*ship_data["phs"][0][1][1]
+            s1_ship = np.sqrt(chisq/dof)*ship_data["phs"][0][1][1] #ship 1sigma
 
-        self.parent.save_max_file(".tmp.max",aero_only=True)
+        self.parent.save_max_file(".tmp.max",aero_only=True) #Do same for aero only data
         comment,header,aero_data = pymax.read_max_file(".tmp.max")
         if len(aero_data["phs"])>2:
             (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(aero_data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
             s1_aero = np.sqrt(chisq/dof)*aero_data["phs"][0][1][1]
         
-        self.parent.save_max_file(".tmp.max")
+        self.parent.save_max_file(".tmp.max") #now read all data and change s1 to match above
         comment,header,data = pymax.read_max_file(".tmp.max")
         if len(data["phs"])==0: return
         for i in range(len(data["phs"])):
@@ -180,17 +184,26 @@ class RTPWindow(wx.Frame):
 
         (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
         
-        self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
+        #write pole coordinates and 1sigmas to plot for user
+        self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+r"%.1f$^\circ$, %.1f$^\circ$, N%.1fE"%(maj_se,min_se,phi)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
+        #plot inverted pole
         self.ax = psk.plot_pole(plon,plat,phi,(chisq/dof)*maj_se,(chisq/dof)*min_se,m=self.ax)
+        #filter deskew_df to only data labeled "good" and plot lunes
         dsk_to_plot = self.parent.deskew_df[self.parent.deskew_df["quality"]=="g"]
         try: self.ax = psk.plot_lunes(dsk_to_plot,self.ax,idx_selected=self.parent.dsk_idx)
-        except AttributeError: self.ax = psk.plot_lunes(dsk_to_plot,self.ax)
-        os.remove(".tmp.max")
+        except AttributeError: self.ax = psk.plot_lunes(dsk_to_plot,self.ax) #catch no selected data case
+        os.remove(".tmp.max") #remove the deskew file on disk
 
+        #plot any additional poles
+        for pole_rec in self.poles_to_plot:
+            print(pole_rec)
+            self.ax = psk.plot_pole(*pole_rec[0],color=pole_rec[1],m=self.ax)
+
+        #set the map extent to match user input
         print([float(self.min_lon_box.GetValue()),float(self.max_lon_box.GetValue()),float(self.min_lat_box.GetValue()),float(self.max_lat_box.GetValue())])
         self.ax.set_extent([float(self.min_lon_box.GetValue()),float(self.max_lon_box.GetValue()),float(self.min_lat_box.GetValue()),float(self.max_lat_box.GetValue())], ccrs.PlateCarree())
 
-        self.canvas.draw()
+        self.canvas.draw() #rerender
 
     def on_close_main(self,event):
         self.parent.rtp_open=False
@@ -218,6 +231,20 @@ class RTPWindow(wx.Frame):
 
     def on_re_render_button(self,event):
         self.update()
+
+    def on_add_pole_button(self,event):
+        pdlg = PoleDialog(self) #run text entry dialog
+        if pdlg.ShowModal() == wx.ID_OK:
+            new_pole = [pdlg.lon,pdlg.lat,pdlg.phi,pdlg.a,pdlg.b]
+        else: return
+        pdlg.Destroy()
+        cdlg = wx.ColourDialog(self)
+        if cdlg.ShowModal() == wx.ID_OK:
+            new_color = np.array(cdlg.GetColourData().GetColour().Get())/255
+        else: color = "cyan"
+        cdlg.Destroy()
+        self.poles_to_plot.append([new_pole,tuple(new_color)]) #add new pole to list
+        self.update() #update figure
 
     ###########################Figure Funcions###############################
 
@@ -320,5 +347,40 @@ class RTPWindow(wx.Frame):
         land = cfeature.NaturalEarthFeature('physical', 'land', self.resolution, edgecolor="black", facecolor="grey", linewidth=2)
         self.ax.add_feature(land)
 
+
+
+class PoleDialog(wx.Dialog):
+    def __init__(self, parent):
+        wx.Dialog.__init__(self, parent, wx.ID_ANY, "Pole Input", size= (650,200))
+        self.panel = wx.Panel(self,wx.ID_ANY)
+        self.parent = parent
+
+        self.lblcoords = wx.StaticText(self.panel, label="Coords", pos=(20,20))
+        self.tc_lat = wx.TextCtrl(self.panel, value="", pos=(110,20), size=(150,-1))
+        self.tc_lon = wx.TextCtrl(self.panel, value="", pos=(110+500/3,20), size=(150,-1))
+        
+        self.lblell = wx.StaticText(self.panel, label="Unc Ell", pos=(20,60))
+        self.tc_a = wx.TextCtrl(self.panel, value="", pos=(110,60), size=(150,-1))
+        self.tc_b = wx.TextCtrl(self.panel, value="", pos=(110+500/3,60), size=(150,-1))
+        self.tc_phi = wx.TextCtrl(self.panel, value="", pos=(110+(2*500)/3,60), size=(150,-1))
+
+        self.saveButton = wx.Button(self.panel, id=wx.ID_OK, label="Ok", pos=(110,100))
+        self.closeButton = wx.Button(self.panel, label="Cancel", pos=(210,100))
+        self.saveButton.Bind(wx.EVT_BUTTON, self.SaveConnString)
+        self.closeButton.Bind(wx.EVT_BUTTON, self.OnQuit)
+        self.Bind(wx.EVT_CLOSE, self.OnQuit)
+
+    def OnQuit(self,event):
+        self.EndModal(wx.ID_CANCEL)
+
+    def SaveConnString(self, event):
+        try:
+            self.lat = float(self.tc_lat.GetValue())
+            self.lon = float(self.tc_lon.GetValue())
+            self.a = float(self.tc_a.GetValue())
+            self.b = float(self.tc_b.GetValue())
+            self.phi = float(self.tc_phi.GetValue())
+        except ValueError: self.parent.user_warning("At least one value was non-numeric"); return
+        self.EndModal(wx.ID_OK)
 
 

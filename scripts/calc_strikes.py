@@ -22,6 +22,8 @@ dsk_path : str
 
 Flags
 ----------
+-h : no input
+           Prints this help message and quits
 -ell : 5 floats, optional
            Paleomagnetic pole to add strike uncertainty to
 -o : str, optional
@@ -112,7 +114,10 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
 if __name__=="__main__":
 
     kwargs = {}
-    if "-ell" in sys.argv:
+    if "-h" in sys.argv:
+        help(__name__)
+        sys.exit()
+    elif "-ell" in sys.argv:
         iell = sys.argv.index("-ell")
         kwargs["mlat"] = float(sys.argv[iell+1])
         kwargs["mlon"] = float(sys.argv[iell+2])

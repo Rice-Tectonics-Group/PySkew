@@ -8,6 +8,7 @@ import pmagpy.ipmag as ipmag
 from geographiclib.geodesic import Geodesic
 import pyskew.geographic_preprocessing as pg
 import pyskew.utilities as utl
+from scipy.signal import hilbert, butter, filtfilt
 
 def filter_deskew_and_calc_aei(deskew_path,spreading_rate_path=None,anomalous_skewness_model_path=None):
     """Creates Datatable"""
@@ -758,5 +759,173 @@ def transition_width_filter(sig,length,nyquest,sigma):
         sig[j] = sig[j]*gfac
     return sig
 
+
+def crosscorr(datax, datay, lag=0, wrap=False):
+    """ Lag-N cross correlation. 
+    Shifted data filled with NaNs 
+    
+    Parameters
+    ----------
+    lag : int, default 0
+    datax, datay : pandas.Series objects or objects castable to pd. Series of equal length
+    Returns
+    ----------
+    crosscorr : float
+    """
+    datax,datay = pd.Series(datax),pd.Series(datay)
+    if wrap:
+        shiftedy = datay.shift(lag)
+        shiftedy.iloc[:lag] = datay.iloc[-lag:].values
+        return datax.corr(shiftedy)
+    else: 
+        return datax.corr(datay.shift(lag))
+
+def butter_lowpass(highcut, fs, order=5):
+    nyq = 0.5 * fs
+    high = highcut / nyq
+    b, a = butter(order, high, btype='lowpass')
+    return b, a
+
+
+def butter_lowpass_filter(data, highcut, fs, order=5):
+    b, a = butter_lowpass(highcut, fs, order=order)
+    y = filtfilt(b, a, data)
+    return y
+
+def butter_bandpass(lowcut, highcut, fs, order=5):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    b, a = butter(order, [low, high], btype='band')
+    return b, a
+
+
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+    y = filtfilt(b, a, data)
+    return y
+
+
+def auto_dsk(dsk_row,synth,bounds,conv_shift=0,phase_args=(0.,360.,1.),highcut=0.,order=3):
+    """
+    Returns the maximum likelihood phase shift to deskew the data to match a provided synthetic given a bounds
+    on a window to match.
+    
+    Parameters
+    ----------
+
+    dsk_row : Pandas.Series
+        Single row of a deskew file with valid path to data file
+    synth : list
+        This should be the output of the make synthetic function it needs to contain three elements
+            0) an array of the synthetic magnetic anomalies
+            1) an array of the distance coordinates of the points in 0, should be of equal length to 0, MUST be in
+               the same coordinate system as the profile provided in dsk_row!!! Which it may not by default.
+            2) the distance resolution of the synthetic in 0 and 1
+    bounds : list of floats
+        Has two elements which corespond to the left and right bounds of the window
+    conv_shift : float, optional
+        Weather or not to realign the anomaly each phase shift using a time lagged convolution method which
+        increases runtime significantly but can also increase accuracy. This argument should be a positve
+        float which corresponds to the amount of +- shift the anomaly is allowed to move used otherwise it should
+        be 0 to not use the shift method (Default: 0, which implies not to use method).
+    phase_args : tuple or other unpackable sequence, optional
+        Arguments to np.arange which define the phases searched in the minimization. (Default: (0.,360.,1.) which
+        implies a search of the entire parameter space of phases at 1 degree resolution)
+    highcut : float, optional
+        The upper cutoff frequency to filter the data by in order to remove any topographic anomalies in the data.
+        This value should be between 0 and Nyquest of the synthetic which MUST be regularly sampled like those
+        returned by make_synthetic. The data is up or down sampled to the synthetic before filtering. (Default:
+        0 which implies not to filter the data)
+    order : int, optional
+        The order of the lowpass butterworth filter to apply to the data.
+
+    Returns
+    ----------
+
+    best_phase : float
+        The maximum liklehood phase shift to match the data to the synthetic
+    best_shift : float
+        the maximum likelihood shift for the best_phase which aligned the two anomalies
+    phase_func : Numpy.NdArray
+        The summed phase asynchrony between the data and the synthetic as a function of phase shift (best_phase is
+        the global minimum of this function)
+    best_shifts : Numpy.NdArray
+        the maximum likelihood shift as a function of the phase shift
+    """
+
+    #Unpack Arguments
+    dage = dsk_row["age_max"]-dsk_row["age_min"]
+    phases = np.arange(*phase_args)
+    left_bound,right_bound = bounds
+    synth_mag = np.array(synth[0])
+    synth_dis = np.array(synth[1])
+    ddis = synth[2]
+
+    data_path = os.path.join(dsk_row["data_dir"],dsk_row["comp_name"])
+    data_df = utl.open_mag_file(data_path)
+    projected_distances = utl.calc_projected_distance(dsk_row['inter_lon'],dsk_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),180-dsk_row['strike'])
+
+#    #numpy.interp only works for monotonic increasing independent variable data
+#    if np.any(np.diff(projected_distances["dist"])<0): mag = np.interp(-synth_dis,-projected_distances["dist"],data_df["mag"])
+#    else: mag = np.interp(synth_dis,projected_distances["dist"],data_df["mag"])
+
+    #trim to only window of relivence
+    left_idx = np.argmin(np.abs(synth_dis - left_bound))
+    right_idx = np.argmin(np.abs(synth_dis - right_bound))
+    right_idx,left_idx = max([right_idx,left_idx]),min([right_idx,left_idx])
+    tsynth_mag = synth_mag[left_idx:right_idx]
+    tsynth_dis = synth_dis[left_idx:right_idx]
+    N = len(tsynth_mag) #because this is easier and regularly sampled plus the user can set it simply
+    al2 = np.angle(hilbert(np.real(tsynth_mag),N),deg=False)
+
+    shifts = np.arange(-dage*conv_shift/2,dage*conv_shift/2,1.) #covers entire anomaly of shifts
+    best_shifts = [] #record best shifts as function of phase shift
+    phase_async_func = [] #record summed phase asynchrony as a function of phase shift
+    for phase in phases:
+        shifted_mag = phase_shift_data(data_df["mag"],phase)
+
+        if conv_shift: #DON'T YOU KNOW WE'RE GONNAAAA DOOOOOOO THE COOONVOLUTIOOOON!!!
+            correlation_func = []
+            for shift in shifts:
+                left_idx = np.argmin(np.abs(projected_distances["dist"] - left_bound - shift))
+                right_idx = np.argmin(np.abs(projected_distances["dist"] - right_bound - shift))
+                right_idx,left_idx = max([right_idx,left_idx]),min([right_idx,left_idx])
+                tproj_dist = projected_distances["dist"][left_idx:right_idx] - shift
+                tshifted_mag = shifted_mag[left_idx:right_idx]
+
+                #numpy.interp only works for monotonic increasing independent variable data
+                if np.any(np.diff(tproj_dist)<0): itshifted_mag = np.interp(-tsynth_dis,-tproj_dist,tshifted_mag)
+                else: itshifted_mag = np.interp(tsynth_dis,tproj_dist,tshifted_mag)
+                if highcut: itshifted_mag = butter_lowpass_filter(itshifted_mag,highcut=highcut,fs=1/ddis,order=order)
+
+                #cals helper function above with 0 lag because of the potential lack of regular sampling
+                ccf = crosscorr(itshifted_mag,tsynth_mag)
+                correlation_func.append(np.real(ccf))
+
+            best_shift_idx = np.argmax(correlation_func)
+            best_shift = shifts[best_shift_idx]
+        else: best_shift = 0.
+
+        #trim the data to the right segments
+        left_idx = np.argmin(np.abs(projected_distances["dist"] - left_bound - best_shift))
+        right_idx = np.argmin(np.abs(projected_distances["dist"]- right_bound - best_shift))
+        right_idx,left_idx = max([right_idx,left_idx]),min([right_idx,left_idx])
+        tproj_dist = projected_distances["dist"][left_idx:right_idx] - best_shift
+        tshifted_mag = shifted_mag[left_idx:right_idx]
+
+        #numpy.interp only works for monotonic increasing independent variable data
+        if np.any(np.diff(tproj_dist)<0): itshifted_mag = np.interp(-tsynth_dis,-tproj_dist,tshifted_mag)
+        else: itshifted_mag = np.interp(tsynth_dis,tproj_dist,tshifted_mag)
+        if highcut: itshifted_mag = butter_lowpass_filter(itshifted_mag,highcut=highcut,fs=1/ddis,order=order)
+
+        al1 = np.angle(hilbert(itshifted_mag,N),deg=False)
+        phase_asynchrony = np.abs(np.sin(np.abs(al1-al2)/2)) #shouldn't go negative but...just in case
+        best_shifts.append(best_shift)
+        phase_async_func.append(phase_asynchrony.sum())
+
+    best_idx = np.argmin(phase_async_func)
+
+    return phases[best_idx],best_shifts[best_idx],phase_async_func,best_shifts
 
 

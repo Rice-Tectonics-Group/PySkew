@@ -31,9 +31,8 @@ def calc_aei(deskew_df,srf,asf):
         alpha = float(row['strike']) - igrf[0]
         e = np.rad2deg(np.arctan2(np.tan(np.deg2rad(igrf[1])),np.sin(np.deg2rad(alpha))))
         aei = utl.wrap_180_180(180 - e - float(row['phase_shift']) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)))
-        deskew_df.set_value(i,'ei',e)
-        deskew_df.set_value(i,'aei',aei)
-
+        deskew_df.at[i,'ei'] = e
+        deskew_df.at[i,'aei'] = aei
     return deskew_df
 
 def row_calc_aei(row,srf,asf):
@@ -136,8 +135,8 @@ def correct_site(site_cor_path,deskew_path,dist_e=.5):
 
         corrected_lon,corrected_lat,corrected_dist = get_lon_lat_from_plot_pick(drow,correction,dist_e=dist_e)
 
-        new_deskew_df.set_value(i, 'inter_lat', corrected_lat)
-        new_deskew_df.set_value(i, 'inter_lon', corrected_lon)
+        new_deskew_df.at[i, 'inter_lat'] =  corrected_lat
+        new_deskew_df.at[i, 'inter_lon'] =  corrected_lon
 
     new_deskew_df.to_csv(deskew_path,sep="\t",index=False)
 
@@ -218,21 +217,29 @@ def create_max_file(deskew_df,srf,asf,outfile="deskew.max"):
     with open(outfile,'w+') as fout:
         #Write Max Header
         fout.write("Max File\n")
-        fout.write("80.0,0.0,1.0,0,0,%d,0,0,0,1,1.0\n"%(len(deskew_df.index)))
+        num_profiles = len(deskew_df[deskew_df["track_type"]=="aero"])/2 + len(deskew_df[deskew_df["track_type"]=="ship"])
+        fout.write("80.0,0.0,1.0,0,0,%d,0,0,0,1,1.0\n"%(num_profiles))
         #Write Each Track
         deskew_df = calc_aei(deskew_df,srf,asf)
         for i,row in deskew_df.iterrows():
             if row["track_type"]=="ship":
+                aei = row["aei"]
                 s1aei = 30./(row["age_max"]-row["age_min"])
             else:
                 s1aei = 15./(row["age_max"]-row["age_min"])
-#                if "Ed" in row["comp_name"]:
-#                elif "Hd" in row["comp_name"]:
-#                elif "Vd" in row["comp_name"]:
-#                else: raise ValueError("Unknown aeromagnetic component type for %s"%str(row["comp_name"]))
+                if "Ed" in row["comp_name"]:
+                    other_comp = row["comp_name"].replace(".Ed.lp",".Vd.lp")
+                    oth_row = deskew_df[deskew_df["comp_name"]==other_comp]
+                    aei = (row["aei"] + oth_row["aei"])/2
+                elif "Hd" in row["comp_name"]:
+                    other_comp = row["comp_name"].replace(".Hd.lp",".Vd.lp")
+                    oth_row = deskew_df[deskew_df["comp_name"]==other_comp]
+                    aei = (row["aei"] + oth_row["aei"])/2
+                elif "Vd" in row["comp_name"]: continue
+                else: raise ValueError("Unknown aeromagnetic component type for %s"%str(row["comp_name"]))
 
             fout.write(row["comp_name"]+"\n")
-            fout.write("%.2f,%.2f,%.2f,%.2f,%.2f\n"%(row["aei"],s1aei,row["inter_lat"],row["inter_lon"],row["strike"]))
+            fout.write("%.2f,%.2f,%.2f,%.2f,%.2f\n"%(aei,s1aei,row["inter_lat"],row["inter_lon"],row["strike"]))
         #Write Fake Remanent Amp Factor to prevent singularity in old Max
         fout.write("Fake Amplitude\n")
         fout.write("1.0,0.1,0.0,180.0,90.0")
@@ -327,12 +334,12 @@ def reduce_to_pole(deskew_path, pole_lon, pole_lat, spreading_rate_path=None, an
     for i,row in deskew_df.sort_values("comp_name",ascending=False).iterrows():
         reduced_skewness,rel_reduced_amplitude = reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf)
 
-        deskew_df.set_value(i,'phase_shift',round(reduced_skewness,3))
+        deskew_df.at[i,'phase_shift'] = round(reduced_skewness,3)
         if "Ed.lp" in row["comp_name"]:
             rel_reduced_amplitude = deskew_df[deskew_df["comp_name"]==row["comp_name"].replace("Ed.lp","Vd.lp")].iloc[0]["rel_amp"]
         elif "Hd.lp" in row["comp_name"]:
             rel_reduced_amplitude = deskew_df[deskew_df["comp_name"]==row["comp_name"].replace("Hd.lp","Vd.lp")].iloc[0]["rel_amp"]
-        deskew_df.set_value(i,'rel_amp',round(rel_reduced_amplitude,3))
+        deskew_df.at[i,'rel_amp'] = round(rel_reduced_amplitude,3)
 
     old_results_dir = deskew_df['results_dir'].iloc[0]
     new_results_dir = os.path.join(old_results_dir,"pole_%.0f_%.0f_results"%(pole_lon,pole_lat))

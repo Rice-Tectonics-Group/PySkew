@@ -20,7 +20,7 @@ from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as Navigat
 
 class SynthMagGUI(wx.Frame):
 
-    __version__ = "V0.3.1"
+    __version__ = "V0.3.2"
 
     #########################Init Funcions#############################
 
@@ -375,10 +375,10 @@ class SynthMagGUI(wx.Frame):
 
         menu_view = wx.Menu()
 
-        self.m_show_anoms = menu_view.AppendCheckItem(-1, "&Show Anomaly Names\tCtrl-A", "")
+        self.m_show_anoms = menu_view.AppendCheckItem(-1, "&Show Anomaly Names", "")
         self.Bind(wx.EVT_MENU, self.on_show_anoms, self.m_show_anoms)
 
-        self.m_show_major_anoms = menu_view.AppendCheckItem(-1, "&Show Major Anomaly Names Only\tCtrl-Shift-A", "")
+        self.m_show_major_anoms = menu_view.AppendCheckItem(-1, "&Show Major Anomaly Names Only", "")
         self.Bind(wx.EVT_MENU, self.on_show_major_anoms, self.m_show_major_anoms)
 
         #-----------------
@@ -549,13 +549,13 @@ class SynthMagGUI(wx.Frame):
             infile = os.path.join(self.dsk_row["data_dir"],self.dsk_row["comp_name"])
             if not os.path.isfile(infile): self.user_warning("Data file %s could not be found"%infile); return
             self.dsk_row["phase_shift"] = self.phase_shift
-            self.deskew_df.set_value(self.dsk_idx,"strike",(self.azi+90)%360)
-            self.deskew_df.set_value(self.dsk_idx,"phase_shift",self.phase_shift)
+            self.deskew_df.at[self.dsk_idx,"strike"] = (self.azi+90)%360
+            self.deskew_df.at[self.dsk_idx,"phase_shift"] = self.phase_shift
             self.dsk_row["strike"] = (self.azi+90)%360 #set strike to normal for aei calculation
             self.dsk_row = sk.row_calc_aei(self.dsk_row,srf,asf)
             self.deskew_df.at[self.dsk_idx,"ei"] = self.dsk_row["ei"]
             self.deskew_df.at[self.dsk_idx,"aei"] = self.dsk_row["aei"]
-            self.dsk_row["strike"] = (self.azi+270)%360 #rotate an extra 90 degrees because convention here is 180 from old convention for ease of moving synthetic
+            # self.dsk_row["strike"] = (self.azi+270)%360 #rotate an extra 90 degrees because convention here is 180 from old convention because I'm an idiot and forgot the original (no longer necessary built in with kwarg)
 
         try:
             #Center Synthetic
@@ -601,15 +601,15 @@ class SynthMagGUI(wx.Frame):
                         other_phase = self.phase_shift+90
                     else: self.user_warning("Improperly named component files should have either Ed.lp, Hd.lp, or Vd.lp got: %s"%self.track); return
                     other_dsk_row = self.deskew_df[self.deskew_df["comp_name"]==other_track].iloc[0]
-                    other_dsk_row["strike"] = (self.azi+270)%360
-                    self.other_art = psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7,return_objects=True)
+                    # other_dsk_row["strike"] = (self.azi+270)%360
+                    self.other_art = psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7,return_objects=True,flip=True)
                 else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.dsk_row["track_type"]))
 
             try:
                 #Standard Data Update
                 for da in self.data_art:
                     da.remove()
-                self.data_art = list(psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,zorder=3,picker=True,return_objects=True))
+                self.data_art = list(psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,zorder=3,picker=True,return_objects=True,flip=True))
                 self.data_art.append(self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,va='top',ha='left'))
 
                 #Add altitude data if applicable
@@ -618,7 +618,7 @@ class SynthMagGUI(wx.Frame):
                         ad.remove()
                     dsk_df = utl.open_mag_file(os.path.join(self.dsk_row["data_dir"],self.dsk_row["comp_name"].replace(".Ed","").replace(".Vd","").replace(".Hd","")))
                     dsk_dis = utl.calc_projected_distance(self.dsk_row["inter_lon"],self.dsk_row["inter_lat"],dsk_df["lon"],dsk_df["lat"],self.dsk_row["strike"])["dist"]
-                    self.alt_data = self.alt_ax.plot(dsk_dis,dsk_df["alt"],color="k")
+                    self.alt_data = self.alt_ax.plot(dsk_dis,0.3048*dsk_df["alt"],color="k")
 
                 #Data Update if there's a polynomial fit
                 if self.dtw_open: self.dtw.on_plot_btn(-1)
@@ -1055,7 +1055,7 @@ class SynthMagGUI(wx.Frame):
             self.rtp = RTPWindow(parent=self,fontsize=self.fontsize)
             self.rtp.Center()
             self.rtp.Show()
-            self.rtp_open=True
+            #bool handled internal to RTPWindow because of potential missing dependency requiring shutdown
 
     def on_skw_lat(self,event):
         if not self.skw_lat_open:
@@ -1151,9 +1151,14 @@ class SynthMagGUI(wx.Frame):
     def swap(self,a,b):
         return b,a
 
-    def save_max_file(self,outfile):
+    def save_max_file(self,outfile,ship_only=False,aero_only=False):
         srf,asf = self.get_srf_asf()
-        sk.create_max_file(self.deskew_df[self.deskew_df["quality"]=="g"],srf,asf,outfile=outfile)
+        if ship_only:
+            sk.create_max_file(self.deskew_df[(self.deskew_df["quality"]=="g") & (self.deskew_df["track_type"]=="ship")],srf,asf,outfile=outfile)
+        elif aero_only:
+            sk.create_max_file(self.deskew_df[(self.deskew_df["quality"]=="g") & (self.deskew_df["track_type"]=="aero")],srf,asf,outfile=outfile)
+        else:
+            sk.create_max_file(self.deskew_df[self.deskew_df["quality"]=="g"],srf,asf,outfile=outfile)
 
     def get_srf_asf(self):
         if not self.m_use_sr_model.IsChecked() or self.spreading_rate_path==None:
@@ -1169,8 +1174,8 @@ class SynthMagGUI(wx.Frame):
             new_lon,new_lat,cor_dis = sk.get_lon_lat_from_plot_pick(self.dsk_row,dis,dist_e=dist_e)
         except AttributeError as e: return self.user_warning("You must select a track before correcting crossing location")
         if self.user_warning("Are you sure you want to correct site location by %.2f to coordinates (%.2f,%.2f)"%(cor_dis,new_lat,new_lon)):
-            self.deskew_df.set_value(self.dsk_idx,"inter_lat",new_lat)
-            self.deskew_df.set_value(self.dsk_idx,"inter_lon",new_lon)
+            self.deskew_df.at[self.dsk_idx,"inter_lat"] = new_lat
+            self.deskew_df.at[self.dsk_idx,"inter_lon"] = new_lon
             self.dsk_row = self.deskew_df.loc[self.dsk_idx].iloc[0]
             return True
         else: return False

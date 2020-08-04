@@ -54,7 +54,7 @@ class SkwLatWindow(wx.Frame):
 
         try:
             sz_names = self.parent.deskew_df["sz_name"].drop_duplicates().tolist()
-            self.maximum_profiles = max([len(self.parent.deskew_df[self.parent.deskew_df==sz_name])for sz_name in sz_names])
+            self.maximum_profiles = max([len(self.parent.deskew_df[self.parent.deskew_df["sz_name"]==sz_name]) for sz_name in sz_names])
         except AttributeError: sz_names,self.maximum_profiles = [""],6
         self.sz_names_box = wx.ComboBox(self.scrolled_panel, id=wx.ID_ANY, size=(300, 50), value=sz_names[0], choices=sz_names, style=wx.CB_DROPDOWN|wx.TE_READONLY)
         self.Bind(wx.EVT_COMBOBOX, self.on_select_sz, self.sz_names_box)

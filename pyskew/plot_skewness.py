@@ -216,14 +216,14 @@ def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=Non
     if kwargs.get("edgecolors") == "black" and kwargs.get("facecolors") != color: color = kwargs.get("facecolors")
     elif kwargs.get("facecolors") == "white" and kwargs.get("edgecolors") != color: color = kwargs.get("edgecolors")
 
-    if alpha_all: m.scatter(lon, lat,  zorder=zorder, alpha=alpha,transform=ccrs.Geodetic(), **kwargs)
-    else: m.scatter(lon, lat,  zorder=zorder,transform=ccrs.Geodetic(), **kwargs)
+    if alpha_all: m.scatter(lon, lat,  zorder=zorder, alpha=alpha,transform=ccrs.PlateCarree(), **kwargs)
+    else: m.scatter(lon, lat,  zorder=zorder,transform=ccrs.PlateCarree(), **kwargs)
     if pole_text!=None:
-        if pole_text_pos!=None: plt.text(*m(*pole_text_pos),pole_text,zorder=500,transform=ccrs.Geodetic())
+        if pole_text_pos!=None: plt.text(*m(*pole_text_pos),pole_text,zorder=500,transform=ccrs.PlateCarree())
         else:
             tazi = 90
             geodict=Geodesic.WGS84.ArcDirect(lat,lon,tazi,1)
-            plt.text(geodict["lon2"],geodict["lat2"],pole_text,zorder=500,va='top',ha='center',transform=ccrs.Geodetic())
+            plt.text(geodict["lon2"],geodict["lat2"],pole_text,zorder=500,va='top',ha='center',transform=ccrs.PlateCarree())
     if filled: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
     else: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, color=color, zorder=zorder-1,alpha=alpha)
 
@@ -368,7 +368,7 @@ def plot_lunes(comps,gcm,pole_lat=None,idx_selected=None):
         gc_lat = [gcd["lat2"] for gcd in gc_points_and_azis]
 
         # Draw great semi-circle
-        gcm.scatter([gc_lon[0],gc_lon[-1]], [gc_lat[0],gc_lat[-1]], edgecolor='k', facecolor='none', zorder=10,transform=ccrs.Geodetic())
+        gcm.scatter([gc_lon[0],gc_lon[-1]], [gc_lat[0],gc_lat[-1]], edgecolor='k', facecolor='none', zorder=10,transform=ccrs.PlateCarree())
         if (not isinstance(idx_selected,type(None))) and i==idx_selected: color = "#FF6C6C"
         else: color = (float(row["r"]),float(row["g"]),float(row["b"]))
         gcm.plot(gc_lon, gc_lat, color=color, linestyle=linestyle, linewidth=linewidth,transform=ccrs.Geodetic())
@@ -471,7 +471,7 @@ def plot_skewness_data(deskew_row, phase_shift, ax, xlims=[-500,500], clip_on=Fa
     data_df = pd.read_csv(data_file_path,names=["dist","dec_year","mag","lat","lon"],delim_whitespace=True)
 
     if flip:
-        projected_distances = calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),180-deskew_row['strike'])
+        projected_distances = calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),(180+deskew_row['strike'])%360)
     else:
         projected_distances = calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),deskew_row['strike'])
 

@@ -1171,7 +1171,7 @@ class SynthMagGUI(wx.Frame):
 
     def set_new_intercept(self,dis,dist_e=.5):
         try:
-            new_lon,new_lat,cor_dis = sk.get_lon_lat_from_plot_pick(self.dsk_row,dis,dist_e=dist_e)
+            new_lon,new_lat,cor_dis = sk.get_lon_lat_from_plot_pick(self.dsk_row,dis,flip=True)
         except AttributeError as e: return self.user_warning("You must select a track before correcting crossing location")
         if self.user_warning("Are you sure you want to correct site location by %.2f to coordinates (%.2f,%.2f)"%(cor_dis,new_lat,new_lon)):
             self.deskew_df.at[self.dsk_idx,"inter_lat"] = new_lat
@@ -1182,7 +1182,7 @@ class SynthMagGUI(wx.Frame):
 
     def cut_track(self,dis,dist_e=.5):
         try:
-            new_idx,cor_dis = sk.get_idx_from_plot_pick(self.dsk_row,dis,dist_e=dist_e)
+            new_idx,cor_dis = sk.get_idx_from_plot_pick(self.dsk_row,dis,flip=True)
         except AttributeError as e: return self.user_warning("You must select a track before correcting crossing location")
         msg = "WARNING: This process is not reversable without manually reprocessing the main .lp file are you sure you want to cut the data at %.2f"%cor_dis
         if self.user_warning(msg):

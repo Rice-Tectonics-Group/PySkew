@@ -140,7 +140,7 @@ def correct_site(site_cor_path,deskew_path,dist_e=.5):
 
     new_deskew_df.to_csv(deskew_path,sep="\t",index=False)
 
-def get_lon_lat_from_plot_pick(deskew_row,plot_pick,dist_e=.01):
+def old_get_lon_lat_from_plot_pick(deskew_row,plot_pick,dist_e=.01,verbose=False):
     drow,correction=deskew_row,plot_pick
 
     data_file_path = os.path.join(drow["data_dir"],drow["comp_name"])
@@ -158,13 +158,14 @@ def get_lon_lat_from_plot_pick(deskew_row,plot_pick,dist_e=.01):
             break
 
     if found_dist:
-        print("found lat lon of %s at a distance %.3f"%(drow["comp_name"],picked_distance))
+        if verbose: print("found lat lon of %s at a distance %.3f"%(drow["comp_name"],picked_distance))
     else:
-        print("couldn't find picked distance in datafile to calculate lat and lon for %s"%drow["comp_name"]); return (drow['inter_lon'],drow['inter_lat'],0)
+        if verbose: print("couldn't find picked distance in datafile to calculate lat and lon for %s"%drow["comp_name"])
+        return (drow['inter_lon'],drow['inter_lat'],0)
 
     return picked_lon,picked_lat,picked_distance
 
-def get_idx_from_plot_pick(deskew_row,plot_pick,dist_e=.01):
+def old_get_idx_from_plot_pick(deskew_row,plot_pick,dist_e=.01):
     drow,correction=deskew_row,plot_pick
 
     data_file_path = os.path.join(drow["data_dir"],drow["comp_name"])
@@ -186,6 +187,28 @@ def get_idx_from_plot_pick(deskew_row,plot_pick,dist_e=.01):
         print("couldn't find picked distance in datafile to calculate lat and lon for %s"%drow["comp_name"]); return (drow['inter_lon'],drow['inter_lat'],0)
 
     return picked_idx,picked_distance
+
+def get_lon_lat_from_plot_pick(deskew_row,plot_pick,flip=False,dist_e=None):
+    data_file_path = os.path.join(deskew_row["data_dir"],deskew_row["comp_name"])
+    data_df = utl.open_mag_file(data_file_path)
+
+    if flip: projected_distances = utl.calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),(180+deskew_row['strike'])%360)
+    else: projected_distances = utl.calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),deskew_row['strike'])
+
+    min_idx = (projected_distances["dist"]-plot_pick).abs().idxmin()
+
+    return projected_distances["lon"][min_idx],projected_distances["lat"][min_idx],projected_distances["dist"][min_idx]
+
+def get_idx_from_plot_pick(deskew_row,plot_pick,flip=False,dist_e=None):
+    data_file_path = os.path.join(deskew_row["data_dir"],deskew_row["comp_name"])
+    data_df = utl.open_mag_file(data_file_path)
+
+    if flip: projected_distances = utl.calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),(180+deskew_row['strike'])%360)
+    else: projected_distances = utl.calc_projected_distance(deskew_row['inter_lon'],deskew_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),deskew_row['strike'])
+
+    min_idx = (projected_distances["dist"]-plot_pick).abs().idxmin()
+
+    return min_idx,projected_distances["dist"][min_idx]
 
 def create_maxtab_file(deskew_path,anomoly_name,outfile=None):
     deskew_df = utl.open_deskew_file(deskew_path)
@@ -378,7 +401,7 @@ def reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf):
         anom_skew = asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))
 
         reduced_skewness = utl.wrap_0_360(180 - float(row['ei']) - e_r + anom_skew)
-        rel_reduced_amplitude = (np.sin(np.deg2rad(float(e_r)))/np.sin(np.deg2rad(row['ei'])))*np.sqrt(1+3*np.cos(np.deg2rad(90-row["inter_lat"]))**2)
+        rel_reduced_amplitude = (np.sin(np.deg2rad(float(e_r)))/np.sin(np.deg2rad(row['ei'])))*np.sqrt(1+3*(np.cos(np.deg2rad(90-row["inter_lat"])))**2)
 
         return reduced_skewness,rel_reduced_amplitude
 
@@ -871,7 +894,7 @@ def auto_dsk(dsk_row,synth,bounds,conv_shift=0,phase_args=(0.,360.,1.),highcut=0
 
     data_path = os.path.join(dsk_row["data_dir"],dsk_row["comp_name"])
     data_df = utl.open_mag_file(data_path)
-    projected_distances = utl.calc_projected_distance(dsk_row['inter_lon'],dsk_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),180-dsk_row['strike'])
+    projected_distances = utl.calc_projected_distance(dsk_row['inter_lon'],dsk_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),(180+dsk_row['strike'])%360)
 
 #    #numpy.interp only works for monotonic increasing independent variable data
 #    if np.any(np.diff(projected_distances["dist"])<0): mag = np.interp(-synth_dis,-projected_distances["dist"],data_df["mag"])
@@ -886,7 +909,7 @@ def auto_dsk(dsk_row,synth,bounds,conv_shift=0,phase_args=(0.,360.,1.),highcut=0
     N = len(tsynth_mag) #because this is easier and regularly sampled plus the user can set it simply
     al2 = np.angle(hilbert(np.real(tsynth_mag),N),deg=False)
 
-    shifts = np.arange(-dage*conv_shift/2,dage*conv_shift/2,1.) #covers entire anomaly of shifts
+    shifts = np.arange(-conv_shift,conv_shift,1.) #covers entire anomaly of shifts
     best_shifts = [] #record best shifts as function of phase shift
     phase_async_func = [] #record summed phase asynchrony as a function of phase shift
     for phase in phases:

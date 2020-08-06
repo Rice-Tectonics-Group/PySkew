@@ -1,9 +1,3 @@
-import os,sys
-import numpy as np
-import pyrot.max as pymax
-from pyrot.rot import cov_to_ellipse,ellipse_to_cov
-import pyskew.utilities as utl
-from geographiclib.geodesic import Geodesic
 """
 Script to quickly recalculate strikes from anomaly crossings identified using SynthMagGUI
 and the greater PySkew library. Strikes are calculated by inverting for a maximum likelihood
@@ -33,6 +27,12 @@ Raises
 ----------
 RuntimeError
 """
+import os,sys
+import numpy as np
+import pyrot.max as pymax
+from pyrot.rot import cov_to_ellipse,ellipse_to_cov
+import pyskew.utilities as utl
+from geographiclib.geodesic import Geodesic
 
 def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geodesic(6371,0.0),outfile=None):
     """

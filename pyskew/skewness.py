@@ -909,7 +909,7 @@ def auto_dsk(dsk_row,synth,bounds,conv_shift=0,phase_args=(0.,360.,1.),highcut=0
     N = len(tsynth_mag) #because this is easier and regularly sampled plus the user can set it simply
     al2 = np.angle(hilbert(np.real(tsynth_mag),N),deg=False)
 
-    shifts = np.arange(-conv_shift,conv_shift,1.) #covers entire anomaly of shifts
+    shifts = np.arange(-conv_shift,conv_shift,ddis) #covers entire anomaly of shifts
     best_shifts = [] #record best shifts as function of phase shift
     phase_async_func = [] #record summed phase asynchrony as a function of phase shift
     for phase in phases:
@@ -925,14 +925,20 @@ def auto_dsk(dsk_row,synth,bounds,conv_shift=0,phase_args=(0.,360.,1.),highcut=0
                 tshifted_mag = shifted_mag[left_idx:right_idx]
 
                 #numpy.interp only works for monotonic increasing independent variable data
-                if np.any(np.diff(tproj_dist)<0): itshifted_mag = np.interp(-tsynth_dis,-tproj_dist,tshifted_mag)
+                if np.any(np.diff(tproj_dist)<0): itshifted_mag = np.interp(-tsynth_dis,-tproj_dist,tshifted_mag) #redefine to the right because interp dumb
                 else: itshifted_mag = np.interp(tsynth_dis,tproj_dist,tshifted_mag)
                 if highcut: itshifted_mag = butter_lowpass_filter(itshifted_mag,highcut=highcut,fs=1/ddis,order=order)
 
-                #cals helper function above with 0 lag because of the potential lack of regular sampling
+                #nested phase async method
+#                al1 = np.angle(hilbert(itshifted_mag,N),deg=False)
+#                phase_asynchrony = np.abs(np.sin(np.abs(al1-al2)/2)) #shouldn't go negative but...just in case
+#                correlation_func.append(phase_asynchrony.sum())
+
+#                #cals helper function above with 0 lag because of the potential lack of regular sampling
                 ccf = crosscorr(itshifted_mag,tsynth_mag)
                 correlation_func.append(np.real(ccf))
 
+#            best_shift_idx = np.argmin(correlation_func)
             best_shift_idx = np.argmax(correlation_func)
             best_shift = shifts[best_shift_idx]
         else: best_shift = 0.

@@ -22,6 +22,8 @@ Flags
            Paleomagnetic pole to add strike uncertainty to
 -o : str, optional
            Outfile to save new deskew file, if omitted is saved as $INFILE_strike_cor.deskew
+-fp : no input
+           filters out bad data so strikes are fit only to uncommented records
 
 Raises
 ----------
@@ -34,7 +36,7 @@ from pyrot.rot import cov_to_ellipse,ellipse_to_cov
 import pyskew.utilities as utl
 from geographiclib.geodesic import Geodesic
 
-def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geodesic(6371,0.0),outfile=None):
+def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geodesic(6371,0.0),outfile=None,filter_by_quality=False):
     """
     Function that does the heavy lifting calculating the great circles and associated strikes
     for anomaly crossings. Will also add average strike uncertainty to a paleomagnetic pole
@@ -66,6 +68,9 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
 
     dsk_df = utl.open_deskew_file(dsk_path)
     dsk_df.sort_values("inter_lat",inplace=True,ascending=False)
+    if filter_by_quality:
+        bad_dsk_data = dsk_df[dsk_df["quality"]!="g"]
+        dsk_df = dsk_df[dsk_df["quality"]=="g"]
     tcov = np.zeros([2,2])
     szs_to_calc = dsk_df["sz_name"].drop_duplicates()#.drop(24) #removes MahiMahi
     for sz in szs_to_calc:
@@ -100,6 +105,8 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
             for i,row in sz_df.iterrows():
                 dsk_df.at[i,"strike"] = strike
                 print("\t",row["comp_name"], strike)
+    dsk_df = dsk_df.append(bad_dsk_data)
+    dsk_df.sort_values("inter_lat",inplace=True,ascending=False)
 
     print("--------------------------------------")
     full_unc = cov_to_ellipse(mlat,mlon,mcov+tcov/len(szs_to_calc))
@@ -107,7 +114,7 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
 
     if isinstance(outfile,type(None)): outfile = os.path.join(os.path.dirname(dsk_path),"strike_cor_"+os.path.basename(dsk_path))
     print("Writing to %s"%str(outfile))
-    dsk_df.to_csv(outfile,sep="\t",index=False)
+    utl.write_deskew_file(outfile,dsk_df)
 
     return full_unc
 
@@ -117,15 +124,17 @@ if __name__=="__main__":
     if "-h" in sys.argv:
         help(__name__)
         sys.exit()
-    elif "-ell" in sys.argv:
+    if "-ell" in sys.argv:
         iell = sys.argv.index("-ell")
         kwargs["mlat"] = float(sys.argv[iell+1])
         kwargs["mlon"] = float(sys.argv[iell+2])
         kwargs["ma"] = float(sys.argv[iell+3])
         kwargs["mb"] = float(sys.argv[iell+4])
         kwargs["mphi"] = float(sys.argv[iell+5])
-    elif "-o" in sys.argv:
+    if "-o" in sys.argv:
         io = sys.argv.index("-o")
         kwargs["outfile"] = sys.argv[io+1]
+    if "-fq" in sys.argv:
+        kwargs["filter_by_quality"] = True
 
     calc_strikes_and_add_err(sys.argv[1],**kwargs)

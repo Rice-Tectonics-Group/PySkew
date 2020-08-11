@@ -91,7 +91,7 @@ def open_ellipse_file(ellipse_path):
     return lon,lat,az,a,b
 
 def open_deskew_file(deskew_path):
-    deskew_df = pd.read_csv(deskew_path,sep='\t')
+    deskew_df = pd.read_csv(deskew_path,sep='\t',index_col=False)
     deskew_df = deskew_df[deskew_df["comp_name"].notnull()] #remove data that have no data file record
     deskew_df['quality'] = np.where(deskew_df["comp_name"].str.startswith('#'), "b", "g") #make quality column
     deskew_df["comp_name"] = deskew_df['comp_name'].apply(lambda x: x.lstrip("#")) #remove hashes on commented data

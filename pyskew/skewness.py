@@ -836,11 +836,11 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
     return y
 
 
-def auto_dsk(dsk_row,synth,bounds,conv_shift=0,phase_args=(0.,360.,1.),highcut=0.,order=3):
+def auto_dsk(dsk_row,synth,bounds,conv_limit=0,conv_bounds=[None,None],phase_args=(0.,360.,1.),highcut=0.,order=3):
     """
     Returns the maximum likelihood phase shift to deskew the data to match a provided synthetic given a bounds
     on a window to match.
-    
+
     Parameters
     ----------
 
@@ -854,11 +854,15 @@ def auto_dsk(dsk_row,synth,bounds,conv_shift=0,phase_args=(0.,360.,1.),highcut=0
             2) the distance resolution of the synthetic in 0 and 1
     bounds : list of floats
         Has two elements which corespond to the left and right bounds of the window
-    conv_shift : float, optional
+    conv_limit : float, optional
         Weather or not to realign the anomaly each phase shift using a time lagged convolution method which
         increases runtime significantly but can also increase accuracy. This argument should be a positve
         float which corresponds to the amount of +- shift the anomaly is allowed to move used otherwise it should
         be 0 to not use the shift method (Default: 0, which implies not to use method).
+    conv_bounds : list of 2 floats, optional
+        The left and right boundary in the distance domain to use to time lag convolve the synthetic and the filtered
+        data signal. Thus 300 km of signal can be convolved but only the 10 km of motion allowed to pin down the 
+        crossing location. (Default: [None,None], which implies conv_bounds=bounds)
     phase_args : tuple or other unpackable sequence, optional
         Arguments to np.arange which define the phases searched in the minimization. (Default: (0.,360.,1.) which
         implies a search of the entire parameter space of phases at 1 degree resolution)
@@ -883,6 +887,8 @@ def auto_dsk(dsk_row,synth,bounds,conv_shift=0,phase_args=(0.,360.,1.),highcut=0
     best_shifts : Numpy.NdArray
         the maximum likelihood shift as a function of the phase shift
     """
+    import matplotlib.pyplot as plt
+    import matplotlib.gridspec as gridspec
 
     #Unpack Arguments
     dage = dsk_row["age_max"]-dsk_row["age_min"]
@@ -895,10 +901,22 @@ def auto_dsk(dsk_row,synth,bounds,conv_shift=0,phase_args=(0.,360.,1.),highcut=0
     data_path = os.path.join(dsk_row["data_dir"],dsk_row["comp_name"])
     data_df = utl.open_mag_file(data_path)
     projected_distances = utl.calc_projected_distance(dsk_row['inter_lon'],dsk_row['inter_lat'],data_df['lon'].tolist(),data_df['lat'].tolist(),(180+dsk_row['strike'])%360)
+    if conv_limit: #create the fully interpolated profile for convolution
 
-#    #numpy.interp only works for monotonic increasing independent variable data
-#    if np.any(np.diff(projected_distances["dist"])<0): mag = np.interp(-synth_dis,-projected_distances["dist"],data_df["mag"])
-#    else: mag = np.interp(synth_dis,projected_distances["dist"],data_df["mag"])
+        #create the shortened synthetic for the time lagged convolution
+        if isinstance(conv_bounds[0],type(None)): conv_bounds[0] = bounds[0]
+        if isinstance(conv_bounds[1],type(None)): conv_bounds[1] = bounds[1]
+        left_idx = np.argmin(np.abs(synth_dis - conv_bounds[0]))
+        right_idx = np.argmin(np.abs(synth_dis - conv_bounds[1]))
+        right_idx,left_idx = max([right_idx,left_idx]),min([right_idx,left_idx])
+        conv_synth,conv_synth_dis = synth_mag[left_idx:right_idx],synth_dis[left_idx:right_idx]
+
+        if np.any(np.diff(projected_distances["dist"])<0): #redefine to the right because interp dumbs
+            mag = data_df["mag"].to_numpy()[::-1]
+            mag_dis = projected_distances["dist"].to_numpy()[::-1]
+        full_imag = np.interp(conv_synth_dis,mag_dis,mag)
+        if highcut: full_fimag = butter_lowpass_filter(full_imag,highcut=highcut,fs=1/ddis,order=order)
+        else: full_fimag = full_imag
 
     #trim to only window of relivence
     left_idx = np.argmin(np.abs(synth_dis - left_bound))
@@ -909,56 +927,206 @@ def auto_dsk(dsk_row,synth,bounds,conv_shift=0,phase_args=(0.,360.,1.),highcut=0
     N = len(tsynth_mag) #because this is easier and regularly sampled plus the user can set it simply
     al2 = np.angle(hilbert(np.real(tsynth_mag),N),deg=False)
 
-    shifts = np.arange(-conv_shift,conv_shift,ddis) #covers entire anomaly of shifts
     best_shifts = [] #record best shifts as function of phase shift
     phase_async_func = [] #record summed phase asynchrony as a function of phase shift
-    for phase in phases:
+    for i,phase in enumerate(phases):
         shifted_mag = phase_shift_data(data_df["mag"],phase)
 
-        if conv_shift: #DON'T YOU KNOW WE'RE GONNAAAA DOOOOOOO THE COOONVOLUTIOOOON!!!
-            correlation_func = []
-            for shift in shifts:
-                left_idx = np.argmin(np.abs(projected_distances["dist"] - left_bound - shift))
-                right_idx = np.argmin(np.abs(projected_distances["dist"] - right_bound - shift))
-                right_idx,left_idx = max([right_idx,left_idx]),min([right_idx,left_idx])
-                tproj_dist = projected_distances["dist"][left_idx:right_idx] - shift
-                tshifted_mag = shifted_mag[left_idx:right_idx]
+        if conv_limit: #DON'T YOU KNOW WE'RE GONNAAAA DOOOOOOO THE COOONVOLUTIOOOON!!!
+            shifted_full_fimag = phase_shift_data(full_fimag,phase)
+            correlation_func = np.abs(np.convolve(shifted_full_fimag,conv_synth,"full"))
+            correlation_func = correlation_func[int(len(conv_synth)-conv_limit/ddis+.5):int(len(conv_synth)+conv_limit/ddis+.5)]
 
-                #numpy.interp only works for monotonic increasing independent variable data
-                if np.any(np.diff(tproj_dist)<0): itshifted_mag = np.interp(-tsynth_dis,-tproj_dist,tshifted_mag) #redefine to the right because interp dumb
-                else: itshifted_mag = np.interp(tsynth_dis,tproj_dist,tshifted_mag)
-                if highcut: itshifted_mag = butter_lowpass_filter(itshifted_mag,highcut=highcut,fs=1/ddis,order=order)
+#            correlation_func = []
+#            for shift in shifts:
+#                left_idx = np.argmin(np.abs(projected_distances["dist"] - left_bound - shift))
+#                right_idx = np.argmin(np.abs(projected_distances["dist"] - right_bound - shift))
+#                right_idx,left_idx = max([right_idx,left_idx]),min([right_idx,left_idx])
+#                tproj_dist = projected_distances["dist"][left_idx:right_idx] - shift
+#                tshifted_mag = shifted_mag[left_idx:right_idx]
 
-                #nested phase async method
-#                al1 = np.angle(hilbert(itshifted_mag,N),deg=False)
-#                phase_asynchrony = np.abs(np.sin(np.abs(al1-al2)/2)) #shouldn't go negative but...just in case
-#                correlation_func.append(phase_asynchrony.sum())
+#                #numpy.interp only works for monotonic increasing independent variable data
+#                if np.any(np.diff(tproj_dist)<0): itshifted_mag = np.interp(-tsynth_dis,-tproj_dist,tshifted_mag) #redefine to the right because interp dumb
+#                else: itshifted_mag = np.interp(tsynth_dis,tproj_dist,tshifted_mag)
+#                if highcut: itshifted_mag = butter_lowpass_filter(itshifted_mag,highcut=highcut,fs=1/ddis,order=order)
 
-#                #cals helper function above with 0 lag because of the potential lack of regular sampling
-                ccf = crosscorr(itshifted_mag,tsynth_mag)
-                correlation_func.append(np.real(ccf))
+#                #nested phase async method
+##                al1 = np.angle(hilbert(itshifted_mag,N),deg=False)
+##                phase_asynchrony = np.abs(np.sin(np.abs(al1-al2)/2)) #shouldn't go negative but...just in case
+##                correlation_func.append(phase_asynchrony.sum())
 
-#            best_shift_idx = np.argmin(correlation_func)
-            best_shift_idx = np.argmax(correlation_func)
-            best_shift = shifts[best_shift_idx]
+##                #cals helper function above with 0 lag because of the potential lack of regular sampling
+#                ccf = crosscorr(itshifted_mag,tsynth_mag)
+#                correlation_func.append(np.real(ccf))
+
+#            best_shift_idx = np.argmax(correlation_func)
+#            best_shift = shifts[best_shift_idx]
+            best_shift = ddis*(len(correlation_func)/2-np.argmax(correlation_func))/2
+
+#            import matplotlib.pyplot as plt
+#            plt.figure()
+#            print(phase,best_shift)
+#            plt.plot(conv_synth_dis,shifted_full_fimag)
+#            plt.plot(conv_synth_dis+best_shift,shifted_full_fimag)
+#            plt.plot(conv_synth_dis,conv_synth)
+#            plt.figure()
+#            plt.plot(ddis/2*(len(conv_synth)-np.arange(0,len(correlation_func))),correlation_func)
+#            plt.show()
+
         else: best_shift = 0.
 
         #trim the data to the right segments
-        left_idx = np.argmin(np.abs(projected_distances["dist"] - left_bound - best_shift))
-        right_idx = np.argmin(np.abs(projected_distances["dist"]- right_bound - best_shift))
+        left_idx = np.argmin(np.abs(projected_distances["dist"] - left_bound + best_shift))
+        right_idx = np.argmin(np.abs(projected_distances["dist"]- right_bound + best_shift))
         right_idx,left_idx = max([right_idx,left_idx]),min([right_idx,left_idx])
-        tproj_dist = projected_distances["dist"][left_idx:right_idx] - best_shift
+        tproj_dist = projected_distances["dist"][left_idx:right_idx] + best_shift
         tshifted_mag = shifted_mag[left_idx:right_idx]
 
         #numpy.interp only works for monotonic increasing independent variable data
         if np.any(np.diff(tproj_dist)<0): itshifted_mag = np.interp(-tsynth_dis,-tproj_dist,tshifted_mag)
         else: itshifted_mag = np.interp(tsynth_dis,tproj_dist,tshifted_mag)
-        if highcut: itshifted_mag = butter_lowpass_filter(itshifted_mag,highcut=highcut,fs=1/ddis,order=order)
+        if highcut: fitshifted_mag = butter_lowpass_filter(itshifted_mag,highcut=highcut,fs=1/ddis,order=order)
+        else: fitshifted_mag = itshifted_mag
 
-        al1 = np.angle(hilbert(itshifted_mag,N),deg=False)
+        al1 = np.angle(hilbert(fitshifted_mag,N),deg=False)
         phase_asynchrony = np.abs(np.sin(np.abs(al1-al2)/2)) #shouldn't go negative but...just in case
         best_shifts.append(best_shift)
         phase_async_func.append(phase_asynchrony.sum())
+
+#        #################################################TEMP FOR ANIMATION
+
+#        comp_name = dsk_row["comp_name"]
+
+#        #show trimmed fit
+#        fig = plt.figure()
+#        outer = gridspec.GridSpec(2, 2)
+
+#        plt.subplot(outer[0])
+#        plt.plot(tproj_dist,tshifted_mag,label="Raw %s"%comp_name)
+#        plt.plot(tsynth_dis,fitshifted_mag,label="Filtered %s"%comp_name)
+#        plt.plot(tsynth_dis,tsynth_mag,label="Synthetic")
+#        plt.legend()
+#        plt.title("Phase Shifted Data")
+
+#        #Calculate minimum asynchrony function
+#        al0 = np.angle(hilbert(itshifted_mag,N),deg=False)
+#        al1 = np.angle(hilbert(fitshifted_mag,N),deg=False)
+#        phase_async = abs(np.sin(np.abs(al1-al2)/2))
+
+#        #show angles of best data and synthetic
+#        plt.subplot(outer[1],projection = "polar")
+#        plt.polar(al0,tsynth_dis,label="Raw %s"%comp_name)
+#        plt.polar(al1,tsynth_dis,label="Filtered %s"%comp_name)
+#        plt.polar(al2,tsynth_dis,label="Synthetic")
+#        plt.title("Angle of Data")
+
+#        #show minimum asynchrony function
+#        plt.subplot(outer[2])
+#        plt.plot(tsynth_dis,phase_async,color="tab:red")
+#        plt.ylim(0,1.05)
+#        plt.title("Asynchrony Function")
+
+#        #show minimum asynchrony function and best shifts function
+#        inner = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=outer[3], hspace=0.)
+#        bphase_ax = plt.subplot(inner[0])
+#        plt.plot(phases[:len(phase_async_func)],phase_async_func,label="Summed Phase Asynchrony")
+#        if phase != phases[-1]: plt.axvline(phase,color="red")
+#        fig_facecolor = "white"
+##        if filter_data_by_asynchrony:
+##            plt.axhline(filter_data_by_asynchrony,color="tab:red")
+##            if phase_async_func[best_idx]>filter_data_by_asynchrony: fig_facecolor = "#FF6B6B"
+#        plt.legend(loc=2)
+#        plt.ylim(0,200)
+#        plt.xlim(0,360)
+#        bshift_ax = plt.subplot(inner[1])
+#        plt.plot(phases[:len(best_shifts)],best_shifts,label="Best Shift",color="tab:orange")
+#        if phase != phases[-1]: plt.axvline(phase,color="red")
+#        plt.xlabel("Phase Shift (degrees)")
+#        plt.legend(loc=2)
+#        plt.ylim(-10,10)
+#        plt.xlim(0,360)
+#    #    plt.title("Minimum Normalized Summed Phase Asynchrony Function")
+
+#        plt.gcf().suptitle("%s - (%.1f$^\circ$N, %.1f$^\circ$E)"%(comp_name,dsk_row["inter_lat"],dsk_row["inter_lon"]) + "\n" + r"$\theta, \delta = %.0f^\circ, %.1f km$"%(phase,best_shift))
+
+#        plt.gcf().savefig("/home/kevin/Projects/AutoDsk/27r/SkwAnimation/%s_%s.png"%((3-len(str(int(phase))))*"0"+str(int(phase)),comp_name),transparent=False,facecolor=fig_facecolor)
+
+#        if phase == phases[-1]:
+#            best_idx = np.argmin(phase_async_func)
+#            best_phase = phases[best_idx]
+#            shifted_mag = phase_shift_data(data_df["mag"],best_phase)
+#            best_shift = best_shifts[best_idx]
+
+#            #trim the data to the right segments
+#            left_idx = np.argmin(np.abs(projected_distances["dist"] - left_bound + best_shift))
+#            right_idx = np.argmin(np.abs(projected_distances["dist"]- right_bound + best_shift))
+#            right_idx,left_idx = max([right_idx,left_idx]),min([right_idx,left_idx])
+#            tproj_dist = projected_distances["dist"][left_idx:right_idx] + best_shift
+#            tshifted_mag = shifted_mag[left_idx:right_idx]
+
+#            #numpy.interp only works for monotonic increasing independent variable data
+#            if np.any(np.diff(tproj_dist)<0): itshifted_mag = np.interp(-tsynth_dis,-tproj_dist,tshifted_mag)
+#            else: itshifted_mag = np.interp(tsynth_dis,tproj_dist,tshifted_mag)
+#            if highcut: fitshifted_mag = butter_lowpass_filter(itshifted_mag,highcut=highcut,fs=1/ddis,order=order)
+#            else: fitshifted_mag = itshifted_mag
+
+#            al1 = np.angle(hilbert(fitshifted_mag,N),deg=False)
+#            phase_asynchrony = np.abs(np.sin(np.abs(al1-al2)/2)) #shouldn't go negative but...just in case
+
+#            #show trimmed fit
+#            fig = plt.figure()
+#            outer = gridspec.GridSpec(2, 2)
+
+#            plt.subplot(outer[0])
+#            plt.plot(tproj_dist,tshifted_mag,label="Raw %s"%comp_name)
+#            plt.plot(tsynth_dis,fitshifted_mag,label="Filtered %s"%comp_name)
+#            plt.plot(tsynth_dis,tsynth_mag,label="Synthetic")
+#            plt.legend()
+#            plt.title("Phase Shifted Data")
+
+#            #Calculate minimum asynchrony function
+#            al0 = np.angle(hilbert(itshifted_mag,N),deg=False)
+#            al1 = np.angle(hilbert(fitshifted_mag,N),deg=False)
+#            phase_async = abs(np.sin(np.abs(al1-al2)/2))
+
+#            #show angles of best data and synthetic
+#            plt.subplot(outer[1],projection = "polar")
+#            plt.polar(al0,tsynth_dis,label="Raw %s"%comp_name)
+#            plt.polar(al1,tsynth_dis,label="Filtered %s"%comp_name)
+#            plt.polar(al2,tsynth_dis,label="Synthetic")
+#            plt.title("Angle of Data")
+
+#            #show minimum asynchrony function
+#            plt.subplot(outer[2])
+#            plt.plot(tsynth_dis,phase_async,color="tab:red")
+#            plt.ylim(0,1.05)
+#            plt.title("Asynchrony Function")
+
+#            #show minimum asynchrony function and best shifts function
+#            inner = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=outer[3], hspace=0.)
+#            bphase_ax = plt.subplot(inner[0])
+#            plt.plot(phases[:len(phase_async_func)],phase_async_func,label="Summed Phase Asynchrony")
+#            if phase != phases[-1]: plt.axvline(phase,color="red")
+#            fig_facecolor = "white"
+#    #        if filter_data_by_asynchrony:
+#    #            plt.axhline(filter_data_by_asynchrony,color="tab:red")
+#    #            if phase_async_func[best_idx]>filter_data_by_asynchrony: fig_facecolor = "#FF6B6B"
+#            plt.legend(loc=2)
+#            plt.ylim(0,200)
+#            plt.xlim(0,360)
+#            bshift_ax = plt.subplot(inner[1])
+#            plt.plot(phases[:len(best_shifts)],best_shifts,label="Best Shift",color="tab:orange")
+#            if phase != phases[-1]: plt.axvline(phase,color="red")
+#            plt.xlabel("Phase Shift (degrees)")
+#            plt.legend(loc=2)
+#            plt.ylim(-10,10)
+#            plt.xlim(0,360)
+
+#            bphase_ax.axvline(best_phase,color="black")
+#            bshift_ax.axvline(best_phase,color="black")
+#            plt.gcf().suptitle("%s - (%.1f$^\circ$N, %.1f$^\circ$E)"%(comp_name,dsk_row["inter_lat"],dsk_row["inter_lon"]) + "\n" + r"$\theta_{min}, \delta_{min} = %.0f^\circ, %.1f km$"%(best_phase,best_shift))
+#            for phase in range(360,380):
+#                plt.gcf().savefig("/home/kevin/Projects/AutoDsk/27r/SkwAnimation/%s_%s.png"%((3-len(str(int(phase))))*"0"+str(int(phase)),comp_name),transparent=False,facecolor=fig_facecolor)
 
     best_idx = np.argmin(phase_async_func)
 

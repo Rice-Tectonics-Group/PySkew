@@ -34,6 +34,8 @@ if "-w" in sys.argv:
 else: window = [160.,240.,-40.,40.]
 if "-d" in sys.argv: down_sample_factor = float(sys.argv[sys.argv.index("-d")+1])
 else: down_sample_factor = 10
+if "-swf" in sys.argv: sandwell_files_path = sys.argv[sys.argv.index("-swf")+1]
+else: sandwell_files_path = "../raw_data/gravity/Sandwell"
 center_lon = 180
 resolution = "10m" #options: 10m, 50m, 110m
 landcolor = ""
@@ -98,8 +100,12 @@ while running:
         print("Plotting Sites")
         site_points = []
         for i,sz_name in enumerate(deskew["sz_name"].drop_duplicates()):
-            color = (deskew[deskew["sz_name"]==sz_name].iloc[0]["r"],deskew[deskew["sz_name"]==sz_name].iloc[0]["g"],deskew[deskew["sz_name"]==sz_name].iloc[0]["b"])
-            site_points.append(ax.scatter(utl.convert_to_0_360(deskew[deskew["sz_name"]==sz_name]["inter_lon"]), deskew[deskew["sz_name"]==sz_name]["inter_lat"], transform=ccrs.PlateCarree(), zorder=10000, s=20, color=color, edgecolor="k"))
+            sz_dsk = deskew[deskew["sz_name"]==sz_name]
+            bad_data = sz_dsk[sz_dsk["quality"]!="g"]
+            good_data = sz_dsk[sz_dsk["quality"]=="g"]
+            color = (sz_dsk.iloc[0]["r"],sz_dsk.iloc[0]["g"],sz_dsk.iloc[0]["b"])
+            site_points.append(ax.scatter(utl.convert_to_0_360(bad_data["inter_lon"]), bad_data["inter_lat"], transform=ccrs.PlateCarree(), zorder=10000, s=20, color=color, edgecolor="k", marker="X"))
+            site_points.append(ax.scatter(utl.convert_to_0_360(good_data["inter_lon"]), good_data["inter_lat"], transform=ccrs.PlateCarree(), zorder=10000, s=20, color=color, edgecolor="k"))
 
     if "rt" in inp or inp.split()[0] == "r":
         try:
@@ -132,12 +138,20 @@ while running:
             if row["track_type"] == 'ship':
                 pcol = '#000000'
                 scle = 0.2*1e3
-            if row["track_type"] == 'aero':
+            elif row["track_type"] == 'aero':
                 if 'Ed' in row["comp_name"]:
                     pcol = 'purple'
                 else:
                     pcol = 'darkorchid'
                 scle = 0.5*1e3
+            else: raise ValueError("Apparently neither an airplane or ship hauled this special magnetometer check your track_type")
+
+            if row["quality"]!="g":
+                if row["track_type"] == 'ship': pcol = "lightgrey"
+                elif row["track_type"] == 'aero': pcol = "plum"
+                alpha,fill_alpha = .5,.2
+            else:
+                alpha,fill_alpha = 1.,.5
 
             # Project amplitude onto map
             mlats,mlons,fill_lats = [],[],[]
@@ -152,9 +166,9 @@ while running:
             geotrack = proj.transform_points(ccrs.PlateCarree(),np.array(utl.convert_to_0_360(lon)),np.array(lat))
             magtrack = proj.transform_points(ccrs.PlateCarree(),np.array(utl.convert_to_0_360(mlons)),np.array(mlats))
             filltrack = proj.transform_points(ccrs.PlateCarree(),np.array(utl.convert_to_0_360(mlons)),np.array(fill_lats))
-            deskew_tracks.append(ax.plot(geotrack[:,0], geotrack[:,1], '--', linewidth=1.0, color=pcol, zorder=990))
-            deskew_tracks.append(ax.plot(magtrack[:,0], magtrack[:,1], '-', linewidth=1.0, color=pcol, zorder=1000))
-            deskew_fill.append(ax.fill_between(filltrack[:,0], filltrack[:,1], geotrack[:,1], alpha=0.5, color=pcol))
+            deskew_tracks.append(ax.plot(geotrack[:,0], geotrack[:,1], '--', linewidth=1.0, color=pcol, zorder=990, alpha=alpha))
+            deskew_tracks.append(ax.plot(magtrack[:,0], magtrack[:,1], '-', linewidth=1.0, color=pcol, zorder=1000, alpha=alpha))
+            deskew_fill.append(ax.fill_between(filltrack[:,0], filltrack[:,1], geotrack[:,1], alpha=fill_alpha, color=pcol))
 
     if "rg" in inp or inp.split()[0] == "r":
 
@@ -166,7 +180,7 @@ while running:
         if "-d" in inpl: down_sample_factor = float(inpl[inpl.index("-d")+1])
 
         print("Grav Window and Down sample: ",window,down_sample_factor)
-        all_lons,all_lats,all_grav = pg.get_sandwell(window,down_sample_factor,resample_method=Resampling.nearest)
+        all_lons,all_lats,all_grav = pg.get_sandwell(window,down_sample_factor,resample_method=Resampling.average,sandwell_files_path=os.path.join(sandwell_files_path,"*.tiff"))
 
         print("Plotting Gravity")
         start_time = time()

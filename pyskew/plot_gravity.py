@@ -104,7 +104,7 @@ def get_sandwell(window,down_sample_factor,sandwell_files_path="../raw_data/grav
         all_grav = all_gravs[0]
         for next_grav in all_gravs[1:]:
             all_grav = np.vstack([all_grav,next_grav])
-    except (UnboundLocalError,IndexError) as err: return [],[],[]
+    except (UnboundLocalError,IndexError) as err: return np.array([]),np.array([]),np.array([])
 
     return all_lons,all_lats,np.array(all_grav)
 

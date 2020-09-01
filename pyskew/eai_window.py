@@ -14,6 +14,9 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
 from functools import cmp_to_key
 from collections import OrderedDict
+import pmagpy.ipmag as ipmag
+import pandas as pd
+import pyrot.max as pymax
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
 
@@ -194,6 +197,60 @@ class EAIWindow(wx.Frame):
         try: dsk_idx = self.parent.dsk_idx
         except AttributeError: dsk_idx = None
 
+        # Add predicted Effective Remanent Inclination curve
+        dsk_df.sort_values(by=['inter_lat'],inplace=True)
+        srf_path = self.parent.spreading_rate_path
+        asf_path = self.parent.anomalous_skewness_path
+        srf,_ = sk.generate_spreading_rate_model(srf_path)
+        asf = sk.generate_anomalous_skewness_model(asf_path)
+        sk.create_max_file(dsk_df,srf,asf,outfile='temp.max')
+        _,_,max_file = pymax.read_max_file('temp.max')
+        pole,chisq,dof = pymax.max_likelihood_pole(max_file)
+        pred_eai = []
+
+        # Get unique spreading zone names
+        sz_names = dsk_df['sz_name'].unique()
+        # For each spreading zone, find all implied great-circle poles
+        iso_lat,iso_lon,iso_str = [],[],[]
+        for i,sz in enumerate(sz_names.tolist()):
+            sz_df = dsk_df[dsk_df['sz_name'] == sz]
+            gc_poles_lat,gc_poles_lon = [],[]
+            for j,row in sz_df.iterrows():
+                lat = row['inter_lat']
+                lon = row['inter_lon']
+                azi = row['strike'] - 90
+
+                gdsc = Geodesic.WGS84.ArcDirect(lat,lon,azi,90)
+                gc_poles_lat.append(gdsc['lat2'])
+                gc_poles_lon.append(gdsc['lon2'])
+            sz_mean_pole = ipmag.fisher_mean(gc_poles_lon,gc_poles_lat)
+            start_loc = sz_df.iloc[0]
+            final_loc = sz_df.iloc[-1]
+
+            gdsc = Geodesic.WGS84.Inverse(start_loc['inter_lat'],start_loc['inter_lon'],sz_mean_pole['inc'],sz_mean_pole['dec'])
+            start_azi = gdsc['azi2']-180
+            gdsc = Geodesic.WGS84.Inverse(final_loc['inter_lat'],final_loc['inter_lon'],sz_mean_pole['inc'],sz_mean_pole['dec'])
+            final_azi = gdsc['azi2']-180
+            
+            sz_arc = np.linspace(start_azi, final_azi, num=20)
+            for i,azimuth in enumerate(sz_arc):
+                gdsc = Geodesic.WGS84.ArcDirect(sz_mean_pole['inc'],sz_mean_pole['dec'],azimuth,90)
+                iso_lat.append(gdsc['lat2'])
+                iso_lon.append(gdsc['lon2'])
+                iso_str.append(gdsc['azi2'] - 90)
+
+        iso_df = pd.DataFrame(list(zip(iso_lon, iso_lat, iso_str)), columns=['Lon', 'Lat', 'Strike'])
+        print(iso_df)
+        for i,row in iso_df.iterrows():
+            plat,plon = np.deg2rad(pole[0]),np.deg2rad(pole[1])
+            slat,slon = np.deg2rad(row['Lat']),np.deg2rad(row['Lon'])
+            strike = np.deg2rad(row['Strike'])
+            dec = -np.arctan2(np.cos(plat)*np.sin(slon-plon),-np.sin(slat)*np.cos(plat)*np.cos(slon-plon)+np.cos(slat)*np.sin(plat))
+            gee = np.cos(plat)*np.cos(slat)*np.cos(plon-slon)+np.sin(plat)*np.sin(slat)
+            inc = np.arctan2(2*gee,np.sqrt(1-gee**2))
+            pred_eai.append(np.rad2deg(np.arctan2(np.tan(inc),np.sin(strike-dec))))
+        self.ax.plot(iso_df['Lat'], pred_eai)
+
         for i,row in dsk_df.iterrows():
 
             other_idx = np.nan
@@ -223,6 +280,20 @@ class EAIWindow(wx.Frame):
 
             if dsk_idx==i or other_idx==dsk_idx: self.ax.scatter(row["inter_lat"],aei,marker=marker,facecolor="None",edgecolor=(float(row["r"]),float(row["g"]),float(row["b"])))
             else: self.ax.scatter(row["inter_lat"],aei,marker=marker,facecolor=(float(row["r"]),float(row["g"]),float(row["b"])),edgecolor="k")
+
+            #************************************** Experimental section **************************************
+            #plat,plon = pole[0]*d2r,pole[1]*d2r
+            #slat,slon = row['inter_lat']*d2r,row['inter_lon']*d2r
+            #strike = row['strike']*d2r
+            #dec = -np.arctan2(np.cos(plat)*np.sin(slon-plon),-np.sin(slat)*np.cos(plat)*np.cos(slon-plon)+np.cos(slat)*np.sin(plat))
+            #gee = np.cos(plat)*np.cos(slat)*np.cos(plon-slon)+np.sin(plat)*np.sin(slat)
+            #inc = np.arctan2(2*gee,np.sqrt(1-gee**2))
+            #pred_eai.append(np.arctan2(np.tan(inc),np.sin(strike-dec))/d2r)
+            #***************************************************************************************************
+
+        #************************************** Experimental section **************************************
+        #self.ax.plot(dsk_df['inter_lat'].drop_duplicates(), pred_eai)
+        #***************************************************************************************************
 
         if self.m_plot_legend.IsChecked():
             for j,(r_col,g_col,b_col,sz_name) in dsk_df[["r","g","b","sz_name"]].drop_duplicates().iterrows():

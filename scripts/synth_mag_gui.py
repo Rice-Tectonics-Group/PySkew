@@ -11,6 +11,7 @@ from pyskew.tv_window import TVWindow
 from pyskew.eai_window import EAIWindow
 from pyskew.rtp_window import RTPWindow
 from pyskew.skw_by_lat_window import SkwLatWindow
+from pyskew.pv_window import PVWindow
 from pyskew.dt_window import DetrendWindow
 import pyskew.utilities as utl
 import matplotlib
@@ -44,7 +45,7 @@ class SynthMagGUI(wx.Frame):
         self.track = None #default no data
         self.min_age,self.max_age = 0,0
         self.spreading_rate_path,self.anomalous_skewness_path,self.timescale_path,self.deskew_path = None,None,None,None
-        self.srmw_open,self.tvw_open,self.eai_open,self.skw_lat_open,self.rtp_open,self.dtw_open = False,False,False,False,False,False
+        self.srmw_open,self.tvw_open,self.eai_open,self.skw_lat_open,self.rtp_open,self.dtw_open,self.pv_open = False,False,False,False,False,False,False
 
         #make the Panel
         self.panel = wx.Panel(self,-1,size=(1200,900))
@@ -402,6 +403,9 @@ class SynthMagGUI(wx.Frame):
         self.m_rtp = menu_tools.Append(-1, "&Pole Plot\tAlt-P", "")
         self.Bind(wx.EVT_MENU, self.on_rtp, self.m_rtp)
 
+        self.m_pv = menu_tools.Append(-1, "&Phase Viewer\tAlt-V", "")
+        self.Bind(wx.EVT_MENU, self.on_pv, self.m_pv)
+
         self.m_dt = menu_tools.Append(-1, "&Detrend Utility\tAlt-T", "")
         self.Bind(wx.EVT_MENU, self.on_dt, self.m_dt)
 
@@ -542,7 +546,7 @@ class SynthMagGUI(wx.Frame):
             self.ax,self.alt_ax = self.fig.subplots(1,1),None
 
         #Update Readouts on synthetic
-        self.samp_dis_box.SetValue("%.2f"%float(synth[2]))
+        if self.update_synth: self.samp_dis_box.SetValue("%.2f"%float(synth[2]))
 
         #Update Data
         if self.update_data:
@@ -617,7 +621,7 @@ class SynthMagGUI(wx.Frame):
                     for ad in self.alt_data:
                         ad.remove()
                     dsk_df = utl.open_mag_file(os.path.join(self.dsk_row["data_dir"],self.dsk_row["comp_name"].replace(".Ed","").replace(".Vd","").replace(".Hd","")))
-                    dsk_dis = utl.calc_projected_distance(self.dsk_row["inter_lon"],self.dsk_row["inter_lat"],dsk_df["lon"],dsk_df["lat"],self.dsk_row["strike"])["dist"]
+                    dsk_dis = utl.calc_projected_distance(self.dsk_row["inter_lon"],self.dsk_row["inter_lat"],dsk_df["lon"],dsk_df["lat"],(180+self.dsk_row['strike'])%360)["dist"]
                     self.alt_data = self.alt_ax.plot(dsk_dis,0.3048*dsk_df["alt"],color="k")
 
                 #Data Update if there's a polynomial fit
@@ -725,7 +729,7 @@ class SynthMagGUI(wx.Frame):
             self.spreading_rate_path=dlg.GetPath()
             self.sr_path.SetValue(self.spreading_rate_path)
             srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
-            try: self.sr_box.SetValue("%.1f"%(srf(self.dsk_row["sz_name"],self.dsk_row["age_max"])))
+            try: self.sr_box.SetValue("%.1f"%(srf(self.dsk_row["sz_name"],(self.dsk_row["age_max"]+self.dsk_row["age_min"])/2)))
             except AttributeError: pass
             if not self.m_use_sr_model.IsChecked(): self.m_use_sr_model.Check()
             try: self.srmw.update()
@@ -761,7 +765,7 @@ class SynthMagGUI(wx.Frame):
         except TypeError: self.user_warning("Invalid Strike or Phase Shift in deskew file for %s"%self.track)
         if self.m_use_sr_model.IsChecked() and self.spreading_rate_path!=None:
             srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
-            self.sr_box.SetValue("%.1f"%(srf(self.dsk_row["sz_name"],self.dsk_row["age_max"])))
+            self.sr_box.SetValue("%.1f"%(srf(self.dsk_row["sz_name"],(self.dsk_row["age_max"]+self.dsk_row["age_min"])/2)))
         if self.srmw_open: self.srmw.sz_box.SetValue(self.dsk_row["sz_name"]); self.srmw.on_select_sz(event)
         if self.tvw_open: self.tvw.on_parent_select_track()
         if self.eai_open: self.eai.on_parent_select_track()
@@ -1064,6 +1068,13 @@ class SynthMagGUI(wx.Frame):
             self.skw_lat.Show()
             self.skw_lat_open=True
 
+    def on_pv(self,event):
+        if not self.pv_open:
+            self.pv = PVWindow(parent=self)
+            self.pv.Center()
+            self.pv.Show()
+            self.pv_open=True
+
     def on_open_debug(self,event):
         pdb.set_trace()
 
@@ -1162,7 +1173,7 @@ class SynthMagGUI(wx.Frame):
 
     def get_srf_asf(self):
         if not self.m_use_sr_model.IsChecked() or self.spreading_rate_path==None:
-            sr_value = self.sr_box.GetValue()
+            sr_value = float(self.sr_box.GetValue())
             srf = lambda x,y: sr_value
         else: srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
         if not self.m_use_as_model.IsChecked() or self.anomalous_skewness_path==None: asf = lambda x: 0

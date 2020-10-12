@@ -199,25 +199,23 @@ def plot_tracks(chrons_info, results_directory, tracks=[], track_dir="all_tracks
         plt.close(fig)
 
 def plot_track_cuts(x,y,sx,sy,idx,chrons_info,track_name,results_directory):
-    fig = plt.figure(figsize=(9, 9), dpi=80) #(comment from here down to stop plotting, so it runs faster)
+    fig = plt.figure(figsize=(9, 9), dpi=80)
 
-    llcrnrlon=min(utl.convert_to_0_360(y))-20 if min(utl.convert_to_0_360(y))-20>=0 else 0
-    llcrnrlat=min(x)-20 if min(x)-20>=-89 else -89
-    urcrnrlon=max(utl.convert_to_0_360(y))+20 if max(utl.convert_to_0_360(y))+20<=359 else 359
-    urcrnrlat=max(x)+20 if max(x)+20<=90 else 89
+    llcrnrlon=min(utl.convert_to_0_360(y))-5 if min(utl.convert_to_0_360(y))-5>=0 else 0
+    llcrnrlat=min(x)-5 if min(x)-5>=-89 else -89
+    urcrnrlon=max(utl.convert_to_0_360(y))+5 if max(utl.convert_to_0_360(y))+5<=359 else 359
+    urcrnrlat=max(x)+5 if max(x)+5<=90 else 89
 
     #Make a map
-    turning_points_map = create_basic_map(projection='merc',llcrnrlat=llcrnrlat,urcrnrlat=urcrnrlat,llcrnrlon=llcrnrlon,urcrnrlon=urcrnrlon, fig=fig)
-
-#            turning_points_map = create_basic_map()
+    turning_points_map = create_basic_map(projection='merc',llcrnrlat=llcrnrlat,urcrnrlat=urcrnrlat,llcrnrlon=llcrnrlon,urcrnrlon=urcrnrlon, center_lon=180., fig=fig)
 
     #Create Chron markers
     plot_chron_info(chrons_info,turning_points_map,coord_0_360=True)
 
     #Plot the data
     if len(x)!=len(y) or len(sx)!=len(sy): print("error plotting track on map it probably crosses a pole, opening debugger"); import pdb; pdb.set_trace()
-    handle1, = turning_points_map.plot(y, x, 'b-', label='original path',zorder=1,transform=ccrs.Geodetic())
-    handle2, = turning_points_map.plot(sy, sx, 'g--', label='simplified path',zorder=2,transform=ccrs.Geodetic())
+    handle1, = turning_points_map.plot(y, x, color="slategrey", linestyle="-", label='original path',zorder=1,transform=ccrs.Geodetic())
+    handle2, = turning_points_map.plot(sy, sx, color="black", linestyle=':', label='simplified path',zorder=2,transform=ccrs.Geodetic())
     handle3, = turning_points_map.plot(sy[idx], sx[idx], 'ro', markersize = 7, label='turning points',zorder=3,transform=ccrs.Geodetic())
 
     #Name stuff

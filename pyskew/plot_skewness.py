@@ -352,16 +352,16 @@ def plot_lunes(comps,gcm,pole_lat=None,idx_selected=None):
         clt_mid = 90-np.degrees(np.arctan(np.tan(np.deg2rad(inc_mid))*0.5))
         lat_mid = Geodesic.WGS84.ArcDirect(float(row["inter_lat"]),float(row["inter_lon"]), strike-90, clt_mid)['lat2']
         # Find array of great semicircle azimuths (degrees)
-        if (pole_lat >= 0 or lat_mid >= 90-pole_lat) or (pole_lat > 0 or lat_mid >= 90+pole_lat):
-            azi = np.linspace(strike-(180),strike,100)
-        else:
-            azi = np.linspace(strike,strike+180,100)
+#        if (pole_lat >= 0 or lat_mid >= 90-pole_lat) or (pole_lat > 0 or lat_mid >= 90+pole_lat):
+        azi = np.linspace(strike-(180),strike,180)
+#        else:
+#            azi = np.linspace(strike,strike+180,100)
 
         # For first bounding azimuth...
         # Find inclination (degrees)
-        inc = np.degrees(np.arctan(np.tan(np.deg2rad(float(row["aei"])))*np.sin(np.deg2rad(azi+180-strike))))
+        inc = np.rad2deg(np.arctan(np.tan(np.deg2rad(float(row["aei"])))*np.sin(np.deg2rad(azi+180-strike))))
         # Find paleocolatitude (degrees)
-        clt = 90-np.degrees(np.arctan(np.tan(np.deg2rad(inc))*0.5))
+        clt = 90-np.rad2deg(np.arctan(np.tan(np.deg2rad(inc))*0.5))
         # Find great circle points
         gc_points_and_azis = [Geodesic.WGS84.ArcDirect(float(row["inter_lat"]),float(row["inter_lon"]), azi1, clt1) for clt1,azi1 in zip(clt,azi)]
         gc_lon = [gcd["lon2"] for gcd in gc_points_and_azis]

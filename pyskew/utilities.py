@@ -56,8 +56,8 @@ def read_idx_from_string(idx_str):
     flat_idx = list(map(float,idx_str.replace("[","").replace("(","").replace("]","").replace(")","").replace("'","").split(",")))
     return (((flat_idx[0],flat_idx[1]),(flat_idx[2],flat_idx[3])),(int(flat_idx[4]),int(flat_idx[5])))
 
-def calc_projected_distance(inter_lon,inter_lat,lons,lats,strike):
-    geodesic_solutions = [Geodesic.WGS84.Inverse(lat,convert_to_0_360(lon),float(inter_lat),convert_to_0_360(inter_lon)) for lat,lon in zip(lats,lons)]
+def calc_projected_distance(inter_lon,inter_lat,lons,lats,strike,geoid=Geodesic.WGS84):
+    geodesic_solutions = [geoid.Inverse(lat,convert_to_0_360(lon),float(inter_lat),convert_to_0_360(inter_lon)) for lat,lon in zip(lats,lons)]
 
     projected_distances = pd.DataFrame([{'lat':gs["lat1"],'lon':gs["lon1"],'dist':(gs["s12"]*np.sin(-np.deg2rad(float(strike)-gs["azi1"])))/1000} for gs in geodesic_solutions])
 

@@ -160,39 +160,46 @@ class RTPWindow(wx.Frame):
 
     def update(self): #Populates Logger and makes plot
         self.make_map() #Make Background Map
-        
-        self.parent.save_max_file(".tmp.max",ship_only=True) #Save tmp max file to disk for debugging purposes and to more easily punch data into format using previous functions
-        comment,header,ship_data = pymax.read_max_file(".tmp.max") #Read max file
-        if len(ship_data["phs"])>2: #If more than 2 profiles (even-determined) invert ship
-            (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(ship_data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
-            s1_ship = np.sqrt(chisq/dof)*ship_data["phs"][0][1][1] #ship 1sigma
 
-        self.parent.save_max_file(".tmp.max",aero_only=True) #Do same for aero only data
-        comment,header,aero_data = pymax.read_max_file(".tmp.max")
-        if len(aero_data["phs"])>2:
-            (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(aero_data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
-            s1_aero = np.sqrt(chisq/dof)*aero_data["phs"][0][1][1]
-        
+        if len(self.parent.deskew_df[self.parent.deskew_df["track_type"]=="ship"]) > 0:
+            self.parent.save_max_file(".tmp.max",ship_only=True) #Save tmp max file to disk for debugging purposes and to more easily punch data into format using previous functions
+            comment,header,ship_data = pymax.read_max_file(".tmp.max") #Read max file
+            if len(ship_data["phs"])>2: #If more than 2 profiles (even-determined) invert ship
+                (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(ship_data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
+                s1_ship = np.sqrt(chisq/dof)*ship_data["phs"][0][1][1] #ship 1sigma
+            else: s1_ship = 0
+        else: ship_data,s1_ship = {"phs":[["none",[0.,0.]]]},0
+
+        if len(self.parent.deskew_df[self.parent.deskew_df["track_type"]=="aero"]) > 0:
+            self.parent.save_max_file(".tmp.max",aero_only=True) #Do same for aero only data
+            comment,header,aero_data = pymax.read_max_file(".tmp.max")
+            if len(aero_data["phs"])>2:
+                (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(aero_data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
+                s1_aero = np.sqrt(chisq/dof)*aero_data["phs"][0][1][1]
+            else: s1_aero = 0
+        else: aero_data,s1_aero = {"phs":[["none",[0.,0.]]]},0
+
         self.parent.save_max_file(".tmp.max") #now read all data and change s1 to match above
         comment,header,data = pymax.read_max_file(".tmp.max")
         if len(data["phs"])==0: return
         for i in range(len(data["phs"])):
-            if data["phs"][i][1][1]==ship_data["phs"][0][1][1]:
+            if len(ship_data["phs"]) > 0 and data["phs"][i][1][1]==ship_data["phs"][0][1][1]:
                 data["phs"][i][1][1] = s1_ship
-            elif data["phs"][i][1][1]==aero_data["phs"][0][1][1]:
+            elif len(aero_data["phs"]) > 0 and data["phs"][i][1][1]==aero_data["phs"][0][1][1]:
                 data["phs"][i][1][1] = s1_aero
 
         (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
-        
+
         #write pole coordinates and 1sigmas to plot for user
         self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+r"%.1f$^\circ$, %.1f$^\circ$, N%.1fE"%(maj_se,min_se,phi)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
         #plot inverted pole
         self.ax = psk.plot_pole(plon,plat,phi,(chisq/dof)*maj_se,(chisq/dof)*min_se,m=self.ax)
         #filter deskew_df to only data labeled "good" and plot lunes
+        self.parent.deskew_df = sk.calc_aei(self.parent.deskew_df,*self.parent.get_srf_asf())
         dsk_to_plot = self.parent.deskew_df[self.parent.deskew_df["quality"]=="g"]
         try: self.ax = psk.plot_lunes(dsk_to_plot,self.ax,idx_selected=self.parent.dsk_idx)
         except AttributeError: self.ax = psk.plot_lunes(dsk_to_plot,self.ax) #catch no selected data case
-        os.remove(".tmp.max") #remove the deskew file on disk
+#        os.remove(".tmp.max") #remove the deskew file on disk
 
         #plot any additional poles
         for pole_rec in self.poles_to_plot:

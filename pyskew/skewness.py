@@ -22,7 +22,7 @@ def calc_aei(deskew_df,srf,asf):
 
     deskew_df["ei"] = [(90. if ".Vd." in comp else 0.) for ps,comp in zip(deskew_df["phase_shift"],deskew_df["comp_name"])]
 
-    deskew_df["aei"] = [utl.wrap_180_180(180. - row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)) for i,row in deskew_df.iterrows()]
+    deskew_df["aei"] = [180. - row['phase_shift']- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)) for i,row in deskew_df.iterrows()]
 
     for i,row in deskew_df[deskew_df['track_type']=='ship'].iterrows():
         decimal_year = get_shipmag_decimal_year(row)
@@ -30,7 +30,7 @@ def calc_aei(deskew_df,srf,asf):
         igrf = ipmag.igrf([decimal_year,0,float(row['inter_lat']),float(row['inter_lon'])])
         alpha = float(row['strike']) - igrf[0]
         e = np.rad2deg(np.arctan2(np.tan(np.deg2rad(igrf[1])),np.sin(np.deg2rad(alpha))))
-        aei = utl.wrap_180_180(180 - e - float(row['phase_shift']) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)))
+        aei = 180 - e - float(row['phase_shift']) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))
         deskew_df.at[i,'ei'] = e
         deskew_df.at[i,'aei'] = aei
     return deskew_df
@@ -38,14 +38,14 @@ def calc_aei(deskew_df,srf,asf):
 def row_calc_aei(row,srf,asf):
     if row["track_type"] == "aero":
         row["ei"] = 90 if ".Vd." in row["comp_name"] else 0
-        row["aei"] = utl.wrap_180_180(180 - (row['phase_shift'])- row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)))
+        row["aei"] = 180 - row['phase_shift'] - row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))
     else:
         decimal_year = get_shipmag_decimal_year(row)
         if decimal_year==None: raise ValueError("Intersection point could not be found in data file so IGRF could not be calculated and aei could not be found please check your data, skipping %s"%row['comp_name'])
         igrf = ipmag.igrf([decimal_year,0,float(row['inter_lat']),float(row['inter_lon'])])
         alpha = float(row['strike']) - igrf[0]
         e = np.rad2deg(np.arctan2(np.tan(np.deg2rad(igrf[1])),np.sin(np.deg2rad(alpha))))
-        aei = utl.wrap_180_180(180 - e - float(row['phase_shift']) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2)))
+        aei = 180 - e - float(row['phase_shift']) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))
         row['ei'] = e
         row['aei'] = aei
     return row
@@ -74,8 +74,8 @@ def phase_shift_data(mag_data,phase_shift):
 
     #   Add a head and a tail for the data
     #   so the magnetic anamaly profile will have two smooth ends
-    magpre=np.arange(0,1,0.01)*mag[0]
-    magpost=np.arange(.99,-.01,-.01)*mag[-1]
+    magpre=np.arange(0,1,0.001)*mag[0]
+    magpost=np.arange(.99,-.01,-.001)*mag[-1]
     magnew=np.concatenate([magpre,mag,magpost])
 
     #   Fourier transform
@@ -97,7 +97,7 @@ def phase_shift_data(mag_data,phase_shift):
     NewMag=np.real(np.fft.ifft(MAG2))
 
     #   Truncate the head and the tail and return the data
-    return NewMag[100:N1+100]
+    return NewMag[1000:N1+1000]
 
 def correct_site(site_cor_path,deskew_path,dist_e=.5):
     #backup the .deskew file
@@ -246,6 +246,9 @@ def create_max_file(deskew_df,srf,asf,outfile="deskew.max"):
         deskew_df = calc_aei(deskew_df,srf,asf)
         for i,row in deskew_df.iterrows():
             if row["track_type"]=="ship":
+                lat = row["inter_lat"]
+                lon = row["inter_lon"]
+                strike = row["strike"]
                 aei = row["aei"]
                 s1aei = 30./(row["age_max"]-row["age_min"])
             else:
@@ -253,16 +256,22 @@ def create_max_file(deskew_df,srf,asf,outfile="deskew.max"):
                 if "Ed" in row["comp_name"]:
                     other_comp = row["comp_name"].replace(".Ed.lp",".Vd.lp")
                     oth_row = deskew_df[deskew_df["comp_name"]==other_comp]
+                    lat = (row["inter_lat"] + oth_row["inter_lat"])/2
+                    lon = (row["inter_lon"] + oth_row["inter_lon"])/2
+                    strike = (row["strike"] + oth_row["strike"])/2
                     aei = (row["aei"] + oth_row["aei"])/2
                 elif "Hd" in row["comp_name"]:
                     other_comp = row["comp_name"].replace(".Hd.lp",".Vd.lp")
                     oth_row = deskew_df[deskew_df["comp_name"]==other_comp]
+                    lat = (row["inter_lat"] + oth_row["inter_lat"])/2
+                    lon = (row["inter_lon"] + oth_row["inter_lon"])/2
+                    strike = (row["strike"] + oth_row["strike"])/2
                     aei = (row["aei"] + oth_row["aei"])/2
                 elif "Vd" in row["comp_name"]: continue
                 else: raise ValueError("Unknown aeromagnetic component type for %s"%str(row["comp_name"]))
 
             fout.write(row["comp_name"]+"\n")
-            fout.write("%.2f,%.2f,%.2f,%.2f,%.2f\n"%(aei,s1aei,row["inter_lat"],row["inter_lon"],row["strike"]))
+            fout.write("%.2f,%.2f,%.2f,%.2f,%.2f\n"%(aei,s1aei,lat,lon,strike))
         #Write Fake Remanent Amp Factor to prevent singularity in old Max
         fout.write("Fake Amplitude\n")
         fout.write("1.0,0.1,0.0,180.0,90.0")
@@ -312,14 +321,15 @@ def get_shipmag_decimal_year(row,deg_e=.01):
     if row['track_type']!='ship':
         raise ValueError("get_shipmag_decimal_year can only run on shipmag data recieved data of type %s instead"%str(row['track_type']))
     data_file_path = os.path.join(row["data_dir"],row["comp_name"])
-    data_df = pd.read_csv(data_file_path,names=["dist","decimal_year","mag","lat","lon"],delim_whitespace=True)
+    data_df = utl.open_mag_file(data_file_path)
+#    data_df = pd.read_csv(data_file_path,names=["dist","decimal_year","mag","lat","lon"],delim_whitespace=True)
     decimal_year=None
     for j,datarow in data_df.iterrows(): #iterate to find the distance associated with the current lat lon
         if (float(datarow['lat'])>=float(row['inter_lat'])-deg_e and \
           float(datarow['lat'])<=float(row['inter_lat'])+deg_e) and \
           (utl.convert_to_0_360(datarow['lon'])>=utl.convert_to_0_360(row['inter_lon'])-deg_e and \
           utl.convert_to_0_360(datarow['lon'])<=utl.convert_to_0_360(row['inter_lon'])+deg_e):
-            decimal_year=float(datarow['decimal_year']); break
+            decimal_year=float(datarow['dec_year']); break
     return decimal_year
 
 def new_get_shipmag_decimal_year(row,deg_e=.01):
@@ -340,7 +350,7 @@ def new_get_shipmag_decimal_year(row,deg_e=.01):
           (utl.convert_to_0_360(datarow['lon'])>=utl.convert_to_0_360(row['inter_lon'])-deg_e and \
           utl.convert_to_0_360(datarow['lon'])<=utl.convert_to_0_360(row['inter_lon'])+deg_e):
             sum_sq = next_sum_sq
-            decimal_year=float(datarow['decimal_year'])
+            decimal_year=float(datarow['dec_year'])
     return decimal_year
 
 def reduce_to_pole(deskew_path, pole_lon, pole_lat, spreading_rate_path=None, anomalous_skewness_model_path=None):
@@ -350,6 +360,23 @@ def reduce_to_pole(deskew_path, pole_lon, pole_lat, spreading_rate_path=None, an
     deskew_df = filter_deskew_and_calc_aei(deskew_path)
 
     print("reducing to pole - lat: %.3f, lon: %.3f"%(pole_lat,pole_lon))
+
+    deskew_df = reduce_dsk_df_to_pole(deskew_df, pole_lon, pole_lat, asf, srf)
+
+    old_results_dir = deskew_df['results_dir'].iloc[0]
+    new_results_dir = os.path.join(old_results_dir,"pole_%.0f_%.0f_results"%(pole_lon,pole_lat))
+    utl.check_dir(new_results_dir)
+    deskew_df['results_dir'] = new_results_dir
+
+#    reduced_deskew_df = deskew_df[['comp_name','phase_shift','step','rel_amp','age_min','age_max','inter_lat','inter_lon','strike','data_dir','results_dir','track_type','sz_name','r','g','b']]
+
+    out_path = os.path.join(os.path.dirname(deskew_path),"pole_%.0f_%.0f.deskew"%(pole_lon,pole_lat))   
+    print("writing to %s"%out_path)
+    utl.write_deskew_file(out_path,deskew_df)
+
+def reduce_dsk_df_to_pole(dsk_df, pole_lon, pole_lat, asf, srf):
+
+    deskew_df = dsk_df.copy()
 
     if "phase_shift" not in deskew_df.columns: deskew_df["phase_shift"] = 0.
     if "rel_amp" not in deskew_df.columns: deskew_df["rel_amp"] = 0.
@@ -364,16 +391,7 @@ def reduce_to_pole(deskew_path, pole_lon, pole_lat, spreading_rate_path=None, an
             rel_reduced_amplitude = deskew_df[deskew_df["comp_name"]==row["comp_name"].replace("Hd.lp","Vd.lp")].iloc[0]["rel_amp"]
         deskew_df.at[i,'rel_amp'] = round(rel_reduced_amplitude,3)
 
-    old_results_dir = deskew_df['results_dir'].iloc[0]
-    new_results_dir = os.path.join(old_results_dir,"pole_%.0f_%.0f_results"%(pole_lon,pole_lat))
-    utl.check_dir(new_results_dir)
-    deskew_df['results_dir'] = new_results_dir
-
-#    reduced_deskew_df = deskew_df[['comp_name','phase_shift','step','rel_amp','age_min','age_max','inter_lat','inter_lon','strike','data_dir','results_dir','track_type','sz_name','r','g','b']]
-
-    out_path = os.path.join(os.path.dirname(deskew_path),"pole_%.0f_%.0f.deskew"%(pole_lon,pole_lat))   
-    print("writing to %s"%out_path)
-    utl.write_deskew_file(out_path,deskew_df)
+    return deskew_df
 
 def reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf):
         #taken from Lin's Matlab Code (doesn't seem to work)
@@ -417,7 +435,10 @@ def create_deskew_file(chron_name,results_directory,age_min,age_max,data_directo
 #    dout = {'comp_name':[],'phase_shift':[],'step':[],'inter_lat':[],'inter_lon':[],'strike':[],'age_min':[],'age_max':[],'track_type':[],'data_dir':[],'results_dir':[]}
 #    dfout = pd.DataFrame(columns=['comp_name','phase_shift','step','inter_lat','inter_lon','strike','age_min','age_max','track_type','data_dir','results_dir'])
     out_str="comp_name\tphase_shift\tstep\tage_min\tage_max\tinter_lat\tinter_lon\tstrike\tdata_dir\tresults_dir\ttrack_type\tsz_name\tr\tg\tb\n"
-    colors,i,j = [(1,0,0),(0,1,0),(0,0,1),(.58,0,.83),(0,0,0),(0,1,1),(.5,.5,.5),(1,1,0),(.8,0,1),(.5,0,0),(0,.5,0),(0,0,.5),(.5,0,.5),(0,.5,.5),(.5,.5,0)],0,1
+    colors,i,j = [(0, 107, 164), (255, 128, 14), (171, 171, 171), (89, 89, 89), (95, 158, 209), (200, 82, 0), (137, 137, 137), (163, 200, 236), (255, 188, 121), (207, 207, 207)],0,1
+    for i in range(len(colors)):
+        r, g, b = colors[i]  
+        colors[i] = (r / 255., g / 255., b / 255.)
     sz_to_color,sz_to_name = {},{}
     for track,sz,inter in track_sz_and_inters:
 
@@ -434,8 +455,11 @@ def create_deskew_file(chron_name,results_directory,age_min,age_max,data_directo
         data_dir = os.path.split(track)[0]
 
         azsz_path = track[:-3]+'_'+track[-2:]+'_'+os.path.basename(sz)[:-4]+'.azszs'
-        azsz_df = pd.read_csv(azsz_path,sep=' ')
-        strike = azsz_df['strike'][0]
+        try:
+            azsz_df = pd.read_csv(azsz_path,sep=' ')
+            strike = azsz_df['strike'][0]
+        except:
+            strike = 180
 
         if sz not in sz_to_color:
             if i >= len(colors)-1: print("more spreading zones than colors, looping"); i = 0
@@ -887,8 +911,6 @@ def auto_dsk(dsk_row,synth,bounds,conv_limit=0,conv_bounds=[None,None],phase_arg
     best_shifts : Numpy.NdArray
         the maximum likelihood shift as a function of the phase shift
     """
-    import matplotlib.pyplot as plt
-    import matplotlib.gridspec as gridspec
 
     #Unpack Arguments
     dage = dsk_row["age_max"]-dsk_row["age_min"]
@@ -937,41 +959,7 @@ def auto_dsk(dsk_row,synth,bounds,conv_limit=0,conv_bounds=[None,None],phase_arg
             correlation_func = np.abs(np.convolve(shifted_full_fimag,conv_synth,"full"))
             correlation_func = correlation_func[int(len(conv_synth)-conv_limit/ddis+.5):int(len(conv_synth)+conv_limit/ddis+.5)]
 
-#            correlation_func = []
-#            for shift in shifts:
-#                left_idx = np.argmin(np.abs(projected_distances["dist"] - left_bound - shift))
-#                right_idx = np.argmin(np.abs(projected_distances["dist"] - right_bound - shift))
-#                right_idx,left_idx = max([right_idx,left_idx]),min([right_idx,left_idx])
-#                tproj_dist = projected_distances["dist"][left_idx:right_idx] - shift
-#                tshifted_mag = shifted_mag[left_idx:right_idx]
-
-#                #numpy.interp only works for monotonic increasing independent variable data
-#                if np.any(np.diff(tproj_dist)<0): itshifted_mag = np.interp(-tsynth_dis,-tproj_dist,tshifted_mag) #redefine to the right because interp dumb
-#                else: itshifted_mag = np.interp(tsynth_dis,tproj_dist,tshifted_mag)
-#                if highcut: itshifted_mag = butter_lowpass_filter(itshifted_mag,highcut=highcut,fs=1/ddis,order=order)
-
-#                #nested phase async method
-##                al1 = np.angle(hilbert(itshifted_mag,N),deg=False)
-##                phase_asynchrony = np.abs(np.sin(np.abs(al1-al2)/2)) #shouldn't go negative but...just in case
-##                correlation_func.append(phase_asynchrony.sum())
-
-##                #cals helper function above with 0 lag because of the potential lack of regular sampling
-#                ccf = crosscorr(itshifted_mag,tsynth_mag)
-#                correlation_func.append(np.real(ccf))
-
-#            best_shift_idx = np.argmax(correlation_func)
-#            best_shift = shifts[best_shift_idx]
             best_shift = ddis*(len(correlation_func)/2-np.argmax(correlation_func))/2
-
-#            import matplotlib.pyplot as plt
-#            plt.figure()
-#            print(phase,best_shift)
-#            plt.plot(conv_synth_dis,shifted_full_fimag)
-#            plt.plot(conv_synth_dis+best_shift,shifted_full_fimag)
-#            plt.plot(conv_synth_dis,conv_synth)
-#            plt.figure()
-#            plt.plot(ddis/2*(len(conv_synth)-np.arange(0,len(correlation_func))),correlation_func)
-#            plt.show()
 
         else: best_shift = 0.
 
@@ -989,147 +977,31 @@ def auto_dsk(dsk_row,synth,bounds,conv_limit=0,conv_bounds=[None,None],phase_arg
         else: fitshifted_mag = itshifted_mag
 
         al1 = np.angle(hilbert(fitshifted_mag,N),deg=False)
-        phase_asynchrony = np.abs(np.sin(np.abs(al1-al2)/2)) #shouldn't go negative but...just in case
+        phase_asynchrony = np.sin((al1-al2)/2) #shouldn't go negative but...just in case
         best_shifts.append(best_shift)
         phase_async_func.append(phase_asynchrony.sum())
-
-#        #################################################TEMP FOR ANIMATION
-
-#        comp_name = dsk_row["comp_name"]
-
-#        #show trimmed fit
-#        fig = plt.figure()
-#        outer = gridspec.GridSpec(2, 2)
-
-#        plt.subplot(outer[0])
-#        plt.plot(tproj_dist,tshifted_mag,label="Raw %s"%comp_name)
-#        plt.plot(tsynth_dis,fitshifted_mag,label="Filtered %s"%comp_name)
-#        plt.plot(tsynth_dis,tsynth_mag,label="Synthetic")
-#        plt.legend()
-#        plt.title("Phase Shifted Data")
-
-#        #Calculate minimum asynchrony function
-#        al0 = np.angle(hilbert(itshifted_mag,N),deg=False)
-#        al1 = np.angle(hilbert(fitshifted_mag,N),deg=False)
-#        phase_async = abs(np.sin(np.abs(al1-al2)/2))
-
-#        #show angles of best data and synthetic
-#        plt.subplot(outer[1],projection = "polar")
-#        plt.polar(al0,tsynth_dis,label="Raw %s"%comp_name)
-#        plt.polar(al1,tsynth_dis,label="Filtered %s"%comp_name)
-#        plt.polar(al2,tsynth_dis,label="Synthetic")
-#        plt.title("Angle of Data")
-
-#        #show minimum asynchrony function
-#        plt.subplot(outer[2])
-#        plt.plot(tsynth_dis,phase_async,color="tab:red")
-#        plt.ylim(0,1.05)
-#        plt.title("Asynchrony Function")
-
-#        #show minimum asynchrony function and best shifts function
-#        inner = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=outer[3], hspace=0.)
-#        bphase_ax = plt.subplot(inner[0])
-#        plt.plot(phases[:len(phase_async_func)],phase_async_func,label="Summed Phase Asynchrony")
-#        if phase != phases[-1]: plt.axvline(phase,color="red")
-#        fig_facecolor = "white"
-##        if filter_data_by_asynchrony:
-##            plt.axhline(filter_data_by_asynchrony,color="tab:red")
-##            if phase_async_func[best_idx]>filter_data_by_asynchrony: fig_facecolor = "#FF6B6B"
-#        plt.legend(loc=2)
-#        plt.ylim(0,200)
-#        plt.xlim(0,360)
-#        bshift_ax = plt.subplot(inner[1])
-#        plt.plot(phases[:len(best_shifts)],best_shifts,label="Best Shift",color="tab:orange")
-#        if phase != phases[-1]: plt.axvline(phase,color="red")
-#        plt.xlabel("Phase Shift (degrees)")
-#        plt.legend(loc=2)
-#        plt.ylim(-10,10)
-#        plt.xlim(0,360)
-#    #    plt.title("Minimum Normalized Summed Phase Asynchrony Function")
-
-#        plt.gcf().suptitle("%s - (%.1f$^\circ$N, %.1f$^\circ$E)"%(comp_name,dsk_row["inter_lat"],dsk_row["inter_lon"]) + "\n" + r"$\theta, \delta = %.0f^\circ, %.1f km$"%(phase,best_shift))
-
-#        plt.gcf().savefig("/home/kevin/Projects/AutoDsk/27r/SkwAnimation/%s_%s.png"%((3-len(str(int(phase))))*"0"+str(int(phase)),comp_name),transparent=False,facecolor=fig_facecolor)
-
-#        if phase == phases[-1]:
-#            best_idx = np.argmin(phase_async_func)
-#            best_phase = phases[best_idx]
-#            shifted_mag = phase_shift_data(data_df["mag"],best_phase)
-#            best_shift = best_shifts[best_idx]
-
-#            #trim the data to the right segments
-#            left_idx = np.argmin(np.abs(projected_distances["dist"] - left_bound + best_shift))
-#            right_idx = np.argmin(np.abs(projected_distances["dist"]- right_bound + best_shift))
-#            right_idx,left_idx = max([right_idx,left_idx]),min([right_idx,left_idx])
-#            tproj_dist = projected_distances["dist"][left_idx:right_idx] + best_shift
-#            tshifted_mag = shifted_mag[left_idx:right_idx]
-
-#            #numpy.interp only works for monotonic increasing independent variable data
-#            if np.any(np.diff(tproj_dist)<0): itshifted_mag = np.interp(-tsynth_dis,-tproj_dist,tshifted_mag)
-#            else: itshifted_mag = np.interp(tsynth_dis,tproj_dist,tshifted_mag)
-#            if highcut: fitshifted_mag = butter_lowpass_filter(itshifted_mag,highcut=highcut,fs=1/ddis,order=order)
-#            else: fitshifted_mag = itshifted_mag
-
-#            al1 = np.angle(hilbert(fitshifted_mag,N),deg=False)
-#            phase_asynchrony = np.abs(np.sin(np.abs(al1-al2)/2)) #shouldn't go negative but...just in case
-
-#            #show trimmed fit
-#            fig = plt.figure()
-#            outer = gridspec.GridSpec(2, 2)
-
-#            plt.subplot(outer[0])
-#            plt.plot(tproj_dist,tshifted_mag,label="Raw %s"%comp_name)
-#            plt.plot(tsynth_dis,fitshifted_mag,label="Filtered %s"%comp_name)
-#            plt.plot(tsynth_dis,tsynth_mag,label="Synthetic")
-#            plt.legend()
-#            plt.title("Phase Shifted Data")
-
-#            #Calculate minimum asynchrony function
-#            al0 = np.angle(hilbert(itshifted_mag,N),deg=False)
-#            al1 = np.angle(hilbert(fitshifted_mag,N),deg=False)
-#            phase_async = abs(np.sin(np.abs(al1-al2)/2))
-
-#            #show angles of best data and synthetic
-#            plt.subplot(outer[1],projection = "polar")
-#            plt.polar(al0,tsynth_dis,label="Raw %s"%comp_name)
-#            plt.polar(al1,tsynth_dis,label="Filtered %s"%comp_name)
-#            plt.polar(al2,tsynth_dis,label="Synthetic")
-#            plt.title("Angle of Data")
-
-#            #show minimum asynchrony function
-#            plt.subplot(outer[2])
-#            plt.plot(tsynth_dis,phase_async,color="tab:red")
-#            plt.ylim(0,1.05)
-#            plt.title("Asynchrony Function")
-
-#            #show minimum asynchrony function and best shifts function
-#            inner = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=outer[3], hspace=0.)
-#            bphase_ax = plt.subplot(inner[0])
-#            plt.plot(phases[:len(phase_async_func)],phase_async_func,label="Summed Phase Asynchrony")
-#            if phase != phases[-1]: plt.axvline(phase,color="red")
-#            fig_facecolor = "white"
-#    #        if filter_data_by_asynchrony:
-#    #            plt.axhline(filter_data_by_asynchrony,color="tab:red")
-#    #            if phase_async_func[best_idx]>filter_data_by_asynchrony: fig_facecolor = "#FF6B6B"
-#            plt.legend(loc=2)
-#            plt.ylim(0,200)
-#            plt.xlim(0,360)
-#            bshift_ax = plt.subplot(inner[1])
-#            plt.plot(phases[:len(best_shifts)],best_shifts,label="Best Shift",color="tab:orange")
-#            if phase != phases[-1]: plt.axvline(phase,color="red")
-#            plt.xlabel("Phase Shift (degrees)")
-#            plt.legend(loc=2)
-#            plt.ylim(-10,10)
-#            plt.xlim(0,360)
-
-#            bphase_ax.axvline(best_phase,color="black")
-#            bshift_ax.axvline(best_phase,color="black")
-#            plt.gcf().suptitle("%s - (%.1f$^\circ$N, %.1f$^\circ$E)"%(comp_name,dsk_row["inter_lat"],dsk_row["inter_lon"]) + "\n" + r"$\theta_{min}, \delta_{min} = %.0f^\circ, %.1f km$"%(best_phase,best_shift))
-#            for phase in range(360,380):
-#                plt.gcf().savefig("/home/kevin/Projects/AutoDsk/27r/SkwAnimation/%s_%s.png"%((3-len(str(int(phase))))*"0"+str(int(phase)),comp_name),transparent=False,facecolor=fig_facecolor)
 
     best_idx = np.argmin(phase_async_func)
 
     return phases[best_idx],best_shifts[best_idx],phase_async_func,best_shifts
 
 
+def find_best_phase_match(s0,s1,phase_args=(0.,360.,1.)):
+
+    phases = np.arange(*phase_args)
+    N = len(s1) #because this is easier and regularly sampled plus the user can set it simply
+    al1 = np.angle(hilbert(np.real(s1),N),deg=False)
+
+    best_shifts = [] #record best shifts as function of phase shift
+    phase_async_func = [] #record summed phase asynchrony as a function of phase shift
+    for i,phase in enumerate(phases):
+        shifted_mag = phase_shift_data(s0,phase)
+
+        al0 = np.angle(hilbert(shifted_mag,N),deg=False)
+        phase_asynchrony = np.sin(np.abs(al0-al1)/2) #shouldn't go negative but...just in case
+        best_shifts.append(0.)
+        phase_async_func.append(phase_asynchrony.sum())
+
+    best_idx = np.argmin(phase_async_func)
+
+    return phases[best_idx],best_shifts[best_idx],phase_async_func,best_shifts

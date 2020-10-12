@@ -96,9 +96,11 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
         dsk_df = dsk_df[dsk_df["quality"]=="g"]
     tcov = np.zeros([2,2])
     szs_to_calc = dsk_df["sz_name"].drop_duplicates()#.drop(24) #removes MahiMahi
+
     for sz in szs_to_calc:
         sz_df = dsk_df[dsk_df["sz_name"]==sz]
         print(sz,":",len(sz_df.index))
+
         if visualize:
             window = [utl.convert_to_0_360(sz_df["inter_lon"].min()-visual_padding),utl.convert_to_0_360(sz_df["inter_lon"].max()+visual_padding),sz_df["inter_lat"].min()-visual_padding,sz_df["inter_lat"].max()+visual_padding]
             fig = plt.figure(figsize=(16,9),dpi=100)
@@ -113,6 +115,7 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
             ax.yaxis.set_major_formatter(lat_formatter)
             land = cfeature.NaturalEarthFeature('physical', 'land', "50m", edgecolor="black", facecolor="grey", linewidth=2)
             ax.add_feature(land)
+
         if len(sz_df.index)>2: #overdetermined case
             data = {"dec":[],"inc":[],"phs":[],"ell":[],"ccl":[],"azi":[],"amp":[]}
             for i,row in sz_df.iterrows():
@@ -130,8 +133,21 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
                 data["ccl"][i][1][1] *= np.sqrt(chisq)
             (plat,plon,_,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data)
             print("\t",(plat,plon,maj_se,min_se,phi),chisq,dof)
-            if visualize: 
-                ax = psk.plot_small_circle(plon,plat,90.,color = "k",m=ax)
+            scov = ellipse_to_cov(plat,plon,maj_se,min_se,phi)
+            tcov += scov
+            dists = []
+            for i,row in sz_df.iterrows():
+                geodict = geoid.Inverse(plat,plon,row["inter_lat"],row["inter_lon"])
+                strike = geodict["azi2"]+90
+                dists.append(geodict["a12"])
+                if strike < 0: strike += 180
+                dsk_df.at[i,"strike"] = strike
+                print("\t\t",row["comp_name"], strike)
+
+            if visualize:
+                pdis = np.mean(dists)
+                print("Average Distance to Pole: ", pdis)
+                ax = psk.plot_small_circle(plon,plat,pdis,color = "k",m=ax,geoid=Geodesic(6371.,0.),transform=ccrs.PlateCarree())
                 all_lons,all_lats,all_grav = pg.get_sandwell(window,down_sample_factor,resample_method=Resampling.average,sandwell_files_path=os.path.join(sandwell_files_path,"*.tiff"))
                 print("Plotting Gravity")
                 start_time = time()
@@ -140,19 +156,14 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
                 print("Runtime: ",time()-start_time)
                 ax.set_extent(window,ccrs.PlateCarree())
                 fig.savefig("strike_fit_%s"%sz)
-            scov = ellipse_to_cov(plat,plon,maj_se,min_se,phi)
-            tcov += scov
-            for i,row in sz_df.iterrows():
-                strike = geoid.Inverse(plat,plon,row["inter_lat"],row["inter_lon"])["azi2"]+90
-                if strike < 0: strike += 360
-                dsk_df.at[i,"strike"] = strike
-                print("\t\t",row["comp_name"], strike)
+
         else: #under or equal determined case
             strike = geoid.Inverse(sz_df.iloc[0]["inter_lat"],sz_df.iloc[0]["inter_lon"],sz_df.iloc[1]["inter_lat"],sz_df.iloc[1]["inter_lon"])["azi1"]
             if strike < 0: strike += 180
             for i,row in sz_df.iterrows():
                 dsk_df.at[i,"strike"] = strike
                 print("\t",row["comp_name"], strike)
+
     if filter_by_quality:
         dsk_df = dsk_df.append(bad_dsk_data)
         dsk_df.sort_values("inter_lat",inplace=True,ascending=False)

@@ -273,7 +273,6 @@ def kmg9_rdp(A, tol, dist, start_index=0, last_index=None, lsz=None):
 
         fig.savefig("/home/kevin/Projects/RDP/img/animation/%s.png"%("0"*(3-len(str(it)))+str(it)))
         plt.show()
-        import pdb; pdb.set_trace()
         it += 1
 
     return indices
@@ -287,14 +286,14 @@ def shipmag_preprocess(shipmag_files):
         latlon_file = shipmag_file + ".latlon"
         latlon_df.to_csv(latlon_file, sep=' ', index=False, header=False)
 
-def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dates.aeromag')):
+def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dates.aeromag'),geoid=Geodesic.WGS84):
     for aeromag_file in aeromag_files: #iterate over all aeromag files
 
         track,extension = os.path.basename(aeromag_file).split('.') #segment the name into parts
         #read data and make a empty dataframe for output data
-        adf = utl.open_mag_file(aeromag_file)
+        adf = utl.open_mag_file(aeromag_file).dropna()
         ddf = pd.read_csv(date_file,sep='\t',index_col=0)
-        idf = pd.DataFrame(columns=['dis','v_comp','e_comp','h_comp','t_comp'])
+        idf = pd.DataFrame(columns=['dis','lat','lon','alt','v_comp','e_comp','n_comp','h_comp','t_comp'])
 
         dis = 0
         decimal_year = float(ddf.loc[track]['decimal_year'])
@@ -306,63 +305,63 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
 
             try:
                 #check for data gaps
-                if (row['lat']==None) or (row['lon']==None) or (row['alt']==None) or (row['mag']==None) or (row['v_comp']==None) or (row['e_comp']==None): continue
+                if np.isnan(row['lat']) or np.isnan(row['lon']) or np.isnan(row['alt']) or np.isnan(row['mag']) or np.isnan(row['v_comp']) or np.isnan(row['e_comp']) or np.isnan(row['n_comp']) or np.isnan(row['h_comp']): continue
+                #check None
+                elif (row['lat']==None) or (row['lon']==None) or (row['alt']==None) or (row['mag']==None) or (row['v_comp']==None) or (row['e_comp']==None): continue
                 #check for absurd values outside of the domain of the varible (this will capture null values of -99999)
                 elif (abs(float(row['lat']))>90) or (abs(utl.convert_to_180_180(row['lon']))>180) or (float(row['alt'])<0) or (abs(float(row['mag']))==99999) or (abs(float(row['v_comp']))==99999) or (abs(float(row['e_comp']))==99999): continue
             except ValueError as e: continue #This implies a value which is not convertable to a float as all of these should be floats this datum must be skipped
 
             if prev_lat!=None and prev_lon!=None: #calculate distance
-                dis += Geodesic.WGS84.Inverse(float(row['lat']),float(row['lon']),prev_lat,prev_lon)['s12']/1000
+                dis += geoid.Inverse(float(row['lat']),float(row['lon']),prev_lat,prev_lon)['s12']/1000
             adf.at[i,'dis'] = dis
 
             #calculate and remove IGRF
             dec,inc,mag = ipmag.igrf([decimal_year,float(row['alt'])*0.3048e-3,float(row['lat']),float(row['lon'])])
             res_v_comp = mag*np.sin(np.deg2rad(inc))
-            res_e_comp = mag*np.cos(np.deg2rad(inc))*np.cos(np.deg2rad(dec))
+            res_e_comp = mag*np.cos(np.deg2rad(inc))*np.sin(np.deg2rad(dec))
+            res_n_comp = mag*np.cos(np.deg2rad(inc))*np.cos(np.deg2rad(dec))
             res_h_comp = mag*np.cos(np.deg2rad(inc))
             res_t_comp = mag
 
             adf.at[i,'res_v_comp'] = float(row['v_comp'])-res_v_comp
             adf.at[i,'res_e_comp'] = float(row['e_comp'])-res_e_comp
-            adf.at[i,'res_h_comp'] = float(row['h_comp'])-res_e_comp
+            adf.at[i,'res_n_comp'] = float(row['n_comp'])-res_n_comp
+            adf.at[i,'res_h_comp'] = float(row['h_comp'])-res_h_comp
             adf.at[i,'res_t_comp'] = float(row['mag'])-res_t_comp
 
             prev_lat,prev_lon = float(row['lat']),float(row['lon'])
 
-        adf = adf[(adf['res_e_comp']<3000) & (adf['res_v_comp']<3000) & (adf['res_h_comp']<3000) & (adf['res_t_comp']<3000)]
+#        adf = adf[(adf['res_e_comp']<3000) & (adf['res_n_comp']<3000) & (adf['res_v_comp']<3000) & (adf['res_h_comp']<3000) & (adf['res_t_comp']<3000)]
 
         #remove a second order polynomial fromm the magnetic data I don't know why but this is something done
-        for col in ['res_e_comp','res_h_comp','res_v_comp','res_t_comp']:
-#            pols = np.polyfit(adf['dis'].tolist(),adf[col].tolist(),2)
+        for col in ['res_e_comp','res_n_comp','res_h_comp','res_v_comp','res_t_comp']:
+#            pols = np.polyfit(adf['dis'].tolist(),adf[col].tolist(),3)
 #            mag_fit = np.polyval(pols,adf['dis'].tolist())
-#            adf['cor'+col.lstrip('res')] = np.array(adf[col].tolist()) - mag_fit
-            adf['cor'+col.lstrip('res')] = np.array(adf[col].tolist())
+#            adf['cor'+col.lstrip('res')] = adf[col].to_numpy() - mag_fit
+            adf['cor'+col.lstrip('res')] = adf[col].to_numpy()
 
         #iterpolate and round data
-        round3_func = lambda x: round(x,3)
-        adf_dis_list = list(map(float,adf['dis'].tolist()))
-        adf_lat_list = list(map(float,adf['lat'].tolist()))
-        adf_lon_list = list(map(float,adf['lon'].tolist()))
-        adf_v_list = list(map(float,adf['cor_v_comp'].tolist()))
-        adf_e_list = list(map(float,adf['cor_e_comp'].tolist()))
-        adf_h_list = list(map(float,adf['cor_h_comp'].tolist()))
-        adf_t_list = list(map(float,adf['cor_t_comp'].tolist()))
-        idf['dis'] = list(map(round3_func,np.arange(float(adf['dis'].tolist()[0]),float(adf['dis'].tolist()[-1]),.1))) #spacing of 1 km, because I can
-        idf['lat'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_lat_list)))
-        idf['lon'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_lon_list)))
-        idf['alt'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,list(map(lambda x: float(x)*.3048, adf['alt'].tolist())))))
-        idf['v_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_v_list)))
-        idf['e_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_e_list)))
-        idf['h_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_h_list)))
-        idf['t_comp'] = list(map(round3_func,np.interp(idf['dis'].tolist(),adf_dis_list,adf_t_list)))
+        idf['dis'] = np.arange(adf['dis'].iloc[0],adf['dis'].iloc[-1]+.1,.1) #spacing of 1 km, because I can
+        idf['lat'] = np.interp(idf['dis'],adf['dis'],adf['lat'])
+        idf['lon'] = np.interp(idf['dis'],adf['dis'],adf['lon'])
+        idf['alt'] = np.interp(idf['dis'],adf['dis'],.3048*adf['alt'])
+        idf['v_comp'] = np.interp(idf['dis'],adf['dis'],adf['cor_v_comp'])
+        idf['e_comp'] = np.interp(idf['dis'],adf['dis'],adf['cor_e_comp'])
+        idf['n_comp'] = np.interp(idf['dis'],adf['dis'],adf['cor_n_comp'])
+        idf['h_comp'] = np.interp(idf['dis'],adf['dis'],adf['cor_h_comp'])
+        idf['t_comp'] = np.interp(idf['dis'],adf['dis'],adf['cor_t_comp'])
 
-#        adf[['dis','alt','cor_v_comp','lat','lon']].to_csv(aeromag_file+'.Vd',index=False,header=False,sep='\t')
-#        adf[['dis','alt','cor_e_comp','lat','lon']].to_csv(aeromag_file+'.Ed',index=False,header=False,sep='\t')
-#        adf[['dis','alt','cor_t_comp','lat','lon']].to_csv(aeromag_file+'.Td',index=False,header=False,sep='\t')
-        idf[['dis','alt','v_comp','lat','lon']].to_csv(aeromag_file+'.Vd.lp',index=False,header=False,sep='\t')
-        idf[['dis','alt','e_comp','lat','lon']].to_csv(aeromag_file+'.Ed.lp',index=False,header=False,sep='\t')
-        idf[['dis','alt','h_comp','lat','lon']].to_csv(aeromag_file+'.Hd.lp',index=False,header=False,sep='\t')
-        idf[['dis','alt','t_comp','lat','lon']].to_csv(aeromag_file+'.Td.lp',index=False,header=False,sep='\t')
+        adf[['dis','alt','cor_v_comp','lat','lon']].to_csv(aeromag_file+'.Vd',index=False,header=False,sep='\t',float_format="%.3f")
+        adf[['dis','alt','cor_e_comp','lat','lon']].to_csv(aeromag_file+'.Ed',index=False,header=False,sep='\t',float_format="%.3f")
+        adf[['dis','alt','cor_n_comp','lat','lon']].to_csv(aeromag_file+'.Nd',index=False,header=False,sep='\t',float_format="%.3f")
+        adf[['dis','alt','cor_h_comp','lat','lon']].to_csv(aeromag_file+'.Hd',index=False,header=False,sep='\t',float_format="%.3f")
+        adf[['dis','alt','cor_t_comp','lat','lon']].to_csv(aeromag_file+'.Td',index=False,header=False,sep='\t',float_format="%.3f")
+        idf[['dis','alt','v_comp','lat','lon']].to_csv(aeromag_file+'.Vd.lp',index=False,header=False,sep='\t',float_format="%.3f")
+        idf[['dis','alt','e_comp','lat','lon']].to_csv(aeromag_file+'.Ed.lp',index=False,header=False,sep='\t',float_format="%.3f")
+        idf[['dis','alt','n_comp','lat','lon']].to_csv(aeromag_file+'.Nd.lp',index=False,header=False,sep='\t',float_format="%.3f")
+        idf[['dis','alt','h_comp','lat','lon']].to_csv(aeromag_file+'.Hd.lp',index=False,header=False,sep='\t',float_format="%.3f")
+        idf[['dis','alt','t_comp','lat','lon']].to_csv(aeromag_file+'.Td.lp',index=False,header=False,sep='\t',float_format="%.3f")
 
         if extension.startswith('c'):
             shutil.copyfile(aeromag_file,aeromag_file+'.lp')

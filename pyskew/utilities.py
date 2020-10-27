@@ -112,25 +112,30 @@ def open_mag_file(mag_file):
     return dfin
 
 def open_shipmag_file(shipmag_file):
-    fin = open(shipmag_file,'r')
-    lines = fin.readlines()
-    fin.close()
-    lines = [line.split() for line in lines]
-    try: dfin = pd.DataFrame(lines,columns=["dist","dec_year","mag","lat","lon"],dtype=float)
+#    fin = open(shipmag_file,'r')
+#    lines = fin.readlines()
+#    fin.close()
+#    lines = [line.split() for line in lines]
+#    try: dfin = pd.DataFrame(lines,columns=["dist","dec_year","mag","lat","lon"],dtype=float)
+    try: dfin = pd.read_csv(shipmag_file,sep = "\s+|\t+|\s+\t+|\t+\s+",names=["dist","dec_year","mag","lat","lon"],na_values=[-99999,99999,"-99999","99999","-99999-99999.99999-99999.99999"])
     except (ValueError,AssertionError) as e:
 #        print("ship mag file %s does not have the standard 5 rows, you should check this data and see if something happened during processing. Returning a empty dataframe"%shipmag_file)
         dfin = pd.DataFrame()
+    dfin = dfin.apply(pd.to_numeric, errors='coerce')
     return dfin
 
 def open_aeromag_file(aeromag_file):
-    fin = open(aeromag_file,'r')
-    lines = fin.readlines()
-    fin.close()
-    lines = [line.split() for line in lines]
-    try: dfin = pd.DataFrame(lines,columns=["time","lat","lon","n_comp","e_comp","h_comp","v_comp","mag","dec","inc","None","alt"],dtype=float)
+#    fin = open(aeromag_file,'r')
+#    lines = fin.readlines()
+#    fin.close()
+#    lines = [line.split() for line in lines]
+#    try: dfin = pd.DataFrame(lines,columns=["time","lat","lon","n_comp","e_comp","h_comp","v_comp","mag","dec","inc","None","alt"],dtype=float)
+    try: dfin = pd.read_csv(aeromag_file,sep = "\s+|\t+|\s+\t+|\t+\s+",names=["time","lat","lon","n_comp","e_comp","h_comp","v_comp","mag","dec","inc","None","alt"],na_values=[-99999,99999,"-99999","99999","-99999-99999.99999-99999.99999"])
     except (ValueError,AssertionError) as e:
 #        print("aeromag file %s does not have the standard 12 rows, you should check this data and see if something happened during processing. Returning a empty dataframe"%aeromag_file)
         dfin = pd.DataFrame()
+    dfin = dfin.apply(pd.to_numeric, errors='coerce')
+    if len(dfin.dropna(axis=1,how="all").columns)<12: return pd.DataFrame()
     return dfin
 
 def write_mag_file_df(df,path):

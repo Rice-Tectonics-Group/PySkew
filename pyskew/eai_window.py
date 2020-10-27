@@ -112,6 +112,16 @@ class EAIWindow(wx.Frame):
         self.m_change_fontsize = menu_file.Append(-1, "&Change fontsize", "")
         self.Bind(wx.EVT_MENU, self.on_change_fontsize, self.m_change_fontsize)
 
+        #-----------------
+
+        menu_file.AppendSeparator()
+        submenu_save_plots = wx.Menu()
+
+        m_save_plot = submenu_save_plots.Append(-1, "&Save Plot", "")
+        self.Bind(wx.EVT_MENU, self.on_save_plot, m_save_plot,"save-plot")
+
+        m_new_sub_plots = menu_file.Append(-1, "&Save Result", submenu_save_plots)
+
         menu_file.AppendSeparator()
         m_exit = menu_file.Append(-1, "&Exit\tCtrl-Q", "Exit")
         self.Bind(wx.EVT_MENU, self.on_close_main, m_exit)
@@ -148,6 +158,9 @@ class EAIWindow(wx.Frame):
             item.set_fontsize(self.fontsize)
         self.canvas.draw()
 
+    def on_save_plot(self,event):
+        self.toolbar.save_figure()
+
     def on_show_both_components(self,event):
         self.update()
 
@@ -167,7 +180,7 @@ class EAIWindow(wx.Frame):
         event.Skip()
 
     def on_select_dleft_click(self,event):
-        try: dsk_df = self.parent.deskew_df
+        try: dsk_df = self.parent.deskew_df.copy()
         except AttributeError: event.Skip(); return
 
         pos=event.GetPosition()
@@ -192,7 +205,7 @@ class EAIWindow(wx.Frame):
         pass
 
     def plot_eai(self):
-        try: dsk_df = self.parent.deskew_df
+        try: dsk_df = self.parent.deskew_df.copy()
         except AttributeError: return
         try: dsk_idx = self.parent.dsk_idx
         except AttributeError: dsk_idx = None

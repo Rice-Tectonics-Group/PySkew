@@ -141,6 +141,14 @@ class RTPWindow(wx.Frame):
         menu_file = wx.Menu()
 
         menu_file.AppendSeparator()
+        submenu_save_plots = wx.Menu()
+
+        m_save_plot = submenu_save_plots.Append(-1, "&Save Plot", "")
+        self.Bind(wx.EVT_MENU, self.on_save_plot, m_save_plot,"save-plot")
+
+        m_new_sub_plots = menu_file.Append(-1, "&Save Result", submenu_save_plots)
+
+        menu_file.AppendSeparator()
         m_exit = menu_file.Append(-1, "&Exit\tCtrl-Q", "Exit")
         self.Bind(wx.EVT_MENU, self.on_close_main, m_exit)
 
@@ -191,9 +199,11 @@ class RTPWindow(wx.Frame):
         (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
 
         #write pole coordinates and 1sigmas to plot for user
+        if phi<0: phi = phi+180
+        elif phi>180: phi = phi%180
         self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+r"%.1f$^\circ$, %.1f$^\circ$, N%.1fE"%(maj_se,min_se,phi)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
         #plot inverted pole
-        self.ax = psk.plot_pole(plon,plat,phi,(chisq/dof)*maj_se,(chisq/dof)*min_se,m=self.ax)
+        self.ax = psk.plot_pole(plon,plat,phi,(chisq/dof)*maj_se,(chisq/dof)*min_se,m=self.ax,zorder=10000)
         #filter deskew_df to only data labeled "good" and plot lunes
         self.parent.deskew_df = sk.calc_aei(self.parent.deskew_df,*self.parent.get_srf_asf())
         dsk_to_plot = self.parent.deskew_df[self.parent.deskew_df["quality"]=="g"]
@@ -204,7 +214,7 @@ class RTPWindow(wx.Frame):
         #plot any additional poles
         for pole_rec in self.poles_to_plot:
             print(pole_rec)
-            self.ax = psk.plot_pole(*pole_rec[0],color=pole_rec[1],m=self.ax)
+            self.ax = psk.plot_pole(*pole_rec[0],color=pole_rec[1],m=self.ax,zorder=1000)
 
         #set the map extent to match user input
         print([float(self.min_lon_box.GetValue()),float(self.max_lon_box.GetValue()),float(self.min_lat_box.GetValue()),float(self.max_lat_box.GetValue())])
@@ -215,6 +225,11 @@ class RTPWindow(wx.Frame):
     def on_close_main(self,event):
         self.parent.rtp_open=False
         self.Destroy()
+
+    ############################Menu Funcions################################
+
+    def on_save_plot(self,event):
+        self.toolbar.save_figure()
 
     ###################Button and Dropdown Functions#########################
 

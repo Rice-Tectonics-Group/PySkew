@@ -348,7 +348,7 @@ class EAIWindow(wx.Frame):
                     geodict = self.geoid.Inverse(pole[1], pole[0], lat, lon)
                     colats.append(geodict["a12"]); decs.append(geodict["azi2"])
                 incs = np.arctan2(2*np.tan(np.deg2rad(90.-np.array(colats))),1.)
-                eis += np.rad2deg(np.arctan2(np.tan(incs),np.sin(np.deg2rad(sz_df["strike"].mean() + 180 - decs)))).tolist()
+                eis += np.rad2deg(np.arctan2(np.tan(incs),np.sin(np.deg2rad(sz_df["strike"].mean() + 180 - np.array(decs))))).tolist()
                 lats_used += sz_lats.tolist()
             self.ax.plot(lats_used,eis,color=color)
 

@@ -674,8 +674,8 @@ class SynthMagGUI(wx.Frame):
         self.on_select_track(-1)
 
     def on_close_main(self,event):
-        self.user_warning("Are you sure you want to quit? Any unsaved data will be lost.")
-        self.Destroy()
+        if self.user_warning("Are you sure you want to quit? Any unsaved data will be lost."):
+            self.Destroy()
 
     ##########################Directory/File Buttons########################
 

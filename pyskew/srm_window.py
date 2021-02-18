@@ -130,7 +130,7 @@ class SRMWindow(wx.Frame):
         utl.write_sr_model_file(self.srm,self.spreading_rate_path)
         try:
             srf,_ = sk.generate_spreading_rate_model(self.spreading_rate_path)
-            self.parent.sr_box.SetValue("%.1f"%((srf(self.parent.dsk_row["sz_name"],self.parent.dsk_row["age_min"])+srf(self.parent.dsk_row["sz_name"],self.parent.dsk_row["age_max"]))/2))
+            self.parent.sr_box.SetValue("%.1f"%(srf(self.parent.dsk_row["sz_name"],(self.parent.dsk_row["age_min"]+self.parent.dsk_row["age_max"])/2)))
         except (AttributeError,KeyError) as e: pass
 
         self.update()

@@ -56,8 +56,15 @@ def read_idx_from_string(idx_str):
     flat_idx = list(map(float,idx_str.replace("[","").replace("(","").replace("]","").replace(")","").replace("'","").split(",")))
     return (((flat_idx[0],flat_idx[1]),(flat_idx[2],flat_idx[3])),(int(flat_idx[4]),int(flat_idx[5])))
 
-def calc_projected_distance(inter_lon,inter_lat,lons,lats,strike):
-    geodesic_solutions = [Geodesic.WGS84.Inverse(lat,convert_to_0_360(lon),float(inter_lat),convert_to_0_360(inter_lon)) for lat,lon in zip(lats,lons)]
+def sphere_dis(lat0,lon0,lat1,lon1):
+    rlat0,rlon0,rlat1,rlon1 = np.deg2rad([lat0,lon0,lat1,lon1])
+    rdlon = abs(rlon0-rlon1)
+    num = np.sqrt((np.cos(rlat1)*np.sin(rdlon))**2 + (np.cos(rlat0)*np.sin(rlat1) - np.sin(rlat0)*np.cos(rlat1)*np.cos(rdlon))**2)
+    den = np.sin(rlat0)*np.sin(rlat1) + np.cos(rlat0)*np.cos(rlat1)*np.cos(rdlon)
+    return np.rad2deg(np.arctan2(num,den))
+
+def calc_projected_distance(inter_lon,inter_lat,lons,lats,strike,geoid=Geodesic.WGS84):
+    geodesic_solutions = [geoid.Inverse(lat,convert_to_0_360(lon),float(inter_lat),convert_to_0_360(inter_lon)) for lat,lon in zip(lats,lons)]
 
     projected_distances = pd.DataFrame([{'lat':gs["lat1"],'lon':gs["lon1"],'dist':(gs["s12"]*np.sin(-np.deg2rad(float(strike)-gs["azi1"])))/1000} for gs in geodesic_solutions])
 
@@ -91,7 +98,7 @@ def open_ellipse_file(ellipse_path):
     return lon,lat,az,a,b
 
 def open_deskew_file(deskew_path):
-    deskew_df = pd.read_csv(deskew_path,sep='\t')
+    deskew_df = pd.read_csv(deskew_path,sep='\t',index_col=False)
     deskew_df = deskew_df[deskew_df["comp_name"].notnull()] #remove data that have no data file record
     deskew_df['quality'] = np.where(deskew_df["comp_name"].str.startswith('#'), "b", "g") #make quality column
     deskew_df["comp_name"] = deskew_df['comp_name'].apply(lambda x: x.lstrip("#")) #remove hashes on commented data
@@ -113,25 +120,30 @@ def open_mag_file(mag_file):
     return dfin
 
 def open_shipmag_file(shipmag_file):
-    fin = open(shipmag_file,'r')
-    lines = fin.readlines()
-    fin.close()
-    lines = [line.split() for line in lines]
-    try: dfin = pd.DataFrame(lines,columns=["dist","dec_year","mag","lat","lon"],dtype=float)
+#    fin = open(shipmag_file,'r')
+#    lines = fin.readlines()
+#    fin.close()
+#    lines = [line.split() for line in lines]
+#    try: dfin = pd.DataFrame(lines,columns=["dist","dec_year","mag","lat","lon"],dtype=float)
+    try: dfin = pd.read_csv(shipmag_file,sep = "\s+|\t+|\s+\t+|\t+\s+",names=["dist","dec_year","mag","lat","lon"],na_values=[-99999,99999,"-99999","99999","-99999-99999.99999-99999.99999"])
     except (ValueError,AssertionError) as e:
 #        print("ship mag file %s does not have the standard 5 rows, you should check this data and see if something happened during processing. Returning a empty dataframe"%shipmag_file)
         dfin = pd.DataFrame()
+    dfin = dfin.apply(pd.to_numeric, errors='coerce')
     return dfin
 
 def open_aeromag_file(aeromag_file):
-    fin = open(aeromag_file,'r')
-    lines = fin.readlines()
-    fin.close()
-    lines = [line.split() for line in lines]
-    try: dfin = pd.DataFrame(lines,columns=["time","lat","lon","n_comp","e_comp","h_comp","v_comp","mag","dec","inc","None","alt"],dtype=float)
+#    fin = open(aeromag_file,'r')
+#    lines = fin.readlines()
+#    fin.close()
+#    lines = [line.split() for line in lines]
+#    try: dfin = pd.DataFrame(lines,columns=["time","lat","lon","n_comp","e_comp","h_comp","v_comp","mag","dec","inc","None","alt"],dtype=float)
+    try: dfin = pd.read_csv(aeromag_file,sep = "\s+|\t+|\s+\t+|\t+\s+",names=["time","lat","lon","n_comp","e_comp","h_comp","v_comp","mag","dec","inc","None","alt"],na_values=[-99999,99999,"-99999","99999","-99999-99999.99999-99999.99999"])
     except (ValueError,AssertionError) as e:
 #        print("aeromag file %s does not have the standard 12 rows, you should check this data and see if something happened during processing. Returning a empty dataframe"%aeromag_file)
         dfin = pd.DataFrame()
+    dfin = dfin.apply(pd.to_numeric, errors='coerce')
+    if len(dfin.dropna(axis=1,how="all").columns)<12: return pd.DataFrame()
     return dfin
 
 def write_mag_file_df(df,path):

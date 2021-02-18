@@ -119,7 +119,7 @@ class DetrendWindow(wx.Frame):
         try:
             mag_path = os.path.join(self.parent.dsk_row["data_dir"],self.parent.dsk_row["comp_name"])
             mag_df = utl.open_mag_file(mag_path)
-            self.projected_distances = utl.calc_projected_distance(self.parent.dsk_row["inter_lon"],self.parent.dsk_row["inter_lat"],mag_df["lon"],mag_df["lat"],self.parent.dsk_row["strike"])["dist"]
+            self.projected_distances = utl.calc_projected_distance(self.parent.dsk_row["inter_lon"],self.parent.dsk_row["inter_lat"],mag_df["lon"],mag_df["lat"],(180+self.parent.dsk_row["strike"])%360)["dist"]
             shifted_mag = sk.phase_shift_data(mag_df['mag'].tolist(),self.parent.dsk_row["phase_shift"])
             self.pols = np.polyfit(self.projected_distances,shifted_mag,self.deg)
             self.poly = np.polyval(self.pols,self.projected_distances)

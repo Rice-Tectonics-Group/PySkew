@@ -141,6 +141,14 @@ class RTPWindow(wx.Frame):
         menu_file = wx.Menu()
 
         menu_file.AppendSeparator()
+        submenu_save_plots = wx.Menu()
+
+        m_save_plot = submenu_save_plots.Append(-1, "&Save Plot", "")
+        self.Bind(wx.EVT_MENU, self.on_save_plot, m_save_plot,"save-plot")
+
+        m_new_sub_plots = menu_file.Append(-1, "&Save Result", submenu_save_plots)
+
+        menu_file.AppendSeparator()
         m_exit = menu_file.Append(-1, "&Exit\tCtrl-Q", "Exit")
         self.Bind(wx.EVT_MENU, self.on_close_main, m_exit)
 
@@ -160,44 +168,53 @@ class RTPWindow(wx.Frame):
 
     def update(self): #Populates Logger and makes plot
         self.make_map() #Make Background Map
-        
-        self.parent.save_max_file(".tmp.max",ship_only=True) #Save tmp max file to disk for debugging purposes and to more easily punch data into format using previous functions
-        comment,header,ship_data = pymax.read_max_file(".tmp.max") #Read max file
-        if len(ship_data["phs"])>2: #If more than 2 profiles (even-determined) invert ship
-            (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(ship_data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
-            s1_ship = np.sqrt(chisq/dof)*ship_data["phs"][0][1][1] #ship 1sigma
 
-        self.parent.save_max_file(".tmp.max",aero_only=True) #Do same for aero only data
-        comment,header,aero_data = pymax.read_max_file(".tmp.max")
-        if len(aero_data["phs"])>2:
-            (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(aero_data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
-            s1_aero = np.sqrt(chisq/dof)*aero_data["phs"][0][1][1]
-        
+        if len(self.parent.deskew_df[self.parent.deskew_df["track_type"]=="ship"]) > 0:
+            self.parent.save_max_file(".tmp.max",ship_only=True) #Save tmp max file to disk for debugging purposes and to more easily punch data into format using previous functions
+            comment,header,ship_data = pymax.read_max_file(".tmp.max") #Read max file
+            if len(ship_data["phs"])>2: #If more than 2 profiles (even-determined) invert ship
+                (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(ship_data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
+                s1_ship = np.sqrt(chisq/dof)*ship_data["phs"][0][1][1] #ship 1sigma
+            else: s1_ship = 0
+        else: ship_data,s1_ship = {"phs":[["none",[0.,0.]]]},0
+
+        if len(self.parent.deskew_df[self.parent.deskew_df["track_type"]=="aero"]) > 0:
+            self.parent.save_max_file(".tmp.max",aero_only=True) #Do same for aero only data
+            comment,header,aero_data = pymax.read_max_file(".tmp.max")
+            if len(aero_data["phs"])>2:
+                (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(aero_data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
+                s1_aero = np.sqrt(chisq/dof)*aero_data["phs"][0][1][1]
+            else: s1_aero = 0
+        else: aero_data,s1_aero = {"phs":[["none",[0.,0.]]]},0
+
         self.parent.save_max_file(".tmp.max") #now read all data and change s1 to match above
         comment,header,data = pymax.read_max_file(".tmp.max")
         if len(data["phs"])==0: return
         for i in range(len(data["phs"])):
-            if data["phs"][i][1][1]==ship_data["phs"][0][1][1]:
+            if len(ship_data["phs"]) > 0 and data["phs"][i][1][1]==ship_data["phs"][0][1][1]:
                 data["phs"][i][1][1] = s1_ship
-            elif data["phs"][i][1][1]==aero_data["phs"][0][1][1]:
+            elif len(aero_data["phs"]) > 0 and data["phs"][i][1][1]==aero_data["phs"][0][1][1]:
                 data["phs"][i][1][1] = s1_aero
 
         (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
-        
+
         #write pole coordinates and 1sigmas to plot for user
+        if phi<0: phi = phi+180
+        elif phi>180: phi = phi%180
         self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+r"%.1f$^\circ$, %.1f$^\circ$, N%.1fE"%(maj_se,min_se,phi)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
         #plot inverted pole
-        self.ax = psk.plot_pole(plon,plat,phi,(chisq/dof)*maj_se,(chisq/dof)*min_se,m=self.ax)
+        self.ax = psk.plot_pole(plon,plat,phi,(chisq/dof)*maj_se,(chisq/dof)*min_se,m=self.ax,zorder=10000)
         #filter deskew_df to only data labeled "good" and plot lunes
+        self.parent.deskew_df = sk.calc_aei(self.parent.deskew_df,*self.parent.get_srf_asf())
         dsk_to_plot = self.parent.deskew_df[self.parent.deskew_df["quality"]=="g"]
         try: self.ax = psk.plot_lunes(dsk_to_plot,self.ax,idx_selected=self.parent.dsk_idx)
         except AttributeError: self.ax = psk.plot_lunes(dsk_to_plot,self.ax) #catch no selected data case
-        os.remove(".tmp.max") #remove the deskew file on disk
+#        os.remove(".tmp.max") #remove the deskew file on disk
 
         #plot any additional poles
         for pole_rec in self.poles_to_plot:
             print(pole_rec)
-            self.ax = psk.plot_pole(*pole_rec[0],color=pole_rec[1],m=self.ax)
+            self.ax = psk.plot_pole(*pole_rec[0],color=pole_rec[1],m=self.ax,zorder=1000)
 
         #set the map extent to match user input
         print([float(self.min_lon_box.GetValue()),float(self.max_lon_box.GetValue()),float(self.min_lat_box.GetValue()),float(self.max_lat_box.GetValue())])
@@ -208,6 +225,11 @@ class RTPWindow(wx.Frame):
     def on_close_main(self,event):
         self.parent.rtp_open=False
         self.Destroy()
+
+    ############################Menu Funcions################################
+
+    def on_save_plot(self,event):
+        self.toolbar.save_figure()
 
     ###################Button and Dropdown Functions#########################
 
@@ -358,7 +380,7 @@ class PoleDialog(wx.Dialog):
         self.lblcoords = wx.StaticText(self.panel, label="Coords", pos=(20,20))
         self.tc_lat = wx.TextCtrl(self.panel, value="", pos=(110,20), size=(150,-1))
         self.tc_lon = wx.TextCtrl(self.panel, value="", pos=(110+500/3,20), size=(150,-1))
-        
+
         self.lblell = wx.StaticText(self.panel, label="Unc Ell", pos=(20,60))
         self.tc_a = wx.TextCtrl(self.panel, value="", pos=(110,60), size=(150,-1))
         self.tc_b = wx.TextCtrl(self.panel, value="", pos=(110+500/3,60), size=(150,-1))

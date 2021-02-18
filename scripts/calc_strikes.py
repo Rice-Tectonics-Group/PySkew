@@ -134,7 +134,9 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
             (plat,plon,_,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data)
             print("\t",(plat,plon,maj_se,min_se,phi),chisq,dof)
             scov = ellipse_to_cov(plat,plon,maj_se,min_se,phi)
-            tcov += scov
+            ################################################TEMP - Remove if when done
+            if sz!="Clarion-MahiMahi": tcov += scov
+            ##########################################################################
             dists = []
             for i,row in sz_df.iterrows():
                 geodict = geoid.Inverse(plat,plon,row["inter_lat"],row["inter_lon"])

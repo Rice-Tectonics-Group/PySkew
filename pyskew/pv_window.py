@@ -13,6 +13,7 @@ import matplotlib as mpl
 import matplotlib.path as mpath
 from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
+from spectrum import pmtm,dpss
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
 
@@ -284,6 +285,8 @@ class PVWindow(wx.Frame):
         self.tracers.append(self.ax1.axvline(x,**kwargs))
         self.tracers.append(self.ax2.axvline(x,**kwargs))
         if self.mouse_left_down:
+            myCursor= wx.StockCursor(wx.CURSOR_IBEAM)
+            self.canvas.SetCursor(myCursor)
             self.tracers.append(self.ax0.axvspan(min([self.tmp_new_bounds[0],x]),max([self.tmp_new_bounds[0],x]),color="yellow",alpha=.4))
             self.tracers.append(self.ax1.axvspan(min([self.tmp_new_bounds[0],x]),max([self.tmp_new_bounds[0],x]),color="yellow",alpha=.4))
             self.tracers.append(self.ax2.axvspan(min([self.tmp_new_bounds[0],x]),max([self.tmp_new_bounds[0],x]),color="yellow",alpha=.4))
@@ -335,30 +338,38 @@ class PVWindow(wx.Frame):
             if dsk_row["track_type"]=="aero":
                 if "Ed.lp" in track:
                     other_track = track.replace("Ed.lp","Vd.lp")
+                    total_track = track.replace("Ed.lp","Td.lp")
                     other_phase = dsk_row["phase_shift"]-90
                 elif "Hd.lp" in track:
                     other_track = track.replace("Hd.lp","Vd.lp")
+                    total_track = track.replace("Hd.lp","Td.lp")
                     other_phase = dsk_row["phase_shift"]-90
                 elif "Vd.lp" in track:
                     other_track = track.replace("Vd.lp","Ed.lp")
+                    total_track = track.replace("Vd.lp","Td.lp")
                     if other_track not in self.parent.deskew_df["comp_name"].tolist(): other_track = track.replace("Vd.lp","Hd.lp")
                     other_phase = dsk_row["phase_shift"]+90
                 else: self.parent.user_warning("Improperly named component files should have either Ed.lp, Hd.lp, or Vd.lp got: %s"%track); return
                 oth_row = self.parent.deskew_df[self.parent.deskew_df["comp_name"]==other_track].iloc[0]
-                psk.plot_skewness_data(oth_row,other_phase,self.ax0,xlims=[None,None],color='darkgreen',zorder=2,picker=True,alpha=.7,return_objects=True,flip=True)
 
                 oth_data_path = os.path.join(oth_row["data_dir"],oth_row["comp_name"])
+                tot_data_path = os.path.join(oth_row["data_dir"],total_track) #Should be in same place
+
                 oth_data_df = utl.open_mag_file(oth_data_path)
                 oth_shifted_mag = sk.phase_shift_data(oth_data_df["mag"],other_phase)
                 if np.any(np.diff(projected_distances["dist"])<0): oth_itshifted_mag = np.interp(-synth_dis,-projected_distances["dist"],oth_shifted_mag)
                 else: oth_itshifted_mag = np.interp(synth_dis,projected_distances["dist"],oth_data_df)
                 oth_fitshifted_mag = self.filters[filter_type](oth_itshifted_mag,lowcut,highcut,fs=1/ddis,order=order)
-                self.ax0.plot(synth_dis,oth_fitshifted_mag,color="#299C29",zorder=3,alpha=.6)
+                if filter_type=="None": psk.plot_skewness_data(oth_row,other_phase,self.ax0,xlims=[None,None],color='darkgreen',zorder=2,picker=True,alpha=.7,return_objects=True,flip=True)
+                else: self.ax0.plot(synth_dis,oth_fitshifted_mag,color="#299C29",zorder=3,alpha=.6)
 
-            else: pass
+                tot_data_df = utl.open_mag_file(tot_data_path)
+                if np.any(np.diff(projected_distances["dist"])<0): tot_imag = np.interp(-synth_dis,-projected_distances["dist"],tot_data_df["mag"])
+                else: tot_imag = np.interp(synth_dis,projected_distances["dist"],tot_data_df["mag"])
+                tot_fimag = self.filters[filter_type](tot_imag,lowcut,highcut,fs=1/ddis,order=order)
 
-        psk.plot_skewness_data(dsk_row,dsk_row["phase_shift"],self.ax0,xlims=[None,None],zorder=3,picker=True,return_objects=True,flip=True)
-        self.ax0.plot(synth_dis,fitshifted_mag,color="#7F7D7D",zorder=3,alpha=.6)
+        if filter_type=="None": psk.plot_skewness_data(dsk_row,dsk_row["phase_shift"],self.ax0,xlims=[None,None],zorder=3,picker=True,return_objects=True,flip=True)
+        else: self.ax0.plot(synth_dis,fitshifted_mag,color="#7F7D7D",zorder=3,alpha=.6)
         self.ax0.plot(self.parent.dis_synth,self.parent.synth,'r-',alpha=.4,zorder=1)
         self.ax0.set_ylabel("Magnetic Profiles")
 #        self.ax0.get_xaxis().set_ticklabels([])
@@ -463,19 +474,50 @@ class PVWindow(wx.Frame):
 
         ###################################################Power Figure
 
-        synth_freqs = np.fft.fftfreq(len(synth_dis[left_idx:right_idx]),ddis)
-        tdata_freqs = np.fft.fftfreq(len(shifted_mag[left_idx:right_idx]),ddis)
-        tshifted_freq = np.fft.fft(shifted_mag[left_idx:right_idx])
-        fitshifted_freq = np.fft.fft(fitshifted_mag[left_idx:right_idx])
-        tsynth_freq = np.fft.fft(synth_mag[left_idx:right_idx])
+        N = (right_idx-left_idx) #Length of signal in distance domain
+        NW = 3 #following Parker and O'brien '97 and HJ-Gordon '03 we use a time-bandwith product of 6 (Nw is half)
+        Ns = 5 #Number of points to use in running average smoothing
+
+        #Handle Distance Domain
+#        import pdb; pdb.set_trace()
+        Sk_complex, weights, eigenvalues=pmtm(itshifted_mag[left_idx:right_idx], NW=NW, NFFT=N, show=False)
+        Sk = np.abs(Sk_complex)**2
+        smoothed_tshifted_freq = (np.mean(Sk * np.transpose(weights), axis=0) * ddis)[N//2:][::-1]
+#        smoothed_tshifted_freq = np.convolve(smoothed_tshifted_freq, np.ones((Ns,))/Ns, mode='same') #10 point running average smoothing
+        tdata_freqs = np.linspace(0.0, 1.0/(2.0*ddis), N-N//2) #0 to Nyquest
 
         self.power_ax = self.power_fig.add_subplot(111)
 
-        self.power_ax.plot(tdata_freqs, np.abs(tshifted_freq), color="k")
-        self.power_ax.plot(synth_freqs, np.abs(fitshifted_freq), color="#7F7D7D")
-        self.power_ax.plot(synth_freqs, np.abs(tsynth_freq), color="r")
+        if self.parent.show_other_comp and dsk_row["track_type"]=="aero":
+            Sk_complex, weights, eigenvalues=pmtm(oth_itshifted_mag[left_idx:right_idx], NW=NW, NFFT=N, show=False)
+            Sk = np.abs(Sk_complex)**2
+            oth_smoothed_tshifted_freq = (np.mean(Sk * np.transpose(weights), axis=0) * ddis)[N//2:][::-1]
+#            oth_smoothed_tshifted_freq = np.convolve(oth_smoothed_tshifted_freq, np.ones((Ns,))/Ns, mode='same') #10 point running average smoothing
+            self.power_ax.semilogy(tdata_freqs, oth_smoothed_tshifted_freq, color="darkgreen")
+#            self.power_ax.semilogy(tdata_freqs, oth_smoothed_tshifted_freq+smoothed_tshifted_freq, color="grey")
 
-        self.power_ax.set_xlim(0.0,max(synth_freqs))
+
+            Sk_complex, weights, eigenvalues=pmtm(tot_imag[left_idx:right_idx], NW=NW, NFFT=N, show=False)
+            Sk = np.abs(Sk_complex)**2
+            tot_smoothed_tshifted_freq = (np.mean(Sk * np.transpose(weights), axis=0) * ddis)[N//2:][::-1]
+#            tot_smoothed_tshifted_freq = np.convolve(tot_smoothed_tshifted_freq, np.ones((Ns,))/Ns, mode='same') #10 point running average smoothing
+            self.power_ax.semilogy(tdata_freqs, tot_smoothed_tshifted_freq, color="tab:orange")
+
+        #Old Numpy Method
+#        synth_freqs = np.fft.fftfreq(len(synth_dis[left_idx:right_idx]),ddis)
+#        tdata_freqs = np.fft.fftfreq(len(shifted_mag[left_idx:right_idx]),ddis)
+#        tshifted_freq = np.fft.fft(shifted_mag[left_idx:right_idx])
+#        fitshifted_freq = np.fft.fft(fitshifted_mag[left_idx:right_idx])
+#        tsynth_freq = np.fft.fft(synth_mag[left_idx:right_idx])
+
+        self.power_ax.semilogy(tdata_freqs, smoothed_tshifted_freq, color="k",zorder=100)
+
+#        self.power_ax.semilogy(tdata_freqs, np.abs(tshifted_freq), color="k")
+#        self.power_ax.plot(synth_freqs, np.abs(fitshifted_freq), color="#7F7D7D")
+#        self.power_ax.plot(synth_freqs, np.abs(tsynth_freq), color="r")
+
+        self.power_ax.set_xlim(0.0,0.4)
+        self.power_ax.set_ylim(1e-1,1e6)
 
 def phase_diff_func(a1,a2):
 #    a = np.rad2deg((rconvert_360((a1-a2)/2)))

@@ -380,7 +380,7 @@ class PoleDialog(wx.Dialog):
         self.lblcoords = wx.StaticText(self.panel, label="Coords", pos=(20,20))
         self.tc_lat = wx.TextCtrl(self.panel, value="", pos=(110,20), size=(150,-1))
         self.tc_lon = wx.TextCtrl(self.panel, value="", pos=(110+500/3,20), size=(150,-1))
-        
+
         self.lblell = wx.StaticText(self.panel, label="Unc Ell", pos=(20,60))
         self.tc_a = wx.TextCtrl(self.panel, value="", pos=(110,60), size=(150,-1))
         self.tc_b = wx.TextCtrl(self.panel, value="", pos=(110+500/3,60), size=(150,-1))

@@ -56,6 +56,13 @@ def read_idx_from_string(idx_str):
     flat_idx = list(map(float,idx_str.replace("[","").replace("(","").replace("]","").replace(")","").replace("'","").split(",")))
     return (((flat_idx[0],flat_idx[1]),(flat_idx[2],flat_idx[3])),(int(flat_idx[4]),int(flat_idx[5])))
 
+def sphere_dis(lat0,lon0,lat1,lon1):
+    rlat0,rlon0,rlat1,rlon1 = np.deg2rad([lat0,lon0,lat1,lon1])
+    rdlon = abs(rlon0-rlon1)
+    num = np.sqrt((np.cos(rlat1)*np.sin(rdlon))**2 + (np.cos(rlat0)*np.sin(rlat1) - np.sin(rlat0)*np.cos(rlat1)*np.cos(rdlon))**2)
+    den = np.sin(rlat0)*np.sin(rlat1) + np.cos(rlat0)*np.cos(rlat1)*np.cos(rdlon)
+    return np.rad2deg(np.arctan2(num,den))
+
 def calc_projected_distance(inter_lon,inter_lat,lons,lats,strike,geoid=Geodesic.WGS84):
     geodesic_solutions = [geoid.Inverse(lat,convert_to_0_360(lon),float(inter_lat),convert_to_0_360(inter_lon)) for lat,lon in zip(lats,lons)]
 

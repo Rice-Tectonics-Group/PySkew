@@ -9,6 +9,7 @@ import wx.lib.buttons as buttons
 import wx.lib.mixins.listctrl  as  listmix
 import matplotlib as mpl
 import matplotlib.path as mpath
+import matplotlib.patheffects as pe
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
@@ -142,8 +143,19 @@ class EAIWindow(wx.Frame):
         self.m_plot_legend.Check()
         self.Bind(wx.EVT_MENU, self.on_plot_legend, self.m_plot_legend)
 
+        self.m_show_selected = menu_view.AppendCheckItem(-1, "&Show Selected\tCtrl-R", "PlotSel")
+        self.m_show_selected.Check()
+        self.Bind(wx.EVT_MENU, self.on_show_selected, self.m_show_selected)
+
+        self.m_show_bad = menu_view.AppendCheckItem(-1, "&Show Unused Data\tCtrl-B", "PlotUD")
+        self.m_show_bad.Check()
+        self.Bind(wx.EVT_MENU, self.on_show_bad, self.m_show_bad)
+
         self.m_show_both_aero = menu_view.AppendCheckItem(-1, "&Show Both Components\tCtrl-A", "ShowBothComp")
         self.Bind(wx.EVT_MENU, self.on_show_both_components, self.m_show_both_aero)
+
+        self.m_show_paleo_eq = menu_view.AppendCheckItem(-1, "&Show Paleo-Equator\tCtrl-E", "ShowPE")
+        self.Bind(wx.EVT_MENU, self.on_show_paleo_eq, self.m_show_paleo_eq)
 
         self.m_change_fontsize = menu_view.Append(-1, "&Change fontsize", "")
         self.Bind(wx.EVT_MENU, self.on_change_fontsize, self.m_change_fontsize)
@@ -194,7 +206,7 @@ class EAIWindow(wx.Frame):
         cdlg = wx.ColourDialog(self)
         if cdlg.ShowModal() == wx.ID_OK:
             new_color = np.array(cdlg.GetColourData().GetColour().Get())/255
-        else: color = "cyan"
+        else: return
         cdlg.Destroy()
         self.poles.append([new_pole,tuple(new_color)]) #add new pole to list
         self.update() #update figure
@@ -209,7 +221,7 @@ class EAIWindow(wx.Frame):
         if cdlg.ShowModal() == wx.ID_OK:
             new_color = np.array(cdlg.GetColourData().GetColour().Get())/255
             new_fz.append(new_color)
-        else: color = "cyan"
+        else: return
         cdlg.Destroy()
         self.fzs.append(new_fz) #add new pole to list
         self.update() #update figure
@@ -218,6 +230,15 @@ class EAIWindow(wx.Frame):
         self.update()
 
     def on_plot_legend(self,event):
+        self.update()
+
+    def on_show_selected(self,event):
+        self.update()
+
+    def on_show_bad(self,event):
+        self.update()
+
+    def on_show_paleo_eq(self,event):
         self.update()
 
     ###########################Figure Funcions###############################
@@ -350,7 +371,13 @@ class EAIWindow(wx.Frame):
                 incs = np.arctan2(2*np.tan(np.deg2rad(90.-np.array(colats))),1.)
                 eis += np.rad2deg(np.arctan2(np.tan(incs),np.sin(np.deg2rad(sz_df["strike"].mean() + 180 - np.array(decs))))).tolist()
                 lats_used += sz_lats.tolist()
-            self.ax.plot(lats_used,eis,color=color)
+            self.ax.plot(lats_used,eis,color=color,linewidth=1,zorder=1000)
+            self.ax.plot(lats_used,eis,color="k",linewidth=1.5,zorder=999)
+            if self.m_show_paleo_eq.IsChecked():
+                idx_min = np.abs(eis).argmin()
+                path_effects=[pe.Stroke(linewidth=1.5, foreground='k'), pe.Normal()]
+                self.ax.axvline(lats_used[idx_min],color=color,linestyle="--",linewidth=1.0,zorder=998,path_effects=path_effects)
+                self.ax.axhline(eis[idx_min],color=color,linestyle="--",linewidth=1.0,zorder=996,path_effects=path_effects)
 
         for fz in self.fzs:
             self.ax.axvline(fz[1],color=fz[-1],linestyle="--")
@@ -381,9 +408,11 @@ class EAIWindow(wx.Frame):
                 else: aei = row["aei"]
             else: aei = row["aei"]; marker = "o"
 
-            if row["quality"]!="g": marker = "X"
+            if row["quality"]!="g":
+                if not self.m_show_bad.IsChecked(): continue
+                else: marker = "X"
 
-            if dsk_idx==i or other_idx==dsk_idx: self.ax.scatter(row["inter_lat"],aei,marker=marker,facecolor="None",edgecolor=(float(row["r"]),float(row["g"]),float(row["b"])))
+            if self.m_show_selected.IsChecked() and (dsk_idx==i or other_idx==dsk_idx): self.ax.scatter(row["inter_lat"],aei,marker=marker,facecolor="None",edgecolor=(float(row["r"]),float(row["g"]),float(row["b"])))
             else: self.ax.scatter(row["inter_lat"],aei,marker=marker,facecolor=(float(row["r"]),float(row["g"]),float(row["b"])),edgecolor="k")
 
             #************************************** Experimental section **************************************
@@ -408,11 +437,18 @@ class EAIWindow(wx.Frame):
             else:
                 self.ax.scatter([],[],color="grey",label="Vertical Aeromag Data",marker="^")
                 self.ax.scatter([],[],color="grey",label="East Aeromag Data",marker=">")
-            self.ax.scatter([],[],edgecolor="grey",facecolor="None",label="Selected Data",marker="s")
+            if self.m_show_selected.IsChecked(): self.ax.scatter([],[],edgecolor="grey",facecolor="None",label="Selected Data",marker="s")
             self.ax.legend(fontsize=self.fontsize, framealpha=.7)
 #            handles,labels = self.ax.get_legend_handles_labels()
 #            by_label = OrderedDict(zip(labels, handles))
 #            self.ax.legend(by_label.values(), by_label.keys(), fontsize=self.fontsize, framealpha=.7)
+        min_lat,max_lat = round_near10(dsk_df["inter_lat"].min()-5),round_near10(dsk_df["inter_lat"].max()+5)
+        min_eai,max_eai = round_near10(dsk_df["eai"].min()-5),round_near10(dsk_df["eai"].max()+5)
+        self.ax.set_yticks(np.arange(min_eai,max_eai+2,2),minor=True)
+        self.ax.set_yticks(np.arange(min_eai,max_eai+10,10))
+        self.ax.set_xticks(np.arange(min_lat,max_lat+2,2),minor=True)
+        self.ax.set_xticks(np.arange(min_lat,max_lat+10,10))
+
 
         self.ax.set_xlabel("Present Latitude")
         self.ax.set_ylabel("Effective Remanent Inclination")

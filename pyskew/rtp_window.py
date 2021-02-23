@@ -18,6 +18,7 @@ from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as Navigat
 from functools import cmp_to_key
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
+import scripts.calc_strikes as cs
 #import pyskew.plot_gravity as pg
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 
@@ -153,8 +154,18 @@ class RTPWindow(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_close_main, m_exit)
 
         #-----------------
+        # File Menu
+        #-----------------
+
+        menu_edit = wx.Menu()
+
+        self.m_add_strike_unc = menu_edit.AppendCheckItem(-1, "&Add Strike Uncertainty\tCtrl-R", "CalcStrikes")
+        self.Bind(wx.EVT_MENU, self.on_add_strike_unc, self.m_add_strike_unc)
+
+        #-----------------
 
         self.menubar.Append(menu_file, "&File")
+        self.menubar.Append(menu_edit, "&Edit")
         self.SetMenuBar(self.menubar)
 
     def configure(self):
@@ -197,6 +208,9 @@ class RTPWindow(wx.Frame):
                 data["phs"][i][1][1] = s1_aero
 
         (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
+        if self.m_add_strike_unc.IsChecked(): #If strike unc is to be included calculate it!!!
+            (maj_se,min_se,phi) = cs.calc_strikes_and_add_err(self.parent.deskew_path,mlat=plat,mlon=plon,ma=maj_se,mb=min_se,mphi=phi,geoid=self.geoid,outfile=".tmp_dsk_cs",filter_by_quality=True,visualize=False)
+            os.remove(".tmp_dsk_cs")
 
         #write pole coordinates and 1sigmas to plot for user
         if phi<0: phi = phi+180
@@ -230,6 +244,9 @@ class RTPWindow(wx.Frame):
 
     def on_save_plot(self,event):
         self.toolbar.save_figure()
+
+    def on_add_strike_unc(self,event):
+        self.update()
 
     ###################Button and Dropdown Functions#########################
 

@@ -18,7 +18,8 @@ from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as Navigat
 from functools import cmp_to_key
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
-import scripts.calc_strikes as cs
+sys.path.append("../scripts/")
+import calc_strikes as cs
 #import pyskew.plot_gravity as pg
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 

@@ -347,7 +347,7 @@ class EAIWindow(wx.Frame):
 
         for pole,color in self.poles:
             lats = np.linspace(round_near10(dsk_df["inter_lat"].min()-5),round_near10(dsk_df["inter_lat"].max()+5),1000)
-            eis,lats_used,last_lat_break = [],[],None
+            eis,s1_eis,lats_used,last_lat_break = [],[],[],None
             for i,sz in enumerate(sz_names.tolist()):
                 sz_df = sorted_dsk_df[sorted_dsk_df['sz_name'] == sz]
                 #decide which lats to use
@@ -364,15 +364,25 @@ class EAIWindow(wx.Frame):
                 else: sz_lats = lats[(last_lat_break<=lats) & (lats<=lat_break)]
                 last_lat_break = lat_break
                 lon = sz_df["inter_lon"].mean()
-                colats,decs = [],[]
+                colats,s1_colats,decs,s1_decs = [],[],[],[]
+                phi,a,b = pole[2:]
                 for lat in sz_lats:
                     geodict = self.geoid.Inverse(pole[1], pole[0], lat, lon)
-                    colats.append(geodict["a12"]); decs.append(geodict["azi2"])
+                    s1_colat = (a*b)/np.sqrt((b*np.cos(np.deg2rad(phi-geodict["azi1"])))**2 + (a*np.sin(np.deg2rad(phi-geodict["azi1"])))**2)
+                    s1_dec = ((a*b)/np.sqrt((b*np.cos(np.deg2rad(phi-geodict["azi1"]-90)))**2 + (a*np.sin(np.deg2rad(phi-geodict["azi1"]-90)))**2))/np.sin(np.deg2rad(geodict["a12"]))
+                    colats.append(geodict["a12"]); s1_colats.append(np.deg2rad(s1_colat)); decs.append(geodict["azi2"]), s1_decs.append(np.deg2rad(s1_dec))
                 incs = np.arctan2(2*np.tan(np.deg2rad(90.-np.array(colats))),1.)
+                dincs_dcolats = ((-2*((1/np.cos(np.deg2rad(90-np.array(colats))))**2))/(4*(np.tan(np.deg2rad(90-np.array(colats)))**2) + 1))
+                var_incs = (np.array(s1_colats)**2)*(dincs_dcolats**2)
                 eis += np.rad2deg(np.arctan2(np.tan(incs),np.sin(np.deg2rad(sz_df["strike"].mean() + 180 - np.array(decs))))).tolist()
+                rproj_ang = np.deg2rad(sz_df["strike"].mean() + 180 - np.array(decs))
+                dei_dinc = ((1/np.cos(incs))**2 * (1/np.sin(rproj_ang)))/(np.tan(incs)**2 * (1/np.sin(rproj_ang))**2 + 1)
+                dei_ddec = (np.tan(incs) * (1/np.tan(rproj_ang)) * (1/np.sin(rproj_ang)))/(np.tan(incs)**2 * (1/np.sin(rproj_ang))**2 + 1)
+                s1_eis += np.rad2deg(np.sqrt(var_incs*(dei_dinc**2) + (np.array(s1_decs)**2)*(dei_ddec**2))).tolist()
                 lats_used += sz_lats.tolist()
             self.ax.plot(lats_used,eis,color=color,linewidth=1,zorder=1000)
             self.ax.plot(lats_used,eis,color="k",linewidth=1.5,zorder=999)
+            self.ax.fill_between(lats_used,np.array(eis)-np.array(s1_eis),np.array(eis)+np.array(s1_eis),color=color,zorder=998,alpha=.3)
             if self.m_show_paleo_eq.IsChecked():
                 idx_min = np.abs(eis).argmin()
                 path_effects=[pe.Stroke(linewidth=1.5, foreground='k'), pe.Normal()]
@@ -443,7 +453,7 @@ class EAIWindow(wx.Frame):
 #            by_label = OrderedDict(zip(labels, handles))
 #            self.ax.legend(by_label.values(), by_label.keys(), fontsize=self.fontsize, framealpha=.7)
         min_lat,max_lat = round_near10(dsk_df["inter_lat"].min()-5),round_near10(dsk_df["inter_lat"].max()+5)
-        min_eai,max_eai = round_near10(dsk_df["eai"].min()-5),round_near10(dsk_df["eai"].max()+5)
+        min_eai,max_eai = round_near10(dsk_df["aei"].min()-5),round_near10(dsk_df["aei"].max()+5)
         self.ax.set_yticks(np.arange(min_eai,max_eai+2,2),minor=True)
         self.ax.set_yticks(np.arange(min_eai,max_eai+10,10))
         self.ax.set_xticks(np.arange(min_lat,max_lat+2,2),minor=True)

@@ -110,7 +110,7 @@ def open_deskew_file(deskew_path):
 def write_deskew_file(deskew_path,deskew_df): #need to implement with , float_format="%.3f" for prettyness
     quality_comp_names = np.where(deskew_df["quality"]=="b", "#" + deskew_df["comp_name"], deskew_df["comp_name"])
     dsk_to_save = deskew_df.drop("quality",axis=1)
-    dsk_to_save["comp_names"] = quality_comp_names
+    dsk_to_save["comp_name"] = quality_comp_names
     dsk_to_save.to_csv(deskew_path,sep="\t",index=False,float_format="%.3f")
 
 def open_mag_file(mag_file):

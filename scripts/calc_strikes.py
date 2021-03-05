@@ -28,8 +28,11 @@ Flags
            creates images visualizing the fit to the sites
 -fg : str, optional
            allows user to provide the path to the .tiff gravity files to render under fit
--cc : flaot, optional
+-cc : float, optional
            sets the convergence criteria for the maximum likelihood pole finder
+-ep : float, optional
+           changes opperation to predict strikes solely from the input euler pole rather than from the data will
+           report the degree to which the data predicted strikes agree with the input euler pole as well
 
 Raises
 ----------
@@ -50,7 +53,7 @@ import pyskew.plot_gravity as pg
 from time import time
 from rasterio.enums import Resampling
 
-def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geodesic(6371,0.0),outfile=None,filter_by_quality=False,visualize=False,visual_padding=3.,down_sample_factor=5.,sandwell_files_path="../raw_data/gravity/Sandwell",convergence_level=0.01):
+def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geodesic(6371,0.0),outfile=None,filter_by_quality=False,visualize=False,visual_padding=3.,down_sample_factor=5.,sandwell_files_path="../raw_data/gravity/Sandwell",convergence_level=0.01,euler_pole=None):
     """
     Function that does the heavy lifting calculating the great circles and associated strikes
     for anomaly crossings. Will also add average strike uncertainty to a paleomagnetic pole
@@ -82,6 +85,9 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
             path to the files containing the sandwell gravity grid to render in .tiff format
     convergence_level : float, optional
             the convergence criteria to pass to the function finding the maximum likelihood pole
+    euler_pole : 2 floats, optional
+           changes opperation to predict strikes solely from the input euler pole rather than from the data will
+           report the degree to which the data predicted strikes agree with the input euler pole as well
 
     Returns
     ----------
@@ -98,7 +104,7 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
     if filter_by_quality:
         bad_dsk_data = dsk_df[dsk_df["quality"]!="g"]
         dsk_df = dsk_df[dsk_df["quality"]=="g"]
-    tcov = np.zeros([3,3])
+    tcov,strike_diffs = np.zeros([3,3]),[]
     szs_to_calc = dsk_df["sz_name"].drop_duplicates()#.drop(24) #removes MahiMahi
 
     for sz in szs_to_calc:
@@ -144,12 +150,23 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
             tcov += scov
             dists = []
             for i,row in sz_df.iterrows():
-                geodict = geoid.Inverse(plat,plon,row["inter_lat"],row["inter_lon"])
-                strike = geodict["azi2"]+90
+                if not isinstance(euler_pole,type(None)):
+                    geodict = geoid.Inverse(*euler_pole,row["inter_lat"],row["inter_lon"])
+                    pgeodict = geoid.Inverse(plat,plon,row["inter_lat"],row["inter_lon"])
+                    strike = pstrike = geodict["azi2"]
+                    pstrike = pgeodict["azi2"]+90
+                    if pstrike < 0: pstrike += 180
+                    strike_diff = abs(strike-pstrike)
+                    if strike_diff>90: strike_diff = abs(180-strike_diff)
+                    strike_diffs.append(strike_diff)
+                else:
+                    geodict = geoid.Inverse(plat,plon,row["inter_lat"],row["inter_lon"])
+                    strike = geodict["azi2"]+90
                 dists.append(geodict["a12"])
                 if strike < 0: strike += 180
                 dsk_df.at[i,"strike"] = strike
-                print("\t\t",row["comp_name"], strike)
+                if not isinstance(euler_pole,type(None)): print("\t\t",row["comp_name"],"\n","\t\t\tEuler Pole Strike: ", strike,"\n\t\t\tPredicted Strike: ",pstrike)
+                else: print("\t\t",row["comp_name"], strike)
 
             if visualize:
                 pdis = np.mean(dists)
@@ -179,6 +196,8 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
     (mlat,mlon),totcov = cart2latlon(mx,my,mz,mcov+tcov/len(szs_to_calc))
     full_unc = cov_to_ellipse(mlat,mlon,totcov)
     print("Full Uncertainty: ",full_unc)
+    if not isinstance(euler_pole,type(None)):
+        print("Mean, Median, Min, Max Strike Differences: ",sum(strike_diffs)/len(strike_diffs),np.median(strike_diffs),min(strike_diffs),max(strike_diffs))
 
     if isinstance(outfile,type(None)): outfile = os.path.join(os.path.dirname(dsk_path),"strike_cor_"+os.path.basename(dsk_path))
     print("Writing to %s"%str(outfile))
@@ -210,5 +229,7 @@ if __name__=="__main__":
         kwargs["sandwell_files_path"] = sys.argv[sys.argv.index("-fg")+1]
     if "-cc" in sys.argv:
         kwargs["convergence_level"] = float(sys.argv[sys.argv.index("-cc")+1])
+    if "-ep" in sys.argv:
+        kwargs["euler_pole"] = [float(sys.argv[sys.argv.index("-ep")+1]),float(sys.argv[sys.argv.index("-ep")+2])]
 
     calc_strikes_and_add_err(sys.argv[1],**kwargs)

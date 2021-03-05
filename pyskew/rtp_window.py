@@ -210,7 +210,7 @@ class RTPWindow(wx.Frame):
 
         (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
         if self.m_add_strike_unc.IsChecked(): #If strike unc is to be included calculate it!!!
-            (maj_se,min_se,phi) = cs.calc_strikes_and_add_err(self.parent.deskew_path,mlat=plat,mlon=plon,ma=maj_se,mb=min_se,mphi=phi,geoid=self.geoid,outfile=".tmp_dsk_cs",filter_by_quality=True,visualize=False)
+            (maj_se,min_se,phi) = cs.calc_strikes_and_add_err(self.parent.deskew_path,mlat=plat,mlon=plon,ma=maj_se,mb=min_se,mphi=phi,geoid=self.geoid,outfile=".tmp_dsk_cs",filter_by_quality=True,visualize=False,convergence_level=1e-5)
             os.remove(".tmp_dsk_cs")
 
         #write pole coordinates and 1sigmas to plot for user

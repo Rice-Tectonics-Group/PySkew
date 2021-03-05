@@ -83,6 +83,8 @@ class DetrendWindow(wx.Frame):
     def on_close_main(self,event):
         self.parent.dtw=None
         self.parent.dtw_open=False
+        try: self.line.remove()
+        except AttributeError as e: pass
         self.parent.update(event)
         self.Destroy()
 

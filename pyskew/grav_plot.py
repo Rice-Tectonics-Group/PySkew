@@ -36,10 +36,14 @@ if "-d" in sys.argv: down_sample_factor = float(sys.argv[sys.argv.index("-d")+1]
 else: down_sample_factor = 10
 if "-swf" in sys.argv: sandwell_files_path = sys.argv[sys.argv.index("-swf")+1]
 else: sandwell_files_path = "../raw_data/gravity/Sandwell"
+if "-rb" in sys.argv: remove_bad_data = True
+else: remove_bad_data = False
 center_lon = 180
 resolution = "10m" #options: 10m, 50m, 110m
 landcolor = ""
 ax_pos = 111
+# Define the ellipsoid
+geod = Geodesic(6371000.,0.0) #Radius in meters
 
 # Create map elements
 fig = plt.figure(figsize=(16,9),dpi=100)
@@ -118,13 +122,11 @@ while running:
         print("Plotting Tracks: ")
         deskew,deskew_tracks,deskew_fill = utl.open_deskew_file(dsk_path),[],[]
         for j,(i,row) in enumerate(deskew.iterrows()):
+            if remove_bad_data and row["quality"]!="g": continue
             # Read in deskewed profile
             # This is hard-coded now. It will be updated to take a list of profiles in the future
             dskd = utl.open_mag_file(os.path.join(row['data_dir'], row["comp_name"]))
             print("\tPlotting: ", row["comp_name"])
-
-            # Define the ellipsoid
-            geod = Geodesic.WGS84
 
             # Define the angle along which to project
             perp = row["strike"]-180
@@ -185,7 +187,7 @@ while running:
         print("Plotting Gravity")
         start_time = time()
         print("Grid Sizes: ",all_lons.shape,all_lats.shape,all_grav.shape)
-        fcm = ax.contourf(all_lons, all_lats, all_grav, 60, cmap="Blues_r", alpha=.75, transform=ccrs.PlateCarree(), zorder=0, vmin=0, vmax=255)
+        fcm = ax.contourf(all_lons, all_lats, all_grav, 51, cmap="Blues_r", alpha=.75, transform=ccrs.PlateCarree(), zorder=0, vmin=0, vmax=255)
         print("Runtime: ",time()-start_time)
 
         ax.set_extent(window, ccrs.PlateCarree())

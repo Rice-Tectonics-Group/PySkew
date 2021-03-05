@@ -626,7 +626,7 @@ class SynthMagGUI(wx.Frame):
 
                 #Data Update if there's a polynomial fit
                 if self.dtw_open: self.dtw.on_plot_btn(-1)
-                else: self.dtw.line[0].remove()
+#                else: self.dtw.line[0].remove()
             except (AttributeError,ValueError) as e: pass
 
         if self.update_synth:

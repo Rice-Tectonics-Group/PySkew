@@ -21,7 +21,7 @@ from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as Navigat
 
 class SynthMagGUI(wx.Frame):
 
-    __version__ = "V0.3.2"
+    __version__ = "V0.4.0"
 
     #########################Init Funcions#############################
 

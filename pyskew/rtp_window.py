@@ -163,6 +163,9 @@ class RTPWindow(wx.Frame):
         self.m_add_strike_unc = menu_edit.AppendCheckItem(-1, "&Add Strike Uncertainty\tCtrl-R", "CalcStrikes")
         self.Bind(wx.EVT_MENU, self.on_add_strike_unc, self.m_add_strike_unc)
 
+        self.m_solve_askw = menu_edit.AppendCheckItem(-1, "&Solve for Anomalous Skewness\tCtrl-A-R", "SolveAskw")
+        self.Bind(wx.EVT_MENU, self.on_solve_askw, self.m_solve_askw)
+
         #-----------------
 
         self.menubar.Append(menu_file, "&File")
@@ -208,7 +211,8 @@ class RTPWindow(wx.Frame):
             elif len(aero_data["phs"]) > 0 and data["phs"][i][1][1]==aero_data["phs"][0][1][1]:
                 data["phs"][i][1][1] = s1_aero
 
-        (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment)
+        if self.m_solve_askw.IsChecked(): (plat,plon,pmag,askw,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment, solve_anom_skew=self.m_solve_askw.IsChecked())
+        else: (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment, solve_anom_skew=self.m_solve_askw.IsChecked())
         if self.m_add_strike_unc.IsChecked(): #If strike unc is to be included calculate it!!!
             (maj_se,min_se,phi) = cs.calc_strikes_and_add_err(self.parent.deskew_path,mlat=plat,mlon=plon,ma=maj_se,mb=min_se,mphi=phi,geoid=self.geoid,outfile=".tmp_dsk_cs",filter_by_quality=True,visualize=False,convergence_level=1e-5)
             os.remove(".tmp_dsk_cs")
@@ -216,7 +220,8 @@ class RTPWindow(wx.Frame):
         #write pole coordinates and 1sigmas to plot for user
         if phi<0: phi = phi+180
         elif phi>180: phi = phi%180
-        self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+r"%.1f$^\circ$, %.1f$^\circ$, N%.1fE"%(maj_se,min_se,phi)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
+        if self.m_solve_askw.IsChecked(): self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+"Anom. Skw. = %.1f"%askw+"\n"+r"%.1f$^\circ$, %.1f$^\circ$, N%.1fE"%(maj_se,min_se,phi)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
+        else: self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+r"%.1f$^\circ$, %.1f$^\circ$, N%.1fE"%(maj_se,min_se,phi)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
         #plot inverted pole
         self.ax = psk.plot_pole(plon,plat,phi,(chisq/dof)*maj_se,(chisq/dof)*min_se,m=self.ax,zorder=10000)
         #filter deskew_df to only data labeled "good" and plot lunes
@@ -247,6 +252,9 @@ class RTPWindow(wx.Frame):
         self.toolbar.save_figure()
 
     def on_add_strike_unc(self,event):
+        self.update()
+
+    def on_solve_askw(self,event):
         self.update()
 
     ###################Button and Dropdown Functions#########################

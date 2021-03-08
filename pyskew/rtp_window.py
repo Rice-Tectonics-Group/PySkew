@@ -220,7 +220,7 @@ class RTPWindow(wx.Frame):
         #write pole coordinates and 1sigmas to plot for user
         if phi<0: phi = phi+180
         elif phi>180: phi = phi%180
-        if self.m_solve_askw.IsChecked(): self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+"Anom. Skw. = %.1f"%askw+"\n"+r"%.1f$^\circ$, %.1f$^\circ$, N%.1fE"%(maj_se,min_se,phi)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
+        if self.m_solve_askw.IsChecked(): self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+r"%.1f$^\circ$, %.1f$^\circ$, N%.1fE"%(maj_se,min_se,phi)+"\n"+"Anom. Skw. = %.1f"%askw+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
         else: self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+r"%.1f$^\circ$, %.1f$^\circ$, N%.1fE"%(maj_se,min_se,phi)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
         #plot inverted pole
         self.ax = psk.plot_pole(plon,plat,phi,(chisq/dof)*maj_se,(chisq/dof)*min_se,m=self.ax,zorder=10000)

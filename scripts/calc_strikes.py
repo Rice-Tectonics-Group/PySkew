@@ -30,13 +30,16 @@ Flags
            allows user to provide the path to the .tiff gravity files to render under fit
 -cc : float, optional
            sets the convergence criteria for the maximum likelihood pole finder
--ep : float, optional
+-ep : Even list of floats, optional
            changes opperation to predict strikes solely from the input euler pole rather than from the data will
-           report the degree to which the data predicted strikes agree with the input euler pole as well
+           report the degree to which the data predicted strikes agree with the input euler pole as well. Multipule
+            Euler poles can be passed and estimates based on all will be reported, however, only the last euler
+            pole will be saved in output deskew file
 
 Raises
 ----------
 RuntimeError
+ValueError
 """
 import os,sys
 import numpy as np
@@ -85,9 +88,11 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
             path to the files containing the sandwell gravity grid to render in .tiff format
     convergence_level : float, optional
             the convergence criteria to pass to the function finding the maximum likelihood pole
-    euler_pole : 2 floats, optional
-           changes opperation to predict strikes solely from the input euler pole rather than from the data will
-           report the degree to which the data predicted strikes agree with the input euler pole as well
+    euler_pole : iterable, optional
+            changes opperation to predict strikes solely from the input euler pole rather than from the data will
+            report the degree to which the data predicted strikes agree with the input euler pole as well. Multipule
+            Euler poles can be passed and estimates based on all will be reported, however, only the last euler
+            pole will be saved in output deskew file
 
     Returns
     ----------
@@ -96,6 +101,7 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
     Raises
     ----------
     RuntimeError
+    ValueError
     """
     (mx,my,mz),mcov = latlon2cart(mlat,mlon,ellipse_to_cov(mlat,mlon,ma,mb,mphi))
 
@@ -106,6 +112,11 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
         dsk_df = dsk_df[dsk_df["quality"]=="g"]
     tcov,strike_diffs = np.zeros([3,3]),[]
     szs_to_calc = dsk_df["sz_name"].drop_duplicates()#.drop(24) #removes MahiMahi
+
+    if isinstance(euler_pole,type(None)) or len(euler_pole)==0: euler_poles = [None]
+    elif len(euler_pole)==2 and (isinstance(euler_pole[0],float) or isinstance(euler_pole[0],int)): euler_poles = [euler_pole]
+    elif len(euler_pole)>0 and (isinstance(euler_pole[0],list) or isinstance(euler_pole[0],tuple)): euler_poles = euler_pole
+    else: raise ValueError("Euler pole must be None or either a list of euler poles which are length=2 or a single euler pole with lat and lon entries. (i.e. [90,0] or [[90,0],[0,0]])")
 
     for sz in szs_to_calc:
         sz_df = dsk_df[dsk_df["sz_name"]==sz]
@@ -138,8 +149,10 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
                     else: raise RuntimeError("You really shouldn't have gotten here, you have aeromag that is unrecognized")
                 if visualize:
                     if row["quality"]!="g": marker = "X"
-                    else: marker="o"
-                    ax.scatter(row["inter_lon"],row["inter_lat"],facecolors=(row["r"],row["g"],row["b"]),edgecolors="k",transform=ccrs.PlateCarree(),marker=marker)
+                    else:
+                        if row["track_type"]=="ship": marker = "o"
+                        else: marker = "s"
+                    ax.scatter(row["inter_lon"],row["inter_lat"],facecolors=(row["r"],row["g"],row["b"]),edgecolors="k",transform=ccrs.PlateCarree(),marker=marker, zorder=100)
                 data["ccl"].append([row["comp_name"],[90.0,0.10,row["inter_lat"],row["inter_lon"]]])
             (plat,plon,_,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data,convergence_level=convergence_level)
             for i in range(len(data["ccl"])):
@@ -148,30 +161,40 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
             print("\t",(plat,plon,maj_se,min_se,phi),chisq,dof)
             (_,_,_),scov = latlon2cart(plat,plon,ellipse_to_cov(plat,plon,maj_se,min_se,phi))
             tcov += scov
-            dists = []
-            for i,row in sz_df.iterrows():
+            for ep_idx,euler_pole in enumerate(euler_poles):
                 if not isinstance(euler_pole,type(None)):
-                    geodict = geoid.Inverse(*euler_pole,row["inter_lat"],row["inter_lon"])
-                    pgeodict = geoid.Inverse(plat,plon,row["inter_lat"],row["inter_lon"])
-                    strike = pstrike = geodict["azi2"]
-                    pstrike = pgeodict["azi2"]+90
-                    if pstrike < 0: pstrike += 180
-                    strike_diff = abs(strike-pstrike)
-                    if strike_diff>90: strike_diff = abs(180-strike_diff)
-                    strike_diffs.append(strike_diff)
-                else:
-                    geodict = geoid.Inverse(plat,plon,row["inter_lat"],row["inter_lon"])
-                    strike = geodict["azi2"]+90
-                dists.append(geodict["a12"])
-                if strike < 0: strike += 180
-                dsk_df.at[i,"strike"] = strike
-                if not isinstance(euler_pole,type(None)): print("\t\t",row["comp_name"],"\n","\t\t\tEuler Pole Strike: ", strike,"\n\t\t\tPredicted Strike: ",pstrike)
-                else: print("\t\t",row["comp_name"], strike)
+                    print("--------------------------------------------------------------------------------")
+                    print("Euler Pole: %.1f, %.1f"%(euler_pole[0],euler_pole[1]))
+                estrikes,dists = [],[]
+                for i,row in sz_df.iterrows():
+                    if not isinstance(euler_pole,type(None)):
+                        geodict = geoid.Inverse(*euler_pole,row["inter_lat"],row["inter_lon"])
+                        pgeodict = geoid.Inverse(plat,plon,row["inter_lat"],row["inter_lon"])
+                        strike = geodict["azi2"]
+                        pstrike = pgeodict["azi2"]+90
+                        if pstrike < 0: pstrike += 180
+                        strike_diff = abs(strike-pstrike)
+                        if strike_diff>90: strike_diff = abs(180-strike_diff)
+                        strike_diffs.append(strike_diff); estrikes.append(geodict["azi1"]+180)
+                    else:
+                        pgeodict = geoid.Inverse(plat,plon,row["inter_lat"],row["inter_lon"])
+                        strike = pgeodict["azi2"]+90
+                    dists.append(pgeodict["a12"])
+                    if strike < 0: strike += 180
+                    dsk_df.at[i,"strike"] = strike
+                    if not isinstance(euler_pole,type(None)): print("\t\t",row["comp_name"],"\n","\t\t\tEuler Pole Strike: ", strike,"\n\t\t\tPredicted Strike: ",pstrike)
+                    else: print("\t\t",row["comp_name"], strike)
 
+                if visualize:
+                    pdis = np.mean(dists)
+                    print("Average Distance to GC Pole: ", pdis)
+                    ax = psk.plot_small_circle(plon,plat,pdis,color = "k", m=ax, geoid=Geodesic(6371.,0.), transform=ccrs.PlateCarree(), alpha=.7, linewidth=5, zorder=1)
+                    if not isinstance(euler_pole,type(None)):
+                        estrike = np.mean(estrikes)
+                        print("Average Azimuth of Sites Relative to EP: ", estrike)
+                        ep_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][(ep_idx%9)+1]
+                        ax = psk.plot_great_circle(euler_pole[1],euler_pole[0],estrike, m=ax, color=ep_color, geoid=Geodesic(6371.,0.), transform=ccrs.PlateCarree(), alpha=.6, linewidth=3, zorder=2)
             if visualize:
-                pdis = np.mean(dists)
-                print("Average Distance to Pole: ", pdis)
-                ax = psk.plot_small_circle(plon,plat,pdis,color = "k",m=ax,geoid=Geodesic(6371.,0.),transform=ccrs.PlateCarree())
                 all_lons,all_lats,all_grav = pg.get_sandwell(window,down_sample_factor,resample_method=Resampling.average,sandwell_files_path=os.path.join(sandwell_files_path,"*.tiff"))
                 print("Plotting Gravity")
                 start_time = time()
@@ -179,7 +202,9 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
                 fcm = ax.contourf(all_lons, all_lats, all_grav, 60, cmap="Blues_r", alpha=.75, transform=ccrs.PlateCarree(), zorder=0, vmin=0, vmax=255)
                 print("Runtime: ",time()-start_time)
                 ax.set_extent(window,ccrs.PlateCarree())
-                fig.savefig("strike_fit_%s"%sz)
+                vis_outpath = os.path.join(os.path.dirname(dsk_path),"strike_fit_%s"%sz)
+                print("Saving: %s"%vis_outpath)
+                fig.savefig(vis_outpath)
 
         else: #under or equal determined case
             strike = geoid.Inverse(sz_df.iloc[0]["inter_lat"],sz_df.iloc[0]["inter_lon"],sz_df.iloc[1]["inter_lat"],sz_df.iloc[1]["inter_lon"])["azi1"]
@@ -193,11 +218,17 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
         dsk_df.sort_values("inter_lat",inplace=True,ascending=False)
 
     print("--------------------------------------")
-    (mlat,mlon),totcov = cart2latlon(mx,my,mz,mcov+tcov/len(szs_to_calc))
+    (mlat,mlon),totcov = cart2latlon(mx,my,mz,mcov+tcov)
     full_unc = cov_to_ellipse(mlat,mlon,totcov)
     print("Full Uncertainty: ",full_unc)
     if not isinstance(euler_pole,type(None)):
         print("Mean, Median, Min, Max Strike Differences: ",sum(strike_diffs)/len(strike_diffs),np.median(strike_diffs),min(strike_diffs),max(strike_diffs))
+        if visualize:
+            fig = plt.figure(figsize=(16,9),dpi=100)
+            ax = fig.add_subplot(111)
+            ax.hist(strike_diffs,bins=np.arange(-5.,5.5,0.5))
+            ax.axvline(sum(strike_diffs)/len(strike_diffs),color="tab:red",linestyle="--")
+            ax.axvline(np.median(strike_diffs),color="tab:orange")
 
     if isinstance(outfile,type(None)): outfile = os.path.join(os.path.dirname(dsk_path),"strike_cor_"+os.path.basename(dsk_path))
     print("Writing to %s"%str(outfile))
@@ -230,6 +261,14 @@ if __name__=="__main__":
     if "-cc" in sys.argv:
         kwargs["convergence_level"] = float(sys.argv[sys.argv.index("-cc")+1])
     if "-ep" in sys.argv:
-        kwargs["euler_pole"] = [float(sys.argv[sys.argv.index("-ep")+1]),float(sys.argv[sys.argv.index("-ep")+2])]
+        kwargs["euler_pole"] = []
+        for e in sys.argv[sys.argv.index("-ep")+1:]:
+            if "-" in e: break
+            else: kwargs["euler_pole"].append(float(e))
+        if len(kwargs["euler_pole"])<2: kwargs["euler_pole"]=None
+        else: kwargs["euler_pole"] = np.array(kwargs["euler_pole"]).reshape([int(len(kwargs["euler_pole"])/2),2]).tolist()
+#        kwargs["euler_pole"] = [float(sys.argv[sys.argv.index("-ep")+1]),float(sys.argv[sys.argv.index("-ep")+2])]
 
     calc_strikes_and_add_err(sys.argv[1],**kwargs)
+
+

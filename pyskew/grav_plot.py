@@ -106,10 +106,16 @@ while running:
         for i,sz_name in enumerate(deskew["sz_name"].drop_duplicates()):
             sz_dsk = deskew[deskew["sz_name"]==sz_name]
             bad_data = sz_dsk[sz_dsk["quality"]!="g"]
+            bad_color = bad_data[["r","g","b"]].to_numpy()
             good_data = sz_dsk[sz_dsk["quality"]=="g"]
-            color = (sz_dsk.iloc[0]["r"],sz_dsk.iloc[0]["g"],sz_dsk.iloc[0]["b"])
-            site_points.append(ax.scatter(utl.convert_to_0_360(bad_data["inter_lon"]), bad_data["inter_lat"], transform=ccrs.PlateCarree(), zorder=10000, s=20, color=color, edgecolor="k", marker="X"))
-            site_points.append(ax.scatter(utl.convert_to_0_360(good_data["inter_lon"]), good_data["inter_lat"], transform=ccrs.PlateCarree(), zorder=10000, s=20, color=color, edgecolor="k"))
+            aero_df = good_data[good_data["track_type"]=="aero"]
+            ship_df = good_data[good_data["track_type"]=="ship"]
+            aero_color = aero_df[["r","g","b"]].to_numpy()
+            ship_color = ship_df[["r","g","b"]].to_numpy()
+#            color = (sz_dsk.iloc[0]["r"],sz_dsk.iloc[0]["g"],sz_dsk.iloc[0]["b"])
+            site_points.append(ax.scatter(utl.convert_to_0_360(bad_data["inter_lon"]), bad_data["inter_lat"], transform=ccrs.PlateCarree(), zorder=10000, s=20, color=bad_color, edgecolor="k", marker="X"))
+            site_points.append(ax.scatter(utl.convert_to_0_360(aero_df["inter_lon"]), aero_df["inter_lat"], transform=ccrs.PlateCarree(), zorder=10000, s=20, color=aero_color, edgecolor="k", marker="s"))
+            site_points.append(ax.scatter(utl.convert_to_0_360(ship_df["inter_lon"]), ship_df["inter_lat"], transform=ccrs.PlateCarree(), zorder=10000, s=20, color=ship_color, edgecolor="k", marker="s"))
 
     if "rt" in inp or inp.split()[0] == "r":
         try:

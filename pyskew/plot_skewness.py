@@ -89,7 +89,7 @@ def plot_gc_from_pole(slat,slon,plat,plon,length=360,error=None,m=None,spacing=1
     m = plot_great_circle(slon,slat,azi_mean,error=azi_a95,length=length,m=m,spacing=spacing,**kwargs)
     return m
 
-def plot_great_circle(plon,plat,azimuth,length=360,error=None,m=None,spacing=1,**kwargs):
+def plot_great_circle(plon,plat,azimuth,length=360,error=None,m=None,geoid=Geodesic.WGS84,spacing=1,transform=ccrs.Geodetic(),**kwargs):
 
     if m==None:
         # Create figure
@@ -100,26 +100,26 @@ def plot_great_circle(plon,plat,azimuth,length=360,error=None,m=None,spacing=1,*
 
     lats,lons = [],[]
     for dis in np.arange(0,length,spacing):
-        geodict = Geodesic.WGS84.ArcDirect(plat,plon,azimuth,dis)
+        geodict = geoid.ArcDirect(plat,plon,azimuth,dis)
         lons.append(geodict["lon2"])
         lats.append(geodict["lat2"])
-    m.plot(lons,lats,transform=ccrs.Geodetic(),**kwargs)
+    m.plot(lons,lats,transform=transform,**kwargs)
 
     if isinstance(error,int) or isinstance(error,float):
         if "linestyle" in kwargs.keys(): kwargs.pop("linestyle")
         lats,lons = [],[]
         for dis in np.arange(0,length,spacing):
-            geodict = Geodesic.WGS84.ArcDirect(plat,plon,azimuth+error,dis)
+            geodict = geoid.ArcDirect(plat,plon,azimuth+error,dis)
             lons.append(geodict["lon2"])
             lats.append(geodict["lat2"])
-        m.plot(lons,lats,transform=ccrs.Geodetic(),linestyle='--',**kwargs)
+        m.plot(lons,lats,transform=transform,linestyle='--',**kwargs)
 
         lats,lons = [],[]
         for dis in np.arange(0,length,spacing):
-            geodict = Geodesic.WGS84.ArcDirect(plat,plon,azimuth-error,dis)
+            geodict = geoid.ArcDirect(plat,plon,azimuth-error,dis)
             lons.append(geodict["lon2"])
             lats.append(geodict["lat2"])
-        m.plot(lons,lats,transform=ccrs.Geodetic(),linestyle='--',**kwargs)
+        m.plot(lons,lats,transform=transform,linestyle='--',**kwargs)
 
     return m
 

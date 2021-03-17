@@ -55,6 +55,7 @@ from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import pyskew.plot_gravity as pg
 from time import time
 from rasterio.enums import Resampling
+from functools import reduce
 
 def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geodesic(6371,0.0),outfile=None,filter_by_quality=False,visualize=False,visual_padding=3.,down_sample_factor=5.,sandwell_files_path="../raw_data/gravity/Sandwell",convergence_level=0.01,euler_pole=None):
     """
@@ -124,7 +125,7 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
 
         if visualize:
             window = [utl.convert_to_0_360(sz_df["inter_lon"].min()-visual_padding),utl.convert_to_0_360(sz_df["inter_lon"].max()+visual_padding),sz_df["inter_lat"].min()-visual_padding,sz_df["inter_lat"].max()+visual_padding]
-            fig = plt.figure(figsize=(16,9),dpi=100)
+            fig = plt.figure(dpi=100)
             proj = ccrs.Mercator(central_longitude=sz_df["inter_lon"].mean())
             ax = fig.add_subplot(111,projection=proj)
             ax.set_xticks(np.arange(0, 370, 10.), crs=ccrs.PlateCarree())
@@ -137,7 +138,9 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
             land = cfeature.NaturalEarthFeature('physical', 'land', "50m", edgecolor="black", facecolor="grey", linewidth=2)
             ax.add_feature(land)
 
-        if len(sz_df.index)>2: #overdetermined case
+        num_sites = (sz_df["track_type"]=="aero").sum()/2 + (sz_df["track_type"]=="ship").sum()
+
+        if num_sites>2: #overdetermined case
             data = {"dec":[],"inc":[],"phs":[],"ell":[],"ccl":[],"azi":[],"amp":[]}
             for i,row in sz_df.iterrows():
                 if row["track_type"]=="aero":
@@ -175,7 +178,8 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
                         if pstrike < 0: pstrike += 180
                         strike_diff = abs(strike-pstrike)
                         if strike_diff>90: strike_diff = abs(180-strike_diff)
-                        strike_diffs.append(strike_diff); estrikes.append(geodict["azi1"]+180)
+                        if len(strike_diffs)<ep_idx+1: strike_diffs.append([])
+                        strike_diffs[ep_idx].append(strike_diff); estrikes.append(geodict["azi1"]+180)
                     else:
                         pgeodict = geoid.Inverse(plat,plon,row["inter_lat"],row["inter_lon"])
                         strike = pgeodict["azi2"]+90
@@ -206,12 +210,14 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
                 print("Saving: %s"%vis_outpath)
                 fig.savefig(vis_outpath)
 
-        else: #under or equal determined case
+        elif num_sites==2: #equal determined case
             strike = geoid.Inverse(sz_df.iloc[0]["inter_lat"],sz_df.iloc[0]["inter_lon"],sz_df.iloc[1]["inter_lat"],sz_df.iloc[1]["inter_lon"])["azi1"]
             if strike < 0: strike += 180
             for i,row in sz_df.iterrows():
                 dsk_df.at[i,"strike"] = strike
                 print("\t",row["comp_name"], strike)
+        else: #under determined case; just ignore
+            pass
 
     if filter_by_quality:
         dsk_df = dsk_df.append(bad_dsk_data)
@@ -222,13 +228,27 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
     full_unc = cov_to_ellipse(mlat,mlon,totcov)
     print("Full Uncertainty: ",full_unc)
     if not isinstance(euler_pole,type(None)):
-        print("Mean, Median, Min, Max Strike Differences: ",sum(strike_diffs)/len(strike_diffs),np.median(strike_diffs),min(strike_diffs),max(strike_diffs))
         if visualize:
-            fig = plt.figure(figsize=(16,9),dpi=100)
+            for ep_idx in range(len(strike_diffs)):
+                print("For EP %d -> Mean, Median, Min, Max Strike Differences: "%ep_idx,sum(strike_diffs[ep_idx])/len(strike_diffs[ep_idx]),np.median(strike_diffs[ep_idx]),min(strike_diffs[ep_idx]),max(strike_diffs[ep_idx]))
+                fig = plt.figure(dpi=100)
+                ax = fig.add_subplot(111)
+                ax.hist(strike_diffs[ep_idx],bins=np.arange(0.,4.2,0.2))
+                ax.axvline(sum(strike_diffs[ep_idx])/len(strike_diffs[ep_idx]),color="tab:red",linestyle="--")
+                ax.axvline(np.median(strike_diffs[ep_idx]),color="tab:orange")
+                vis_outpath = os.path.join(os.path.dirname(dsk_path),"strike_fit_epstats_%d.png"%ep_idx)
+                print("Saving: %s"%vis_outpath)
+                fig.savefig(vis_outpath)
+            all_strike_diffs = reduce(lambda x,y=[]: x+y, strike_diffs)
+            print("For All EP -> Mean, Median, Min, Max Strike Differences: ",sum(all_strike_diffs)/len(all_strike_diffs),np.median(all_strike_diffs),min(all_strike_diffs),max(all_strike_diffs))
+            fig = plt.figure(dpi=100)
             ax = fig.add_subplot(111)
-            ax.hist(strike_diffs,bins=np.arange(-5.,5.5,0.5))
-            ax.axvline(sum(strike_diffs)/len(strike_diffs),color="tab:red",linestyle="--")
-            ax.axvline(np.median(strike_diffs),color="tab:orange")
+            ax.hist(all_strike_diffs,bins=np.arange(0.,4.2,0.2))
+            ax.axvline(sum(all_strike_diffs)/len(all_strike_diffs),color="tab:red",linestyle="--")
+            ax.axvline(np.median(all_strike_diffs),color="tab:orange")
+            vis_outpath = os.path.join(os.path.dirname(dsk_path),"strike_fit_all_epstats.png")
+            print("Saving: %s"%vis_outpath)
+            fig.savefig(vis_outpath)
 
     if isinstance(outfile,type(None)): outfile = os.path.join(os.path.dirname(dsk_path),"strike_cor_"+os.path.basename(dsk_path))
     print("Writing to %s"%str(outfile))

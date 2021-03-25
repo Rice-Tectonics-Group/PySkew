@@ -202,7 +202,7 @@ def plot_north_pole(m):
     m.scatter(0, 90, facecolor='black', edgecolor='black', marker='+', s=30, zorder=120)
     return m
 
-def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=None,pole_text_pos=None,alpha_all=False,filled=True,**kwargs):
+def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=None,pole_text=None,pole_text_pos=None,alpha_all=False,filled=True,**kwargs):
     #a and b should be full axes of the ellipse not semi-axes
 
     if m==None:
@@ -224,7 +224,7 @@ def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=.5,pole_text=Non
             tazi = 90
             geodict=Geodesic.WGS84.ArcDirect(lat,lon,tazi,1)
             plt.text(geodict["lon2"],geodict["lat2"],pole_text,zorder=500,va='top',ha='center',transform=ccrs.PlateCarree())
-    if filled: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, facecolor=color, edgecolor='black', zorder=zorder-1,alpha=alpha)
+    if filled: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, facecolor=color, edgecolor='#00000088', zorder=zorder-1,alpha=alpha)
     else: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, color=color, zorder=zorder-1,alpha=alpha)
 
     return m

@@ -1,6 +1,6 @@
 import os
 import shutil
-import pyskew.rdp
+import pyskew.rdp as rdp
 import pandas as pd
 import numpy as np
 from geographiclib.geodesic import Geodesic
@@ -103,6 +103,7 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
             adf['cor'+col.lstrip('res')] = adf[col].to_numpy()
 
         #iterpolate and round data
+        adf = adf.dropna()
         idf['dis'] = np.arange(adf['dis'].iloc[0],adf['dis'].iloc[-1]+.1,.1) #spacing of 1 km, because I can
         idf['lat'] = np.interp(idf['dis'],adf['dis'],adf['lat'])
         idf['lon'] = np.interp(idf['dis'],adf['dis'],adf['lon'])
@@ -143,7 +144,7 @@ def find_track_cuts(tracks, chrons_info, results_directory, tolerance=1, min_ang
         print(track_name)
 
         #Run find_corners to simplify the path and find the "significant" turns in the track
-        try: points, simplified, idx = find_corners(track+".latlon",tolerance=tolerance,min_angle=np.deg2rad(min_angle))
+        try: points, simplified, idx = rdp.find_corners(track+".latlon",tolerance=tolerance,min_angle=np.deg2rad(min_angle))
         except IOError: print("file not found: %s"%(track+".latlon"));continue
 
         x, y = points.T #get points of track

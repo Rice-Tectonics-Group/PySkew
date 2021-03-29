@@ -24,7 +24,7 @@ def plot_chron_info(chrons_info, m, coord_0_360=False, chron_dir=os.path.join(".
                 if len(entries[0])<2 or len(entries[1])<2: entries=[[],[]]; continue
                 lats = entries[1]
                 lons = entries[0]
-                m.plot(lons,lats,color=chron_color,transform=ccrs.Geodetic(),**kwargs)
+                m.plot(lons,lats,color=chron_color,transform=ccrs.PlateCarree(),**kwargs)
                 entries=[[],[]]
             else:
                 if coord_0_360:
@@ -36,12 +36,12 @@ def plot_chron_info(chrons_info, m, coord_0_360=False, chron_dir=os.path.join(".
             if ccz[str(chron)]:
                 lonlats = np.array(ccz[str(chron)])
                 if coord_0_360: lonlats[:,0] = utl.convert_to_0_360(lonlats[:,0])
-                m.plot(lons,lats,color=chron_color,transform=ccrs.Geodetic(),**kwargs)
+                m.plot(lons,lats,color=chron_color,transform=ccrs.PlateCarree(),**kwargs)
         if str(chron) in gcz.keys():
             if gcz[str(chron)]:
                 lonlats = np.array(gcz[str(chron)])
                 if coord_0_360: lonlats[:,0] = utl.convert_to_0_360(lonlats[:,0])
-                m.plot(lons,lats,color=chron_color,transform=ccrs.Geodetic(),**kwargs)
+                m.plot(lons,lats,color=chron_color,transform=ccrs.PlateCarree(),**kwargs)
 
 def create_basic_map(projection='ortho',resolution='110m',center_lat=0, center_lon=0, min_lat=-80, max_lat=80, stereo_bound_lat=60, label_grid=True, grid_spacing=10, fig=None, ax_pos=111, landcolor="grey", return_all=False,llcrnrlat=-80,urcrnrlat=80,llcrnrlon=-180,urcrnrlon=180):
     #Create Map
@@ -141,7 +141,7 @@ def plot_transit_locations(chron_to_analyse, chrons_info, results_directory, dat
         anom_inter_lon = utl.read_idx_from_string(loc[0])[0][1][0]
         anom_inter_lat = utl.read_idx_from_string(loc[0])[0][1][1]
 #        XYM[0],XYM[1] = crossed_anom_map(anom_inter_lon,anom_inter_lat)
-        data_handle = crossed_anom_map.scatter(anom_inter_lon,anom_inter_lat,facecolors=facecolor,edgecolors=edgecolor,marker=marker,zorder=3,label=label,transform=ccrs.Geodetic())
+        data_handle = crossed_anom_map.scatter(anom_inter_lon,anom_inter_lat,facecolors=facecolor,edgecolors=edgecolor,marker=marker,zorder=3,label=label,transform=ccrs.PlateCarree())
         if loc[1]=='aero' and 'aero' not in handle_types_saved:
             handles.append(data_handle); handle_types_saved.append('aero')
         elif loc[1]=='ship' and 'ship' not in handle_types_saved:
@@ -187,7 +187,7 @@ def plot_tracks(chrons_info, results_directory, tracks=[], track_dir="all_tracks
         lats = list(map(float,dfin['lat'].tolist()))
         lons = list(map(float,dfin['lon'].tolist()))
 
-        aero_track_handle, = aero_track_map.plot(lons,lats,color='k',zorder=3,label=track_name,transform=ccrs.Geodetic())
+        aero_track_handle, = aero_track_map.plot(lons,lats,color='k',zorder=3,label=track_name,transform=ccrs.PlateCarree())
 
         #plot title and labels
         plt.title(track_name)
@@ -214,9 +214,9 @@ def plot_track_cuts(x,y,sx,sy,idx,chrons_info,track_name,results_directory):
 
     #Plot the data
     if len(x)!=len(y) or len(sx)!=len(sy): print("error plotting track on map it probably crosses a pole, opening debugger"); import pdb; pdb.set_trace()
-    handle1, = turning_points_map.plot(y, x, color="slategrey", linestyle="-", label='original path',zorder=1,transform=ccrs.Geodetic())
-    handle2, = turning_points_map.plot(sy, sx, color="black", linestyle=':', label='simplified path',zorder=2,transform=ccrs.Geodetic())
-    handle3, = turning_points_map.plot(sy[idx], sx[idx], 'ro', markersize = 7, label='turning points',zorder=3,transform=ccrs.Geodetic())
+    handle1, = turning_points_map.plot(y, x, color="slategrey", linestyle="-", label='original path',zorder=1,transform=ccrs.PlateCarree())
+    handle2, = turning_points_map.plot(sy, sx, color="black", linestyle=':', label='simplified path',zorder=2,transform=ccrs.PlateCarree())
+    handle3, = turning_points_map.plot(sy[idx], sx[idx], 'ro', markersize = 7, label='turning points',zorder=3,transform=ccrs.PlateCarree())
 
     #Name stuff
     plt.title(track_name)
@@ -250,19 +250,19 @@ def plot_az_strike(track,spreading_zone_file,idx,az,strike,chron_color,chron_nam
 
     gcm = create_basic_map(projection='merc',llcrnrlat=llcrnrlat,urcrnrlat=urcrnrlat,llcrnrlon=llcrnrlon,urcrnrlon=urcrnrlon, fig=fig)
 
-    sz_handle, = gcm.plot(asz[:,0],asz[:,1],color=chron_color,zorder=1,label=chron_name,transform=ccrs.Geodetic())
+    sz_handle, = gcm.plot(asz[:,0],asz[:,1],color=chron_color,zorder=1,label=chron_name,transform=ccrs.PlateCarree())
 
-    gcm_handle, = gcm.plot(at[:,0],at[:,1],color='k',zorder=2,label=os.path.basename(track),transform=ccrs.Geodetic())
+    gcm_handle, = gcm.plot(at[:,0],at[:,1],color='k',zorder=2,label=os.path.basename(track),transform=ccrs.PlateCarree())
 
-    gcm.scatter(at[idx[1][0]][0],at[idx[1][0]][1],color='g',marker='o',s=10,zorder=3,label='nearest intercept',transform=ccrs.Geodetic())
+    gcm.scatter(at[idx[1][0]][0],at[idx[1][0]][1],color='g',marker='o',s=10,zorder=3,label='nearest intercept',transform=ccrs.PlateCarree())
 
-    geodict = Geodesic.WGS84.Direct(float(at[idx[1][0]][1]), float(at[idx[1][0]][0]), float(az), 1000000)
+    geodict = Geodesic(6371000.,0.).Direct(float(at[idx[1][0]][1]), float(at[idx[1][0]][0]), float(az), 1000000)
     b_lon,b_lat = (360+geodict["lon2"])%360, geodict["lat2"]
-    gcm.arrow(b_lon,b_lat, b_lon-at[idx[1][0]][0], b_lat-at[idx[1][0]][1], fc="white", ec="r", linewidth=1, head_width=1, head_length=1, label='azimuth',transform=ccrs.Geodetic())
+    gcm.arrow(b_lon,b_lat, b_lon-at[idx[1][0]][0], b_lat-at[idx[1][0]][1], fc="white", ec="r", linewidth=1, head_width=1, head_length=1, label='azimuth',transform=ccrs.PlateCarree())
 
-    geodict = Geodesic.WGS84.Direct(float(at[idx[1][0]][1]), float(at[idx[1][0]][0]), float(strike), 1000000)
+    geodict = Geodesic(6371000.,0.).Direct(float(at[idx[1][0]][1]), float(at[idx[1][0]][0]), float(strike), 1000000)
     b_lon,b_lat = (360+geodict["lon2"])%360, geodict["lat2"]
-    gcm.arrow(b_lon,b_lat, b_lon-at[idx[1][0]][0], b_lat-at[idx[1][0]][1], fc="white", ec="pink", linewidth=1, head_width=1, head_length=1, label='strike',transform=ccrs.Geodetic())
+    gcm.arrow(b_lon,b_lat, b_lon-at[idx[1][0]][0], b_lat-at[idx[1][0]][1], fc="white", ec="pink", linewidth=1, head_width=1, head_length=1, label='strike',transform=ccrs.PlateCarree())
 
     #plot title and labels
     plt.title(os.path.basename(track))

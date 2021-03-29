@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import rdp
 from pyrot.rot import cart2latlon,latlon2cart

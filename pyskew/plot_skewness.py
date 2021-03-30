@@ -426,17 +426,21 @@ def plot_synthetic(sz_name, anom_age_span, ax=plt.gca(),timescale_path="../raw_d
 #    neg_anom_width = abs(neg_anom_max-neg_anom_min)/2
 #    neg_anom = -(neg_anom_max - neg_anom_width) - center_dis
     dis_syn = np.array(dis_syn) - center_dis
-
-    zln = ax.plot(-dis_syn,np.zeros(len(dis_syn)),'k--')
-    sln = ax.plot(-dis_syn,mag_syn,**kwargs) #reverse because I'm dumb and changed convention
-
     if not clip_on:
-        ax.set_xlim(xlims)
-        start_box = ax.transAxes.transform([0,0])[0]
-        end_box = ax.transAxes.transform([1,0])[0] - start_box
-        clip_patch = Rectangle([start_box,-1e7],end_box,1e9)
-        ax.lines[0].set_clip_path(clip_patch)
-        ax.lines[1].set_clip_path(clip_patch)
+        left_idx = np.abs(dis_syn - xlims[0]).argmin()
+        right_idx = np.abs(dis_syn - xlims[1]).argmin()
+        dis_syn,mag_syn = dis_syn[left_idx:right_idx],mag_syn[left_idx:right_idx]
+
+#    zln = ax.plot(-dis_syn,np.zeros(len(dis_syn)),'k--')
+    sln = ax.plot(-dis_syn,mag_syn, clip_on=clip_on,**kwargs) #reverse because I'm dumb and changed convention
+
+#    if not clip_on:
+#        ax.set_xlim(xlims)
+#        start_box = ax.transAxes.transform([0,0])[0]
+#        end_box = ax.transAxes.transform([1,0])[0] - start_box
+#        clip_patch = Rectangle([start_box,-1e7],end_box,1e9)
+#        ax.lines[0].set_clip_path(clip_patch)
+#        ax.lines[1].set_clip_path(clip_patch)
 
     return min(dis_syn),max(dis_syn)
 
@@ -489,16 +493,20 @@ def plot_skewness_data(deskew_row, phase_shift, ax, xlims=[-500,500], clip_on=Fa
         zcolor = "grey"
         zalpha = .7
     zlinestyle = "--"
-    zln = ax.plot(proj_dist,np.zeros(len(proj_dist)),linestyle=zlinestyle,color=zcolor,alpha=zalpha)
-    sln = ax.plot(proj_dist,shifted_mag,**kwargs)
-
     if not clip_on:
-        ax.set_xlim(xlims)
-        start_box = ax.transAxes.transform([0,0])[0]
-        end_box = ax.transAxes.transform([1,0])[0] - start_box
-        clip_patch = Rectangle([start_box,-1e7],end_box,1e9)
-        ax.lines[0].set_clip_path(clip_patch)
-        ax.lines[1].set_clip_path(clip_patch)
+        left_idx = np.abs(np.array(proj_dist) - xlims[0]).argmin()
+        right_idx = np.abs(np.array(proj_dist) - xlims[1]).argmin()
+        proj_dist,shifted_mag = proj_dist[left_idx:right_idx],shifted_mag[left_idx:right_idx]
+    zln = ax.plot(proj_dist,np.zeros(len(proj_dist)),linestyle=zlinestyle,color=zcolor,alpha=zalpha, clip_on=clip_on)
+    sln = ax.plot(proj_dist,shifted_mag, clip_on=clip_on,**kwargs)
+
+#    if not clip_on:
+#        ax.set_xlim(xlims)
+#        start_box = ax.transAxes.transform([0,0])[0]
+#        end_box = ax.transAxes.transform([1,0])[0] - start_box
+#        clip_patch = Rectangle([start_box,-1e7],end_box,1e9)
+#        ax.lines[0].set_clip_path(clip_patch)
+#        ax.lines[1].set_clip_path(clip_patch)
 
     if return_objects: return sln[0], zln[0]
     else: return min(proj_dist), max(proj_dist)
@@ -676,24 +684,43 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 
     fig = plt.figure(figsize=(12, 9), facecolor='white')
 
-    ax0 = fig.add_subplot(len(rows)+2,1,1)
-    remove_axis_lines_and_ticks(ax0)
-    ax0.set_ylabel(r"synthetic (%s)"%'ship',rotation=0,fontsize=10)
-    ax0.yaxis.set_label_coords(-.075,.45)
-    ax0.format_coord = format_coord
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims, twf=twf, layer_mag=layer_mag)
-#    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims)
-    ax0.set_ylim(ylims) #MODIFY THIS TO CHANGE Y AXIS
-    ax0.patch.set_alpha(0.0)
+#    ax0 = fig.add_subplot(len(rows)+2,1,1)
+#    remove_axis_lines_and_ticks(ax0)
+#    ax0.set_ylabel(r"synthetic (%s)"%'ship',rotation=0,fontsize=10)
+#    ax0.yaxis.set_label_coords(-.075,.45)
+#    ax0.format_coord = format_coord
+#    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=4.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims, twf=twf, layer_mag=layer_mag)
+##    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax0, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims)
+#    ax0.set_ylim(ylims) #MODIFY THIS TO CHANGE Y AXIS
+#    ax0.patch.set_alpha(0.0)
 #    ylim = ax0.get_ylim()
 
     for j,(i,row) in enumerate(rows.iterrows()):
-        ax = fig.add_subplot(len(rows)+2,1,j+2, sharex=ax0)
+#        ax = fig.add_subplot(len(rows)+2,1,j+2, sharex=ax0)
+        if j==0:
+            ax0 = fig.add_subplot(len(rows),1,j+1)
+            ax = ax0
+        else:
+            ax = fig.add_subplot(len(rows),1,j+1, sharex=ax0)
         ax.set_anchor('W')
 
         remove_axis_lines_and_ticks(ax)
 
         min_proj_dis, max_proj_dis = plot_skewness_data(row,float(row['phase_shift']),ax,picker=True, clip_on=clip_on, xlims=xlims)
+
+        if row["track_type"]=="aero":
+            try: old_data_df = utl.open_mag_file(os.path.join(row["data_dir"],row["comp_name"].replace(".Ed","").replace(".Vd","").replace(".Hd","")))
+            except FileNotFoundError:
+                if sys.platform=="win32": sep = "\\"
+                else: sep = "/"
+                cut_number = row["comp_name"].split(".")[1]
+                old_data_df = utl.open_mag_file(os.path.join(*row["data_dir"].strip(sep).split(sep)[:-1],row["comp_name"].replace(".%s.Ed.lp"%cut_number,".DAT").replace(".%s.Vd.lp"%cut_number,".DAT").replace(".%s.Hd.lp"%cut_number,".DAT")))
+            tmp_projected_distances = utl.calc_projected_distance(row['inter_lon'],row['inter_lat'],old_data_df['lon'].tolist(),old_data_df['lat'].tolist(),(180+row['strike'])%360)
+            anomaly_middle = np.argwhere(np.diff(np.sign(tmp_projected_distances["dist"])))[0] #this is not to only get the first 0 there is only 1 it's because of a wrapper sequence
+            layer_depth = (4.5 + 0.0003048*(old_data_df["alt"][anomaly_middle]))
+            if isinstance(layer_depth,pd.Series): layer_depth = layer_depth.iloc[0]
+        else: layer_depth = 4.5 #default approx depth to layer 2A in deep Pacific
+        min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=layer_depth, color='r', linestyle='-', linewidth=2, alpha=.5, clip_on=clip_on, xlims=xlims, twf=twf, layer_mag=layer_mag, zorder=-1)
 
         if ridge_loc_func!=None:
             plot_ridge_loc(row,ridge_loc_func,ax,color='r',linestyle='-',alpha=1)
@@ -719,15 +746,15 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
         ax.patch.set_alpha(0.0)
         ax.format_coord = format_coord
 
-    ax = fig.add_subplot(len(rows)+2,1,len(rows)+2, sharex=ax0)
-    ax.set_anchor('W')
-    remove_axis_lines_and_ticks(ax)
-    ax.set_ylabel(r"synthetic (%s)"%'aero',rotation=0,fontsize=10)
-    ax.yaxis.set_label_coords(-.075,.45)
-    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims, twf=twf, layer_mag=layer_mag)
-    ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
-    ax.patch.set_alpha(0.0)
-    ax.format_coord = format_coord
+#    ax = fig.add_subplot(len(rows)+2,1,len(rows)+2, sharex=ax0)
+#    ax.set_anchor('W')
+#    remove_axis_lines_and_ticks(ax)
+#    ax.set_ylabel(r"synthetic (%s)"%'aero',rotation=0,fontsize=10)
+#    ax.yaxis.set_label_coords(-.075,.45)
+#    min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=12.5, color='k', linestyle='-', clip_on=clip_on, xlims=xlims, twf=twf, layer_mag=layer_mag)
+#    ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
+#    ax.patch.set_alpha(0.0)
+#    ax.format_coord = format_coord
 
     plot_chron_span_on_axes(rows['sz_name'].iloc[0],fig.get_axes(),rows[['age_min','age_max']].iloc[0])
 
@@ -744,13 +771,12 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 
     save_show_plots(fig,out_file,leave_plots_open=leave_plots_open)
 
-def plot_best_skewnesses(deskew_df, best_skews_subdir="best_skews", **kwargs):
+def plot_best_skewnesses(deskew_df, best_skews_subdir="best_skews", num_profiles_per_page = 6, **kwargs):
     results_dir = os.path.join(deskew_df['results_dir'].iloc[0],best_skews_subdir)
     check_dir(results_dir)
 
     if "ridge_loc_path" in kwargs.keys() and kwargs["ridge_loc_path"]!=None: ridge_loc_func = read_and_fit_ridge_data(kwargs["ridge_loc_path"])
 
-    num_profiles_per_page = 6
     prev_i,page_num = 0,0
     for i in list(range(num_profiles_per_page,len(deskew_df.index),num_profiles_per_page))+[-1]:
         if i==-1: rows = deskew_df.iloc[prev_i:]

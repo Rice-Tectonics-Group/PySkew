@@ -93,6 +93,8 @@ Flags:
 """
 
 import os,sys,glob
+try: from pyrot.max import max_likelihood_pole
+except (ModuleNotFoundError,ImportError) as e: pass
 from pyskew.geographic_preprocessing import *
 from pyskew.plot_geographic import *
 from pyskew.skewness import *
@@ -118,6 +120,10 @@ if __name__=="__main__":
     if "-twf" in sys.argv:
         twfi = sys.argv.index('-twf')
         kwargs['twf'] = float(sys.argv[twfi+1])
+
+    if "-np" in sys.argv:
+        npi = sys.argv.index('-np')
+        kwargs['num_profiles_per_page'] = int(sys.argv[npi+1])
 
     if "-lm" in sys.argv:
         lmi = sys.argv.index('-lm')
@@ -325,6 +331,8 @@ if __name__=="__main__":
 
     #Run step1, search all files for files that potentally cross chron_to_analyse in the region of interest and seperate that data
     if '-1' in sys.argv:
+        print("This is the inital data search against published isochrons")
+
         print("Creating Spreading Zones")
         spreading_zone_files = seperate_chron_into_spreading_zones(chron_to_analyse)
 
@@ -362,6 +370,8 @@ if __name__=="__main__":
 
     #find the turns in the tracks set to be analysed, cut and flip those tracks, then calculate best fit great circles for spreading zones to get azimuth and strike for projecting data and decide which cuts intersect which spreading zones closely enough to be analysed, and removes data not going to be used in further analysis
     if '-2' in sys.argv:
+        print("This is data segmentation, orientation, and search for intersecting segments.")
+
         #reads in seperated tracks locations and intercepts if you didn't run the above you must run this
         seperated_tracks_path=os.path.join(data_directory,"usable_tracks_and_intersects_for_%s.txt"%str(chron_name))
         seperated_tracks_file = open(seperated_tracks_path,'r')
@@ -376,14 +386,9 @@ if __name__=="__main__":
         print("Flipping Tracks")
         cut_tracks,flipped_data = cut_tracks_and_flip(track_cuts, data_directory, heading=heading)
 
-        #Generates .gcp files or great circle pole files from gmt in order to find strike
-        print("Determining Azimuth of Spreading")
-        spreading_zone_files = seperate_chron_into_spreading_zones(chron_to_analyse)
-        for spreading_zone_file in spreading_zone_files:
-            subprocess.check_call('gmt fitcircle %s -L3 > %s'%(spreading_zone_file,spreading_zone_file[:-3]+'gcp'),shell=True)
-
         #Find and save all of the cuts of the tracks that intersect the chron in the region of interest so that the intersect can be used to generate strike and only the intersecting cuts will be used from now on
         print("Finding All Intersecting Track Segments")
+        spreading_zone_files = seperate_chron_into_spreading_zones(chron_to_analyse)
         tracks,cut_tracks_path = get_track_intersects(chron_to_analyse, cut_tracks, spreading_zone_files, data_directory=data_directory, bounding_lats=bounding_lats, bounding_lons=bounding_lons, e=e)
 
         #this time it's litterally just taking the .c# file which is actually a .lp file and copying it so it fits the framework
@@ -398,6 +403,7 @@ if __name__=="__main__":
         print("Success!!! Please run again with -3 as an arg, after using -r to remove any mis-picked track cuts.")
 
     if '-3' in sys.argv:
+        print("This is azimuthal orientation and visualization of segments.")
 
         #reads in seperated tracks locations and intercepts if you didn't run the above you must run this
         cut_tracks_path=os.path.join(data_directory,"usable_tracks_and_intersects_for_%s.txt"%str(chron_name))
@@ -405,6 +411,28 @@ if __name__=="__main__":
         cut_tracks = cut_tracks_file.readlines()
         cut_tracks_file.close()
         track_sz_and_inters = [track.split('\t') for track in cut_tracks]
+
+        #Generates .gcp files or great circle pole files from gmt in order to find strike
+        print("Determining Azimuth of Spreading")
+        spreading_zone_files = seperate_chron_into_spreading_zones(chron_to_analyse)
+        try:
+            data = {"dec":[],"inc":[],"phs":[],"ell":[],"ccl":[],"azi":[],"amp":[]} #blank max data
+            for spreading_zone_file in spreading_zone_files:
+                sz_array = np.loadtxt(spreading_zone_file,dtype=float)
+                if len(sz_array)<=2:
+                    with open(spreading_zone_file[:-3]+'gcp',"w+") as fout:
+                        fout.write("\n\n\n\n\n%.2f\t%.2f\n"%(90.,0.))
+                    continue
+                data["ccl"] = np.hstack([90*np.ones([sz_array.shape[0],1]),np.ones([sz_array.shape[0],1]), sz_array[:,::-1]]).tolist()
+                data["ccl"] = [["Datum %d"%i,e] for i,e in enumerate(data["ccl"])]
+                (plat,plon,pm,maj_se,min_se,phi),chisq,dof = max_likelihood_pole(data)
+                with open(spreading_zone_file[:-3]+'gcp',"w+") as fout:
+                    fout.write("\n\n\n\n\n%.2f\t%.2f\n"%(plon,plat))
+#        except IndexError:
+#            import pdb; pdb.set_trace()
+        except NameError:
+            for spreading_zone_file in spreading_zone_files:
+                subprocess.check_call('gmt fitcircle %s -L3 > %s'%(spreading_zone_file,spreading_zone_file[:-3]+'gcp'),shell=True)
 
         #Uses spreading zone GCP and track/sz intersect to calculate the azimuth and writes out azsz files to save strike and azimuth as well as intersection point of track and anomoly
         print("Doing some more fancy Great-Circle things for azimuth to maintain backwards compatability")
@@ -418,6 +446,7 @@ if __name__=="__main__":
 
     #pull out East and Vertical componenets of the data into their own sub directories for deskewing analysis
     if '-4' in sys.argv:
+        print("This collects all data provided along with ages in -a to create a deskew file.")
 
         if '-a' in sys.argv:
             ai = sys.argv.index('-a')
@@ -430,16 +459,14 @@ if __name__=="__main__":
 
         if age_max<age_min:
             print("Your ages are backwards I'm reversing them, but really? You need to go get a coffee or something.")
-            tmp_age = age_max
-            age_max = age_min
-            age_min = tmp_age
+            age_min,age_max = age_max,age_min
 
         cut_tracks_path=os.path.join(data_directory,"usable_tracks_and_intersects_for_%s.txt"%str(chron_name))
         cut_tracks_file = open(cut_tracks_path,'r')
         cut_tracks = [track.split('\t')[0] for track in cut_tracks_file.readlines()]
         cut_tracks_file.close()
 
-        create_deskew_file(chron_name,results_directory,age_min,age_max,data_directory=data_directory,phase_shift=180,step=60)
+        create_deskew_file(chron_name,results_directory,age_min,age_max,data_directory=data_directory,phase_shift=0,step=60)
         print("Preprocessing Complete!!!")
 
     if '-ptl' in sys.argv:

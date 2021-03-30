@@ -606,14 +606,14 @@ class SynthMagGUI(wx.Frame):
                     else: self.user_warning("Improperly named component files should have either Ed.lp, Hd.lp, or Vd.lp got: %s"%self.track); return
                     other_dsk_row = self.deskew_df[self.deskew_df["comp_name"]==other_track].iloc[0]
                     # other_dsk_row["strike"] = (self.azi+270)%360
-                    self.other_art = psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7,return_objects=True,flip=True)
+                    self.other_art = psk.plot_skewness_data(other_dsk_row,other_phase,self.ax,color='darkgreen',zorder=2,picker=True,alpha=.7,return_objects=True,flip=True,clip_on=True)
                 else: self.user_warning("Cannot show other componenet for track type: %s"%str(self.dsk_row["track_type"]))
 
             try:
                 #Standard Data Update
                 for da in self.data_art:
                     da.remove()
-                self.data_art = list(psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,zorder=3,picker=True,return_objects=True,flip=True))
+                self.data_art = list(psk.plot_skewness_data(self.dsk_row,self.dsk_row["phase_shift"],self.ax,zorder=3,picker=True,return_objects=True,flip=True,clip_on=True))
                 self.data_art.append(self.ax.annotate("%s\n%s\n"%(self.dsk_row["sz_name"],self.track)+r"%.1f$^\circ$N,%.1f$^\circ$E"%(float(self.dsk_row['inter_lat']),utl.convert_to_0_360(self.dsk_row['inter_lon'])),xy=(0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,va='top',ha='left'))
 
                 #Add altitude data if applicable

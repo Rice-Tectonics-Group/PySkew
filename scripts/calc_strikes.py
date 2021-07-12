@@ -149,7 +149,7 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
                         other_comp = sz_df[sz_df["comp_name"]==row["comp_name"].replace("Vd","Ed")].iloc[0]
                         row["inter_lat"] = (row["inter_lat"]+other_comp["inter_lat"])/2
                         row["inter_lon"] = (row["inter_lon"]+other_comp["inter_lon"])/2
-                    else: raise RuntimeError("You really shouldn't have gotten here, you have aeromag that is unrecognized")
+                    else: raise RuntimeError("You really shouldn't have gotten here, you have aeromag that can't find its second component")
                 if visualize:
                     if row["quality"]!="g": marker = "X"
                     else:
@@ -197,7 +197,7 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
                         estrike = np.mean(estrikes)
                         print("Average Azimuth of Sites Relative to EP: ", estrike)
                         ep_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][(ep_idx%9)+1]
-                        ax = psk.plot_great_circle(euler_pole[1],euler_pole[0],estrike, m=ax, color=ep_color, geoid=Geodesic(6371.,0.), transform=ccrs.PlateCarree(), alpha=.6, linewidth=3, zorder=2)
+                        ax = psk.plot_great_circle(euler_pole[1],euler_pole[0],estrike, m=ax, color=ep_color, geoid=Geodesic(6371.,0.), transform=ccrs.PlateCarree(), alpha=.7, linewidth=3, zorder=2)
             if visualize:
                 all_lons,all_lats,all_grav = pg.get_sandwell(window,down_sample_factor,resample_method=Resampling.average,sandwell_files_path=os.path.join(sandwell_files_path,"*.tiff"))
                 print("Plotting Gravity")
@@ -229,26 +229,33 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
     print("Full Uncertainty: ",full_unc)
     if not isinstance(euler_pole,type(None)):
         if visualize:
+            all_strike_diffs = []
+            fig_all = plt.figure(dpi=100)
+            ax_all = fig_all.add_subplot(111)
             for ep_idx in range(len(strike_diffs)):
+                ep_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][(ep_idx%9)+1]
+                #Do histogram for each individual euler pole
                 print("For EP %d -> Mean, Median, Min, Max Strike Differences: "%ep_idx,sum(strike_diffs[ep_idx])/len(strike_diffs[ep_idx]),np.median(strike_diffs[ep_idx]),min(strike_diffs[ep_idx]),max(strike_diffs[ep_idx]))
                 fig = plt.figure(dpi=100)
                 ax = fig.add_subplot(111)
-                ax.hist(strike_diffs[ep_idx],bins=np.arange(0.,4.2,0.2))
-                ax.axvline(sum(strike_diffs[ep_idx])/len(strike_diffs[ep_idx]),color="tab:red",linestyle="--")
-                ax.axvline(np.median(strike_diffs[ep_idx]),color="tab:orange")
+                ax.hist(strike_diffs[ep_idx],bins=np.arange(0.,4.2,0.2),color=ep_color)
+                ax.axvline(sum(strike_diffs[ep_idx])/len(strike_diffs[ep_idx]),color="tab:blue",linestyle="--")
+                ax.axvline(np.median(strike_diffs[ep_idx]),color="cyan")
                 vis_outpath = os.path.join(os.path.dirname(dsk_path),"strike_fit_epstats_%d.png"%ep_idx)
                 print("Saving: %s"%vis_outpath)
                 fig.savefig(vis_outpath)
-            all_strike_diffs = reduce(lambda x,y=[]: x+y, strike_diffs)
+                #Do stacked histogram for all euler poles
+                all_strike_diffs += list(strike_diffs[ep_idx])
+                ax_all.hist(all_strike_diffs,bins=np.arange(0.,4.2,0.2),color=ep_color,zorder=len(strike_diffs)-ep_idx)
+#            all_strike_diffs = reduce(lambda x,y=[]: x+y, strike_diffs)
             print("For All EP -> Mean, Median, Min, Max Strike Differences: ",sum(all_strike_diffs)/len(all_strike_diffs),np.median(all_strike_diffs),min(all_strike_diffs),max(all_strike_diffs))
-            fig = plt.figure(dpi=100)
-            ax = fig.add_subplot(111)
-            ax.hist(all_strike_diffs,bins=np.arange(0.,4.2,0.2))
-            ax.axvline(sum(all_strike_diffs)/len(all_strike_diffs),color="tab:red",linestyle="--")
-            ax.axvline(np.median(all_strike_diffs),color="tab:orange")
+            ax_all.axvline(sum(all_strike_diffs)/len(all_strike_diffs),color="tab:red",linestyle="--")
+            ax_all.axvline(np.median(all_strike_diffs),color="tab:orange")
             vis_outpath = os.path.join(os.path.dirname(dsk_path),"strike_fit_all_epstats.png")
             print("Saving: %s"%vis_outpath)
-            fig.savefig(vis_outpath)
+            fig_all.savefig(vis_outpath)
+            all_strike_diffs = reduce(lambda x,y=[]: x+y, strike_diffs)
+            print("For All EP (Check) -> Mean, Median, Min, Max Strike Differences: ",sum(all_strike_diffs)/len(all_strike_diffs),np.median(all_strike_diffs),min(all_strike_diffs),max(all_strike_diffs))
 
     if isinstance(outfile,type(None)): outfile = os.path.join(os.path.dirname(dsk_path),"strike_cor_"+os.path.basename(dsk_path))
     print("Writing to %s"%str(outfile))

@@ -370,7 +370,7 @@ def reduce_to_pole(deskew_path, pole_lon, pole_lat, spreading_rate_path=None, an
 
 #    reduced_deskew_df = deskew_df[['comp_name','phase_shift','step','rel_amp','age_min','age_max','inter_lat','inter_lon','strike','data_dir','results_dir','track_type','sz_name','r','g','b']]
 
-    out_path = os.path.join(os.path.dirname(deskew_path),"pole_%.0f_%.0f.deskew"%(pole_lon,pole_lat))   
+    out_path = os.path.join(os.path.dirname(deskew_path),"pole_%.0f_%.0f.deskew"%(pole_lon,pole_lat))
     print("writing to %s"%out_path)
     utl.write_deskew_file(out_path,deskew_df)
 

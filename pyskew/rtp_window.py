@@ -1,6 +1,7 @@
 import wx, os, sys
 import numpy as np
 import pandas as pd
+from scipy.stats import f
 pymax_found = True
 try: import pyrot.max as pymax
 except ImportError: pymax_found = False
@@ -190,6 +191,14 @@ class RTPWindow(wx.Frame):
         self.m_show_pole.Check()
         self.Bind(wx.EVT_MENU, self.on_show_pole, self.m_show_pole)
 
+        self.m_show_a95 = menu_view.AppendCheckItem(-1, "&Show A95", "ShowA95")
+        self.m_show_a95.Check()
+        self.Bind(wx.EVT_MENU, self.on_show_a95, self.m_show_a95)
+
+        self.m_show_selected = menu_view.AppendCheckItem(-1, "&Show Selected", "ShowSelected")
+        self.m_show_selected.Check()
+        self.Bind(wx.EVT_MENU, self.on_show_selected, self.m_show_selected)
+
         #-----------------
 
         self.menubar.Append(menu_file, "&File")
@@ -247,10 +256,14 @@ class RTPWindow(wx.Frame):
             #write pole coordinates and 1sigmas to plot for user
             if phi<0: phi = phi+180
             elif phi>180: phi = phi%180
+            if self.m_show_a95.IsChecked():
+                f_factor = f.ppf(.95,2,dof)
+                print(f_factor)
+                maj_se,min_se = maj_se*np.sqrt(f_factor),min_se*np.sqrt(f_factor)
             if self.m_solve_askw.IsChecked(): self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+r"%.1f$^\circ$, %.1f$^\circ$, N%.1fE"%(maj_se,min_se,phi)+"\n"+"Anom. Skw. = %.1f"%askw+"\n"+r"$\chi^2_\nu$ = %.2f"%(chisq/dof)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
             else: self.ax.annotate(r"%.1f$^\circ$N, %.1f$^\circ$E"%(plat,plon)+"\n"+r"%.1f$^\circ$, %.1f$^\circ$, N%.1fE"%(maj_se,min_se,phi)+"\n"+r"$\chi^2_\nu$ = %.2f"%(chisq/dof)+"\n"+r"$1\sigma_{aero}$=%.1f"%(s1_aero)+"\n"+r"$1\sigma_{ship}$=%.1f"%(s1_ship),xy=(1-0.02,1-0.02),xycoords="axes fraction",bbox=dict(boxstyle="round", fc="w",alpha=.5),fontsize=self.fontsize,ha='right',va='top')
             #plot inverted pole
-            self.ax = psk.plot_pole(plon,plat,phi,(chisq/dof)*maj_se,(chisq/dof)*min_se,m=self.ax, alpha=.5, zorder=10000)
+            self.ax = psk.plot_pole(plon,plat,phi,np.sqrt(chisq/dof)*maj_se,np.sqrt(chisq/dof)*min_se,m=self.ax, alpha=.5, zorder=10000)
         if self.m_show_lunes.IsChecked():
             #filter deskew_df to only data labeled "good" and plot lunes
             if self.m_solve_askw.IsChecked():
@@ -260,8 +273,10 @@ class RTPWindow(wx.Frame):
             else:
                 self.parent.deskew_df = sk.calc_aei(self.parent.deskew_df,*self.parent.get_srf_asf())
             dsk_to_plot = self.parent.deskew_df[self.parent.deskew_df["quality"]=="g"]
-            try: self.ax = psk.plot_lunes(dsk_to_plot,self.ax,idx_selected=self.parent.dsk_idx)
-            except AttributeError: self.ax = psk.plot_lunes(dsk_to_plot,self.ax) #catch no selected data case
+            if self.m_show_selected.IsChecked():
+                try: self.ax = psk.plot_lunes(dsk_to_plot,self.ax,idx_selected=self.parent.dsk_idx)
+                except AttributeError: self.ax = psk.plot_lunes(dsk_to_plot,self.ax) #catch no selected data case
+            else: self.ax = psk.plot_lunes(dsk_to_plot,self.ax)
 #            os.remove(".tmp.max") #remove the deskew file on disk
 
         #plot any additional poles
@@ -343,6 +358,12 @@ class RTPWindow(wx.Frame):
     def on_show_pole(self,event):
         self.update()
 
+    def on_show_a95(self,event):
+        self.update()
+
+    def on_show_selected(self,event):
+        self.update()
+
     ###################Button and Dropdown Functions#########################
 
 #    def on_change_grd_btn(self,event):
@@ -372,12 +393,19 @@ class RTPWindow(wx.Frame):
             new_pole = [pdlg.lon,pdlg.lat,pdlg.phi,pdlg.a,pdlg.b]
         else: return
         pdlg.Destroy()
-        cdlg = wx.ColourDialog(self)
+        cdata = wx.ColourData()
+        cdata.SetChooseFull(True)
+#        cdata.SetChooseAlpha(True)
+        cdata.SetColour(wx.Colour(255, 0, 0, 128))
+        cdlg = wx.ColourDialog(self,cdata)
         if cdlg.ShowModal() == wx.ID_OK:
-            new_color = np.array(cdlg.GetColourData().GetColour().Get())/255
-        else: color = "cyan"
+            new_color = tuple(np.array(cdlg.GetColourData().GetColour().Get())/255)
+        else: color = "#00FFFF88"
+        if len(new_color)==3 or new_color[3]==1.: new_color =  (new_color[0],new_color[1],new_color[2],.5)
+        elif len(new_color)<3:
+            raise RuntimeError("If you're looking at this error in the terminal while running SynthMag GUI, you shouldn't be able to get here and something is significantly wrong with the color picker. Contact the dev on github.")
         cdlg.Destroy()
-        self.poles_to_plot.append([new_pole,tuple(new_color)]) #add new pole to list
+        self.poles_to_plot.append([new_pole,new_color]) #add new pole to list
         self.update() #update figure
 
     ###########################Figure Funcions###############################

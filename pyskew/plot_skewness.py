@@ -135,7 +135,7 @@ def plot_small_circles(plon,plat,m=None,range_arcdis=(10,180,10),range_azis=(-18
 
     return m
 
-def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1), alpha_line=1.0, filled=True, geoid=Geodesic.WGS84, transform=ccrs.Geodetic(), **kwargs):
+def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1), alpha_line=1.0, filled=True, geoid=Geodesic(6731.,0.), transform=ccrs.PlateCarree(), **kwargs):
     if m==None:
         # Create figure
         fig = plt.figure(figsize=(16,9), dpi=200)
@@ -145,16 +145,16 @@ def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1)
     sml_circ_points = []
     for azi in np.arange(*range_azis):
         geo_dict = geoid.ArcDirect(plat,plon,azi,arcdis)
-        sml_circ_points.append([geo_dict['lon2'],geo_dict['lat2']])
+        sml_circ_points.append([utl.convert_to_0_360(geo_dict['lon2']),geo_dict['lat2']])
     sml_circ_points.append(sml_circ_points[0])
 
     if isinstance(error,float) or isinstance(error,int):
         lb_sml_circ_points,ub_sml_circ_points = [],[]
         for azi in range(*range_azis):
             geo_dict = geoid.ArcDirect(plat,plon,azi,arcdis+error)
-            ub_sml_circ_points.append([geo_dict['lon2'],geo_dict['lat2']])
+            ub_sml_circ_points.append([utl.convert_to_0_360(geo_dict['lon2']),geo_dict['lat2']])
             geo_dict = geoid.ArcDirect(plat,plon,azi,arcdis-error)
-            lb_sml_circ_points.append([geo_dict['lon2'],geo_dict['lat2']])
+            lb_sml_circ_points.append([utl.convert_to_0_360(geo_dict['lon2']),geo_dict['lat2']])
         ub_sml_circ_points.append(ub_sml_circ_points[0])
         lb_sml_circ_points.append(lb_sml_circ_points[0])
 
@@ -202,7 +202,7 @@ def plot_north_pole(m):
     m.scatter(0, 90, facecolor='black', edgecolor='black', marker='+', s=30, zorder=120)
     return m
 
-def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=None,pole_text=None,pole_text_pos=None,alpha_all=False,filled=True,**kwargs):
+def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,pole_text=None,pole_text_pos=None,alpha_all=False,filled=True,transform=ccrs.PlateCarree(),**kwargs):
     #a and b should be full axes of the ellipse not semi-axes
 
     if m==None:
@@ -215,17 +215,24 @@ def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,alpha=None,pole_text=N
     if "facecolors" not in kwargs.keys(): kwargs["facecolors"]=color
     if kwargs.get("edgecolors") == "black" and kwargs.get("facecolors") != color: color = kwargs.get("facecolors")
     elif kwargs.get("facecolors") == "white" and kwargs.get("edgecolors") != color: color = kwargs.get("edgecolors")
+    if "alpha" in kwargs.keys(): alpha = kwargs.pop("alpha")
+    else: alpha = None
 
-    if alpha_all: m.scatter(lon, lat,  zorder=zorder, alpha=alpha,transform=ccrs.PlateCarree(), **kwargs)
-    else: m.scatter(lon, lat,  zorder=zorder,transform=ccrs.PlateCarree(), **kwargs)
+    if alpha_all: m.scatter(lon, lat,  zorder=zorder,transform=transform, alpha=alpha, **kwargs)
+    else: m.scatter(lon, lat,  zorder=zorder,transform=transform, **kwargs)
     if pole_text!=None:
-        if pole_text_pos!=None: plt.text(*m(*pole_text_pos),pole_text,zorder=500,transform=ccrs.PlateCarree())
+        if pole_text_pos!=None: plt.text(*m(*pole_text_pos),pole_text,zorder=500,transform=transform)
         else:
             tazi = 90
             geodict=Geodesic.WGS84.ArcDirect(lat,lon,tazi,1)
-            plt.text(geodict["lon2"],geodict["lat2"],pole_text,zorder=500,va='top',ha='center',transform=ccrs.PlateCarree())
-    if filled: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, facecolor=color, edgecolor='#00000088', zorder=zorder-1,alpha=alpha)
-    else: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, color=color, zorder=zorder-1,alpha=alpha)
+            plt.text(geodict["lon2"],geodict["lat2"],pole_text,zorder=500,va='top',ha='center',transform=transform)
+    if "edgecolors" in kwargs: kwargs.pop("edgecolors")
+    if "facecolors" in kwargs: kwargs.pop("facecolors")
+    if "marker" in kwargs: kwargs.pop("marker")
+    if "linewidths" in kwargs: kwargs.pop("linewidths")
+    if "s" in kwargs: kwargs.pop("s")
+    if filled: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, facecolor=color, edgecolor='#00000088', zorder=zorder-1, alpha=alpha, transform=transform, **kwargs)
+    else: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, color=color, zorder=zorder-1, alpha=alpha, transform=transform, **kwargs)
 
     return m
 

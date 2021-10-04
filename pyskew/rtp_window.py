@@ -188,7 +188,7 @@ class RTPWindow(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_show_lunes, self.m_show_lunes)
 
         self.m_show_pole = menu_view.AppendCheckItem(-1, "&Show Pole", "ShowPole")
-        self.m_show_pole.Check()
+#        self.m_show_pole.Check()
         self.Bind(wx.EVT_MENU, self.on_show_pole, self.m_show_pole)
 
         self.m_show_a95 = menu_view.AppendCheckItem(-1, "&Show A95", "ShowA95")

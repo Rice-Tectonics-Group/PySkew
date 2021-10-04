@@ -184,7 +184,8 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
                         pgeodict = geoid.Inverse(plat,plon,row["inter_lat"],row["inter_lon"])
                         strike = pgeodict["azi2"]+90
                     dists.append(pgeodict["a12"])
-                    if strike < 0: strike += 180
+                    if strike < 0: strike += 360
+                    if strike < 180: strike += 180
                     dsk_df.at[i,"strike"] = strike
                     if not isinstance(euler_pole,type(None)): print("\t\t",row["comp_name"],"\n","\t\t\tEuler Pole Strike: ", strike,"\n\t\t\tPredicted Strike: ",pstrike)
                     else: print("\t\t",row["comp_name"], strike)
@@ -212,7 +213,8 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
 
         elif num_sites==2: #equal determined case
             strike = geoid.Inverse(sz_df.iloc[0]["inter_lat"],sz_df.iloc[0]["inter_lon"],sz_df.iloc[1]["inter_lat"],sz_df.iloc[1]["inter_lon"])["azi1"]
-            if strike < 0: strike += 180
+            if strike < 0: strike += 360
+            if strike < 180: strike += 180
             for i,row in sz_df.iterrows():
                 dsk_df.at[i,"strike"] = strike
                 print("\t",row["comp_name"], strike)

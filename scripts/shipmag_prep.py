@@ -13,6 +13,9 @@ def split_m77t(h77tf,m77tf,data_directory="shipmag_data"):
     h77t_df = pd.read_csv(h77tf,sep='\t',dtype=str)
     m77t_df = pd.read_csv(m77tf,sep='\t',dtype=str)
 
+    if "SURVEY_ID" not in m77t_df.columns:
+        m77t_df = pd.read_csv(m77tf,sep='\t',dtype=str,names=["SURVEY_ID","TIMEZONE","DATE","TIME","LAT","LON","POS_TYPE","NAV_QUALCO","BAT_TTIME","CORR_DEPTH","BAT_CPCO","BAT_TYPCO","BAT_QUALCO","MAG_TOT","MAG_TOT2","MAG_RES","MAG_RESSEN","MAG_DICORR","MAG_SDEPTH","MAG_QUALCO","GRA_OBS","EOTVOS","FREEAIR","GRA_QUALCO","LINEID","POINTID"])
+
     new_h77t_files,new_m77t_files = [],[]
     for survey_id in h77t_df['SURVEY_ID']:
         h77t_survey_df = h77t_df[h77t_df['SURVEY_ID']==survey_id]
@@ -41,6 +44,9 @@ def preprocess_m77t(m77tf,data_directory="shipmag_data"):
     m77t_df['DIS'] = np.nan
     m77t_df['MAG_COR'] = np.nan
     current_dis,prev_lat_lon = 0,[]
+
+    if "SURVEY_ID" not in m77t_df.columns:
+        m77t_df = pd.read_csv(m77tf,sep='\t',dtype=str,names=["SURVEY_ID","TIMEZONE","DATE","TIME","LAT","LON","POS_TYPE","NAV_QUALCO","BAT_TTIME","CORR_DEPTH","BAT_CPCO","BAT_TYPCO","BAT_QUALCO","MAG_TOT","MAG_TOT2","MAG_RES","MAG_RESSEN","MAG_DICORR","MAG_SDEPTH","MAG_QUALCO","GRA_OBS","EOTVOS","FREEAIR","GRA_QUALCO","LINEID","POINTID"])
 
     #check for .lp files existance and skip if it has already been made
     fout_name = os.path.join(data_directory, m77t_df['SURVEY_ID'].iloc[0], m77t_df['SURVEY_ID'].iloc[0]+'.lp')

@@ -217,7 +217,7 @@ def get_track_intersects(chron_to_analyse, tracks_or_cuts, spreading_zone_files,
         if not list(filter(bound_check_func,lt)): print("track out of bounds, skipping track"); continue
 
         for spreading_zone_file in spreading_zone_files:
-            lsz = [[line.split()[0],line.split()[1]] for line in open(spreading_zone_file).readlines()]
+            lsz = [[line.split()[0],line.split()[1]] for line in open(spreading_zone_file).readlines() if len(line.split())>1]
             if not list(filter(bound_check_func,lsz)): continue
             idx = intersect_bf(lt,lsz,e=e)
 

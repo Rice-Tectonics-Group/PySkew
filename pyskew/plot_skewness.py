@@ -339,7 +339,7 @@ def plot_lunes_and_save(deskew_path):
     plt.close(fig)
 
 
-def plot_lunes(comps,gcm,pole_lat=None,idx_selected=None):
+def plot_lunes(comps,gcm,pole_lat=None,idx_selected=None, geoid=Geodesic(6371000.,0.),**kwargs):
 
     if pole_lat==None: pole_lat=0
 
@@ -355,22 +355,15 @@ def plot_lunes(comps,gcm,pole_lat=None,idx_selected=None):
             linestyle,linewidth=":",1
 
         strike = convert_to_0_360(row['strike'])
-#        inc_mid = np.degrees(np.arctan(np.tan(np.deg2rad(float(row["aei"])))))
-#        clt_mid = 90-np.degrees(np.arctan(np.tan(np.deg2rad(inc_mid))*0.5))
-#        lat_mid = Geodesic.WGS84.ArcDirect(float(row["inter_lat"]),float(row["inter_lon"]), strike-90, clt_mid)['lat2']
-        # Find array of great semicircle azimuths (degrees)
-#        if (pole_lat >= 0 or lat_mid >= 90-pole_lat) or (pole_lat > 0 or lat_mid >= 90+pole_lat):
-        azi = np.linspace(strike-(180),strike,180)
-#        else:
-#        azi = np.linspace(strike,strike+180,100)
+        azi = (360+np.linspace(strike-(180),strike,180))%360 #Possible Declinations
 
         # For first bounding azimuth...
         # Find inclination (degrees)
-        inc = np.arctan(np.tan(np.deg2rad(float(row["aei"])))*np.sin(np.deg2rad(azi+180-strike)))
+        inc = np.sign(row["inter_lat"])*np.abs(np.arctan(np.tan(np.deg2rad(float(row["aei"])))*np.sin(np.deg2rad(azi+180-strike)))) #The 180 is because of the right hand rule and the sign to handle northern hemisphere
         # Find paleocolatitude (degrees)
         clt = 90-np.rad2deg(np.arctan2(np.tan(inc),2))
         # Find great circle points
-        gc_points_and_azis = [Geodesic.WGS84.ArcDirect(float(row["inter_lat"]),float(row["inter_lon"]), azi1, clt1) for clt1,azi1 in zip(clt,azi)]
+        gc_points_and_azis = [geoid.ArcDirect(float(row["inter_lat"]),float(row["inter_lon"]), azi1, clt1) for clt1,azi1 in zip(clt,azi)]
         gc_lon = [gcd["lon2"] for gcd in gc_points_and_azis]
         gc_lat = [gcd["lat2"] for gcd in gc_points_and_azis]
 
@@ -378,7 +371,7 @@ def plot_lunes(comps,gcm,pole_lat=None,idx_selected=None):
         gcm.scatter([gc_lon[0],gc_lon[-1]], [gc_lat[0],gc_lat[-1]], edgecolor='k', facecolor='none', zorder=10,transform=ccrs.PlateCarree())
         if (not isinstance(idx_selected,type(None))) and i==idx_selected: color = "#FF6C6C"
         else: color = (float(row["r"]),float(row["g"]),float(row["b"]))
-        gcm.plot(gc_lon, gc_lat, color=color, linestyle=linestyle, linewidth=linewidth,transform=ccrs.Geodetic())
+        gcm.plot(gc_lon, gc_lat, color=color, linestyle=linestyle, linewidth=linewidth,transform=ccrs.Geodetic(),**kwargs)
 
     comps["inter_lat"] = comps["inter_lat"].apply(float)
     tmp_comps = comps.sort_values(by="inter_lat",ascending=False)

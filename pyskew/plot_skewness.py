@@ -18,7 +18,7 @@ from .skewness import *
 from .plot_geographic import *
 from .utilities import *
 
-def plot_all_lunes_seperate(deskew_path):
+def plot_all_lunes_seperate(deskew_path,transform=ccrs.Geodetic()):
 
     comps = filter_deskew_and_calc_aei(deskew_path)
     results_dir = comps["results_dir"].iloc[0]
@@ -65,7 +65,7 @@ def plot_all_lunes_seperate(deskew_path):
             linestyle,label=":","Ship"
 
         # Draw great circle
-        gcm.plot(gc_lon, gc_lat, color='black',linestyle=linestyle,label=label,transform=ccrs.Geodetic())
+        gcm.plot(gc_lon, gc_lat, color='black',linestyle=linestyle,label=label,transform=transform)
 
         if row["track_type"]=='ship' or last_comp_dir in row["comp_name"]:
             plt.title(track_name)
@@ -135,7 +135,7 @@ def plot_small_circles(plon,plat,m=None,range_arcdis=(10,180,10),range_azis=(-18
 
     return m
 
-def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1), alpha_line=1.0, filled=True, geoid=Geodesic(6731.,0.), transform=ccrs.PlateCarree(), **kwargs):
+def plot_small_circle(plon,plat,arcdis,error=None,m=None,range_azis=(-180,180,1), alpha_line=1.0, filled=True, geoid=Geodesic(6731.,0.), transform=ccrs.Geodetic(), **kwargs):
     if m==None:
         # Create figure
         fig = plt.figure(figsize=(16,9), dpi=200)
@@ -249,7 +249,7 @@ def plot_apw_legend(m,**kwargs):
     leg = m.legend(by_label.values(), by_label.keys(),**kwargs)
     return m,leg
 
-def plot_pole_track(ellipse_data, m=None,modify_alpha_with_error=True, min_alpha=0.2, max_alpha=0.8, annotations=[],annotation_positions=[], **kwargs):
+def plot_pole_track(ellipse_data, m=None,modify_alpha_with_error=True, min_alpha=0.2, max_alpha=0.8, annotations=[],annotation_positions=[], transform=ccrs.Geodetic(), **kwargs):
 
     if m==None:
         # Create figure
@@ -273,8 +273,8 @@ def plot_pole_track(ellipse_data, m=None,modify_alpha_with_error=True, min_alpha
         m = plot_pole(lon,lat,az,a,b,m=m,zorder=zorder,pole_text=pole_text,pole_text_pos=pole_text_pos,**kwargs)
         lons.append(lon);lats.append(lat)
 
-    m.plot(lons,lats,label=label,zorder=zorder-1,transform=ccrs.Geodetic(),**kwargs)
-    m.plot(lons,lats,color='k',zorder=zorder-2,linewidth=1.5,transform=ccrs.Geodetic())
+    m.plot(lons,lats,label=label,zorder=zorder-1,transform=transform,**kwargs)
+    m.plot(lons,lats,color='k',zorder=zorder-2,linewidth=1.5,transform=transform)
 
     return m,plt.gcf()
 
@@ -339,31 +339,48 @@ def plot_lunes_and_save(deskew_path):
     plt.close(fig)
 
 
-def plot_lunes(comps,gcm,pole_lat=None,idx_selected=None, geoid=Geodesic(6371000.,0.),**kwargs):
-
-    if pole_lat==None: pole_lat=0
+def plot_lunes(comps, gcm, idx_selected=None, average_vector_data=False, plot_legends=True, geoid=Geodesic(6371000.,0.), transform=ccrs.Geodetic(),**kwargs):
 
     # For every crossing...
     for i,row in comps.iterrows():
         if row["comp_name"].startswith('#'): continue
 
+        aei,strike,lat,lon = float(row["aei"]),convert_to_0_360(row['strike']),float(row["inter_lat"]),float(row["inter_lon"])
         if row["track_type"]=='aero':
-            if "V" in row["comp_name"]: linestyle="--"
-            else: linestyle="-"
+            if "Ed.lp" in row["comp_name"]:
+                linestyle="-"
+                if average_vector_data:
+                    other_comp = row["comp_name"].replace(".Ed.lp",".Vd.lp")
+                    oth_row = comps[comps["comp_name"]==other_comp].iloc[0]
+                    lat = (row["inter_lat"] + oth_row["inter_lat"])/2
+                    lon = (row["inter_lon"] + oth_row["inter_lon"])/2
+                    strike = (row["strike"] + oth_row["strike"])/2
+                    aei = (row["aei"] + oth_row["aei"])/2
+            elif "Hd.lp" in row["comp_name"]:
+                linestyle="-"
+                if average_vector_data:
+                    other_comp = row["comp_name"].replace(".Hd.lp",".Vd.lp")
+                    oth_row = comps[comps["comp_name"]==other_comp].iloc[0]
+                    lat = (row["inter_lat"] + oth_row["inter_lat"])/2
+                    lon = (row["inter_lon"] + oth_row["inter_lon"])/2
+                    strike = (row["strike"] + oth_row["strike"])/2
+                    aei = (row["aei"] + oth_row["aei"])/2
+            elif average_vector_data: continue
+            else: linestyle="--"
             linewidth=1
         if row["track_type"]=='ship':
             linestyle,linewidth=":",1
 
-        strike = convert_to_0_360(row['strike'])
-        azi = (360+np.linspace(strike-(180),strike,180))%360 #Possible Declinations
+        if aei<90 and aei>-90: azi = (360+np.linspace(strike-180,strike,180))%360 #Possible Declinations
+        else: azi = (360+np.linspace(strike,strike+180,180))%360 #Possible Declinations
 
         # For first bounding azimuth...
         # Find inclination (degrees)
-        inc = np.sign(row["inter_lat"])*np.abs(np.arctan(np.tan(np.deg2rad(float(row["aei"])))*np.sin(np.deg2rad(azi+180-strike)))) #The 180 is because of the right hand rule and the sign to handle northern hemisphere
+        inc = (np.arctan(np.tan(np.deg2rad(aei))*np.sin(np.deg2rad(azi+180-strike)))) #The 180 is because of the right hand rule and the sign to handle northern hemisphere
         # Find paleocolatitude (degrees)
         clt = 90-np.rad2deg(np.arctan2(np.tan(inc),2))
         # Find great circle points
-        gc_points_and_azis = [geoid.ArcDirect(float(row["inter_lat"]),float(row["inter_lon"]), azi1, clt1) for clt1,azi1 in zip(clt,azi)]
+        gc_points_and_azis = [geoid.ArcDirect(lat,lon, azi1, clt1) for clt1,azi1 in zip(clt,azi)]
         gc_lon = [gcd["lon2"] for gcd in gc_points_and_azis]
         gc_lat = [gcd["lat2"] for gcd in gc_points_and_azis]
 
@@ -371,30 +388,31 @@ def plot_lunes(comps,gcm,pole_lat=None,idx_selected=None, geoid=Geodesic(6371000
         gcm.scatter([gc_lon[0],gc_lon[-1]], [gc_lat[0],gc_lat[-1]], edgecolor='k', facecolor='none', zorder=10,transform=ccrs.PlateCarree())
         if (not isinstance(idx_selected,type(None))) and i==idx_selected: color = "#FF6C6C"
         else: color = (float(row["r"]),float(row["g"]),float(row["b"]))
-        gcm.plot(gc_lon, gc_lat, color=color, linestyle=linestyle, linewidth=linewidth,transform=ccrs.Geodetic(),**kwargs)
+        gcm.plot(gc_lon, gc_lat, color=color, linestyle=linestyle, linewidth=linewidth,transform=transform,**kwargs)
 
     comps["inter_lat"] = comps["inter_lat"].apply(float)
     tmp_comps = comps.sort_values(by="inter_lat",ascending=False)
 
-    sz_handles=[]
-    for i,row in tmp_comps[["sz_name","r","g","b"]].drop_duplicates().iterrows():
-        sz_handle = mlines.Line2D([], [], color=(float(row['r']),float(row['g']),float(row['b'])), label=row['sz_name'])
-        sz_handles.append(sz_handle)
+    if plot_legends:
+        sz_handles=[]
+        for i,row in tmp_comps[["sz_name","r","g","b"]].drop_duplicates().iterrows():
+            sz_handle = mlines.Line2D([], [], color=(float(row['r']),float(row['g']),float(row['b'])), label=row['sz_name'])
+            sz_handles.append(sz_handle)
 
-    track_type_handles=[]
-    for track_type,style in [['Aeromag East','-'],['Aeromag Vertical','--'],['Shipmag',':']]:
-        track_type_handle = mlines.Line2D([], [], color='k', linestyle=style, label=track_type)
-        track_type_handles.append(track_type_handle)
+        track_type_handles=[]
+        for track_type,style in [['Aeromag East','-'],['Aeromag Vertical','--'],['Shipmag',':']]:
+            track_type_handle = mlines.Line2D([], [], color='k', linestyle=style, label=track_type)
+            track_type_handles.append(track_type_handle)
 
-#    handles, labels = plt.gca().get_legend_handles_labels()
-#    by_label = OrderedDict(zip(labels, handles))
-#    legend = plt.legend(by_label.values(), by_label.keys(),loc=1)
+    #    handles, labels = plt.gca().get_legend_handles_labels()
+    #    by_label = OrderedDict(zip(labels, handles))
+    #    legend = plt.legend(by_label.values(), by_label.keys(),loc=1)
 
-    track_type_legend = plt.legend(handles=track_type_handles,loc=2,framealpha=.7)
-#    sz_legend = plt.legend(handles=sz_handles,bbox_to_anchor=(.95, .91),bbox_transform=plt.gcf().transFigure, frameon=False)
-    sz_legend = plt.legend(handles=sz_handles,loc=1,framealpha=.7)
+        track_type_legend = plt.legend(handles=track_type_handles,loc=2,framealpha=.7)
+    #    sz_legend = plt.legend(handles=sz_handles,bbox_to_anchor=(.95, .91),bbox_transform=plt.gcf().transFigure, frameon=False)
+        sz_legend = plt.legend(handles=sz_handles,loc=1,framealpha=.7)
 
-    plt.gca().add_artist(track_type_legend)
+        plt.gca().add_artist(track_type_legend)
 
     return gcm
 
@@ -493,7 +511,7 @@ def plot_skewness_data(deskew_row, phase_shift, ax, xlims=[-500,500], clip_on=Fa
         zcolor = "grey"
         zalpha = .7
     zlinestyle = "--"
-    if not clip_on:
+    if not clip_on and not any(list(map(lambda x: isinstance(x,type(None)),xlims))):
         left_idx = np.abs(np.array(proj_dist) - xlims[0]).argmin()
         right_idx = np.abs(np.array(proj_dist) - xlims[1]).argmin()
         proj_dist,shifted_mag = proj_dist[left_idx:right_idx],shifted_mag[left_idx:right_idx]

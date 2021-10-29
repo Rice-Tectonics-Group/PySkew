@@ -119,6 +119,7 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
     elif len(euler_pole)>0 and (isinstance(euler_pole[0],list) or isinstance(euler_pole[0],tuple)): euler_poles = euler_pole
     else: raise ValueError("Euler pole must be None or either a list of euler poles which are length=2 or a single euler pole with lat and lon entries. (i.e. [90,0] or [[90,0],[0,0]])")
 
+    n = 0
     for sz in szs_to_calc:
         sz_df = dsk_df[dsk_df["sz_name"]==sz]
         print(sz,":",len(sz_df.index))
@@ -164,6 +165,7 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
             print("\t",(plat,plon,maj_se,min_se,phi),chisq,dof)
             (_,_,_),scov = latlon2cart(plat,plon,ellipse_to_cov(plat,plon,maj_se,min_se,phi))
             tcov += scov
+            n += 1
             for ep_idx,euler_pole in enumerate(euler_poles):
                 if not isinstance(euler_pole,type(None)):
                     print("--------------------------------------------------------------------------------")
@@ -226,8 +228,9 @@ def calc_strikes_and_add_err(dsk_path,mlat=90,mlon=0,ma=1,mb=1,mphi=0,geoid=Geod
         dsk_df.sort_values("inter_lat",inplace=True,ascending=False)
 
     print("--------------------------------------")
-    (mlat,mlon),totcov = cart2latlon(mx,my,mz,mcov+tcov)
+    (mlat,mlon),totcov = cart2latlon(mx,my,mz,mcov+(tcov/n))
     full_unc = cov_to_ellipse(mlat,mlon,totcov)
+    print("Strike Covariance Matrix:\n",tcov)
     print("Full Uncertainty: ",full_unc)
     if not isinstance(euler_pole,type(None)):
         if visualize:

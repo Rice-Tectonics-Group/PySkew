@@ -107,6 +107,13 @@ class SkwLatWindow(wx.Frame):
 
         menu_file = wx.Menu()
 
+        submenu_save_plots = wx.Menu()
+
+        m_save_plot = submenu_save_plots.Append(-1, "&Save Plot", "")
+        self.Bind(wx.EVT_MENU, self.on_save_plot, m_save_plot,"save-plot")
+
+        m_new_sub_plots = menu_file.Append(-1, "&Save Result", submenu_save_plots)
+
         menu_file.AppendSeparator()
         m_exit = menu_file.Append(-1, "&Exit\tCtrl-Q", "Exit")
         self.Bind(wx.EVT_MENU, self.on_close_main, m_exit)
@@ -122,6 +129,9 @@ class SkwLatWindow(wx.Frame):
         self.fig.clear()
         self.plot_skewnesses_by_lat()
         self.canvas.draw()
+
+    def on_save_plot(self,event):
+        self.toolbar.save_figure()
 
     def on_close_main(self,event):
         self.parent.skw_lat_open=False

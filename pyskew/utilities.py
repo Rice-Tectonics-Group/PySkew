@@ -102,6 +102,7 @@ def open_deskew_file(deskew_path):
     deskew_df = deskew_df[deskew_df["comp_name"].notnull()] #remove data that have no data file record
     deskew_df['quality'] = np.where(deskew_df["comp_name"].str.startswith('#'), "b", "g") #make quality column
     deskew_df["comp_name"] = deskew_df['comp_name'].apply(lambda x: x.lstrip("#")) #remove hashes on commented data
+    deskew_df["inter_lon"] = (36000+deskew_df["inter_lon"])%360
 #    deskew_df = deskew_df[~deskew_df["comp_name"].str.startswith('#')]
 #    cols = deskew_df.columns
 #    return deskew_df.reset_index()[cols]

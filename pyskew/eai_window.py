@@ -363,7 +363,7 @@ class EAIWindow(wx.Frame):
                 if last_lat_break==None: sz_lats = lats[lats<=lat_break]
                 else: sz_lats = lats[(last_lat_break<=lats) & (lats<=lat_break)]
                 last_lat_break = lat_break
-                lon = sz_df["inter_lon"].mean()
+                lon = ((360+sz_df["inter_lon"])%360).mean()
                 colats,s1_colats,decs,s1_decs = [],[],[],[]
                 phi,a,b = pole[2:]
                 for lat in sz_lats:

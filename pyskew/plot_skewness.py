@@ -11,7 +11,7 @@ if 'darwin' in sys.platform:
         print("QT5 not found, this library is optional on MacOS as it allows for better data visualization moving on with default graphics system.")
 import matplotlib.lines as mlines
 from collections import OrderedDict
-from matplotlib.patches import Rectangle,ConnectionPatch
+from matplotlib.patches import Rectangle,ConnectionPatch,Polygon
 import cartopy.crs as ccrs
 from geographiclib.geodesic import Geodesic
 from .skewness import *
@@ -231,8 +231,8 @@ def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,pole_text=None,pole_te
     if "marker" in kwargs: kwargs.pop("marker")
     if "linewidths" in kwargs: kwargs.pop("linewidths")
     if "s" in kwargs: kwargs.pop("s")
-    if filled: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, facecolor=color, edgecolor='#00000088', zorder=zorder-1, alpha=alpha, transform=transform, **kwargs)
-    else: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, color=color, zorder=zorder-1, alpha=alpha, transform=transform, **kwargs)
+    if filled: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, facecolor=color, edgecolor='#00000088', zorder=zorder-1, alpha=alpha, **kwargs)
+    else: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, color=color, zorder=zorder-1, alpha=alpha, **kwargs)
 
     return m
 

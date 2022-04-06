@@ -736,7 +736,10 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
                 old_data_df = utl.open_mag_file(os.path.join(*row["data_dir"].strip(sep).split(sep)[:-1],row["comp_name"].replace(".%s.Ed.lp"%cut_number,".DAT").replace(".%s.Vd.lp"%cut_number,".DAT").replace(".%s.Hd.lp"%cut_number,".DAT")))
             tmp_projected_distances = utl.calc_projected_distance(row['inter_lon'],row['inter_lat'],old_data_df['lon'].tolist(),old_data_df['lat'].tolist(),(180+row['strike'])%360)
             anomaly_middle = np.argwhere(np.diff(np.sign(tmp_projected_distances["dist"])))[0] #this is not to only get the first 0 there is only 1 it's because of a wrapper sequence
-            layer_depth = (4.5 + 0.0003048*(old_data_df["alt"][anomaly_middle]))
+            try: layer_depth = (4.5 + 0.0003048*(old_data_df["alt"][anomaly_middle]))
+            except KeyError:
+                print(row['comp_name'] + ': No altitude found; defaulting to 15 km')
+                layer_depth = 4.5 + 15
             if isinstance(layer_depth,pd.Series): layer_depth = layer_depth.iloc[0]
         else: layer_depth = 4.5 #default approx depth to layer 2A in deep Pacific
         min_syn_dis,max_syn_dis = plot_synthetic(rows['sz_name'].iloc[0], rows[['age_min','age_max']].iloc[0], ax, layer_depth=layer_depth, color='r', linestyle='-', linewidth=2, alpha=.5, clip_on=clip_on, xlims=xlims, twf=twf, layer_mag=layer_mag, zorder=-1)

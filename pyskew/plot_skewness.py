@@ -656,6 +656,7 @@ def save_show_plots(fig,out_file,leave_plots_open=True,msg=None):
     if leave_plots_open:
         plt.show()
     else:
+        print("Saving to: %s"%out_file)
         fig.savefig(out_file,transparent=False,facecolor="white")
         plt.close(fig)
 
@@ -696,7 +697,7 @@ def plot_fz_loc(deskew_row,fz_loc_path,ax,**kwargs):
         fz_dis = (fzi_dict['s12']*np.sin(np.deg2rad(float(deskew_row['strike'])-fzi_dict['azi2'])))/1000
         ax.axvline(fz_dis,**kwargs)
 
-def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,ridge_loc_func=None,fz_loc_path=None, xlims=[-500,500], ylims=[-250,250], clip_on = False, twf=0, layer_mag=1000, **kwargs):
+def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,ridge_loc_func=None,fz_loc_path=None, xlims=[-500,500], ylims=[-250,250], clip_on = False, twf=0, layer_mag=1000, num_profiles_per_page=6, **kwargs):
 #    plt.rc('text', usetex=True)
 #    plt.rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 
@@ -716,10 +717,10 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
     for j,(i,row) in enumerate(rows.iterrows()):
 #        ax = fig.add_subplot(len(rows)+2,1,j+2, sharex=ax0)
         if j==0:
-            ax0 = fig.add_subplot(len(rows),1,j+1)
+            ax0 = fig.add_subplot(num_profiles_per_page,1,j+1)
             ax = ax0
         else:
-            ax = fig.add_subplot(len(rows),1,j+1, sharex=ax0)
+            ax = fig.add_subplot(num_profiles_per_page,1,j+1, sharex=ax0)
         ax.set_anchor('W')
 
         remove_axis_lines_and_ticks(ax)
@@ -756,8 +757,8 @@ def plot_best_skewness_page(rows,results_dir,page_num,leave_plots_open=False,rid
 #            print(ax.transData.inverted().transform(l.get_clip_path().get_xy()),ax.transData.inverted().transform([l.get_clip_path().get_width(),l.get_clip_path().get_height()]))
 #        print("----")
 
-    for j in range(j+1,len(rows)):
-        ax = fig.add_subplot(len(rows)+2,1,j+2, sharex=ax0)
+    for j in range(j+1,num_profiles_per_page):
+        ax = fig.add_subplot(num_profiles_per_page+2,1,j+2, sharex=ax0)
         ax.set_anchor('W')
         remove_axis_lines_and_ticks(ax)
         ax.set_ylim(ylims) #insure that all of the plots have the same zoom level in the y direction
@@ -794,6 +795,7 @@ def plot_best_skewnesses(deskew_df, best_skews_subdir="best_skews", num_profiles
     check_dir(results_dir)
 
     if "ridge_loc_path" in kwargs.keys() and kwargs["ridge_loc_path"]!=None: ridge_loc_func = read_and_fit_ridge_data(kwargs["ridge_loc_path"])
+    kwargs["num_profiles_per_page"] = num_profiles_per_page
 
     prev_i,page_num = 0,0
     for i in list(range(num_profiles_per_page,len(deskew_df.index),num_profiles_per_page))+[-1]:

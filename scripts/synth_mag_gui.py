@@ -1163,14 +1163,14 @@ class SynthMagGUI(wx.Frame):
     def swap(self,a,b):
         return b,a
 
-    def save_max_file(self,outfile,ship_only=False,aero_only=False):
+    def save_max_file(self,outfile,ship_only=False,aero_only=False,ship_1s=10.,aero_1s=10.):
         srf,asf = self.get_srf_asf()
         if ship_only:
-            sk.create_max_file(self.deskew_df[(self.deskew_df["quality"]=="g") & (self.deskew_df["track_type"]=="ship")],srf,asf,outfile=outfile)
+            sk.create_max_file(self.deskew_df[(self.deskew_df["quality"]=="g") & (self.deskew_df["track_type"]=="ship")],srf,asf,outfile=outfile,ship_1s=ship_1s)
         elif aero_only:
-            sk.create_max_file(self.deskew_df[(self.deskew_df["quality"]=="g") & (self.deskew_df["track_type"]=="aero")],srf,asf,outfile=outfile)
+            sk.create_max_file(self.deskew_df[(self.deskew_df["quality"]=="g") & (self.deskew_df["track_type"]=="aero")],srf,asf,outfile=outfile,aero_1s=aero_1s)
         else:
-            sk.create_max_file(self.deskew_df[self.deskew_df["quality"]=="g"],srf,asf,outfile=outfile)
+            sk.create_max_file(self.deskew_df[self.deskew_df["quality"]=="g"],srf,asf,outfile=outfile,ship_1s=ship_1s,aero_1s=aero_1s)
 
     def get_srf_asf(self):
         if not self.m_use_sr_model.IsChecked() or self.spreading_rate_path==None:

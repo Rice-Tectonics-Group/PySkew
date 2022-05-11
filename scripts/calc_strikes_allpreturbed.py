@@ -56,7 +56,6 @@ import pyskew.plot_gravity as pg
 from time import time
 from rasterio.enums import Resampling
 from functools import reduce
-from copy import deepcopy
 
 def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=Geodesic(6371,0.0),outfile=None,filter_by_quality=False,visualize=False,visual_padding=3.,down_sample_factor=5.,sandwell_files_path="../raw_data/gravity/Sandwell",convergence_level=0.01,euler_pole=None):
     """
@@ -111,12 +110,12 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
         comment,header,pdata = pymax.read_max_file(".tmp.max")
         if len(pdata["phs"])==0: raise ValueError("Empty Max file read during correction for strike uncertainty")
         if solve_anom_skew: (mlat,mlon,mmag,askw,ma,mb,mphi),chisq,dof = pymax.max_likelihood_pole(pdata, trial_pole=header[:3], out_path="calc_strike_before.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=solve_anom_skew); print("Anomalous Skewness Estimated")
-        else:
-            (mlat,mlon,mmag,ma,mb,mphi),chisq,dof = pymax.max_likelihood_pole(pdata, trial_pole=header[:3], out_path="calc_strike_before.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=solve_anom_skew)
-            askw = False
+        else: (mlat,mlon,mmag,ma,mb,mphi),chisq,dof = pymax.max_likelihood_pole(pdata, trial_pole=header[:3], out_path="calc_strike_before.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=solve_anom_skew)
         (mx,my,mz),mcov = latlon2cart(mlat,mlon,ellipse_to_cov(mlat,mlon,ma,mb,mphi))
         print("Original Pole: ", mlat,mlon,ma,mb,mphi,chisq,dof)
         print("Original Covariance Matrix:\n", mcov)
+        #Make empty preturbed data dictionaries
+        pdata_splus,pdata_sminus = {"dec":[],"inc":[],"phs":[],"ell":[],"ccl":[],"azi":[],"amp":[]},{"dec":[],"inc":[],"phs":[],"ell":[],"ccl":[],"azi":[],"amp":[]}
 
     #Then get the deskew data we need to estimate strikes from and initalize a few variables
     dsk_df = utl.open_deskew_file(dsk_path)
@@ -124,7 +123,7 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
     if filter_by_quality: #If removing commented data, remove it
         bad_dsk_data = dsk_df[dsk_df["quality"]!="g"]
         dsk_df = dsk_df[dsk_df["quality"]=="g"]
-    strike_diffs,tcov = [],np.zeros((3,3))
+    strike_diffs = []
     szs_to_calc = dsk_df["sz_name"].drop_duplicates()#.drop(24) #removes MahiMahi
 
     #Deal with Euler poles if any have been provided
@@ -157,8 +156,6 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
 
         if num_sites>2: #overdetermined case
             data = {"dec":[],"inc":[],"phs":[],"ell":[],"ccl":[],"azi":[],"amp":[]}
-            #Make empty preturbed data dictionaries
-            pdata_splus,pdata_sminus = deepcopy(pdata),deepcopy(pdata)
 
             #Construct Max file for Strike Estimation
             for i,row in sz_df.iterrows():
@@ -188,29 +185,14 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
                 for i,row in sz_df.iterrows(): #Find all max data entries associated with this SZ
                     pdata_idx = find_pdata_idx(row["comp_name"], pdata)
                     if pdata_idx==None: continue #This is happening because of aeromag
-                    pdata_splus["phs"][pdata_idx][1][-1] += maj_se #Add strike SE
-                    pdata_sminus["phs"][pdata_idx][1][-1] -= maj_se #Subtract strike SE
-                #Calculate the Preturbed Poles
-                if solve_anom_skew: (mplat,mplon,mpmag,askw,mpa,mpb,mpphi),mpchisq,mpdof = pymax.max_likelihood_pole(pdata_splus, trial_pole=header[:3], out_path="calc_strike_splus.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=askw)
-                else: (mplat,mplon,mpmag,mpa,mpb,mpphi),mpchisq,mpdof = pymax.max_likelihood_pole(pdata_splus, trial_pole=header[:3], out_path="calc_strike_splus.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=askw)
-                if solve_anom_skew: (mslat,mslon,msmag,askw,msa,msb,msphi),mschisq,msdof = pymax.max_likelihood_pole(pdata_sminus, trial_pole=header[:3], out_path="calc_strike_sminus.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=askw)
-                else: (mslat,mslon,msmag,msa,msb,msphi),mschisq,msdof = pymax.max_likelihood_pole(pdata_sminus, trial_pole=header[:3], out_path="calc_strike_sminus.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=askw)
-#                print("Pole with Strikes preturbed clockwise (positive): ", (mplat,mplon,mpmag,mpa,mpb,mpphi),mpchisq,mpdof)
-#                print("Pole with Strikes preturbed counter-clockwise (negative): ",(mslat,mslon,msmag,msa,msb,msphi),mschisq,msdof)
-                #Get their covariance matrices
-                pos_geodict = geoid.Inverse(mlat,mlon,mplat,mplon)
-                neg_geodict = geoid.Inverse(mlat,mlon,mslat,mslon)
-                sa = max([pos_geodict["a12"],neg_geodict["a12"]])
-                if pos_geodict["a12"]>neg_geodict["a12"]: max_geodict,min_geodict = pos_geodict,neg_geodict
-                else: max_geodict,min_geodict = neg_geodict,pos_geodict
-                sphi = max_geodict["azi1"]
-                sb = min_geodict["a12"]*abs(np.sin(np.deg2rad(sphi-min_geodict["azi1"])))
-                (sx,sy,sz),scov = latlon2cart(mlat,mlon,ellipse_to_cov(mlat,mlon,sa,sb,sphi))
-                print("Preturbed Distances and Azimuths: ", pos_geodict["a12"],pos_geodict["azi1"],neg_geodict["a12"],neg_geodict["azi1"])
-                print("Deviation of Azimuths from Anti-parallel: ", 180+(pos_geodict["azi1"]-neg_geodict["azi1"]))
-                print("Strike Ellipse: ", sa, sb, sphi)
+                    pdata_eplus = [pdata["phs"][pdata_idx][0],pdata["phs"][pdata_idx][1].copy()]
+                    pdata_eplus[1][-1] += maj_se #Add strike SE
+                    pdata_splus["phs"].append(pdata_eplus)
+                    pdata_eminus = [pdata["phs"][pdata_idx][0],pdata["phs"][pdata_idx][1].copy()]
+                    pdata_eminus[1][-1] -= maj_se #Subtract strike SE
+                    pdata_sminus["phs"].append(pdata_eminus)
 #            (_,_,_),scov = latlon2cart(plat,plon,ellipse_to_cov(plat,plon,maj_se,min_se,phi))
-            tcov += scov
+#            tcov += scov
             n += 1
 
             #If Estimating from Euler poles instead
@@ -279,10 +261,27 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
 
     print("--------------------------------------")
     if max_file!=None:
+        #Calculate the Preturbed Poles
+        (mplat,mplon,mpmag,mpa,mpb,mpphi),mpchisq,mpdof = pymax.max_likelihood_pole(pdata_splus, trial_pole=header[:3], out_path="calc_strike_splus.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=False)
+        (mslat,mslon,msmag,msa,msb,msphi),mschisq,msdof = pymax.max_likelihood_pole(pdata_sminus, trial_pole=header[:3], out_path="calc_strike_sminus.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=False)
+        print("Pole with Strikes preturbed clockwise (positive): ", (mplat,mplon,mpmag,mpa,mpb,mpphi),mpchisq,mpdof)
+        print("Pole with Strikes preturbed counter-clockwise (negative): ",(mslat,mslon,msmag,msa,msb,msphi),mschisq,msdof)
+        #Get their covariance matrices
+        pos_geodict = geoid.Inverse(mlat,mlon,mplat,mplon)
+        neg_geodict = geoid.Inverse(mlat,mlon,mslat,mslon)
+        sa = max([pos_geodict["a12"],neg_geodict["a12"]])
+        if pos_geodict["a12"]>neg_geodict["a12"]: max_geodict,min_geodict = pos_geodict,neg_geodict
+        else: max_geodict,min_geodict = neg_geodict,pos_geodict
+        sphi = max_geodict["azi1"]
+        sb = min_geodict["a12"]*abs(np.sin(np.deg2rad(sphi-min_geodict["azi1"])))
+        (sx,sy,sz),scov = latlon2cart(mlat,mlon,ellipse_to_cov(mlat,mlon,sa,sb,sphi))
+        print("Preturbed Distances and Azimuths: ", pos_geodict["a12"],pos_geodict["azi1"],neg_geodict["a12"],neg_geodict["azi1"])
+        print("Deviation of Azimuths from Anti-parallel: ", 180+(pos_geodict["azi1"]-neg_geodict["azi1"]))
+        print("Strike Ellipse: ", sa, sb, sphi)
         #Add and then convert back to an ellipse
-        (mlat,mlon),totcov = cart2latlon(mx,my,mz,mcov+tcov)
+        (mlat,mlon),totcov = cart2latlon(mx,my,mz,mcov+scov)
         full_unc = cov_to_ellipse(mlat,mlon,totcov)
-        print("Strike Covariance Matrix:\n",tcov)
+        print("Strike Covariance Matrix:\n",scov)
         print("Full Uncertainty: ",full_unc)
 
     #More Plotting stuff for comparision with Euler poles

@@ -238,19 +238,19 @@ class RTPWindow(wx.Frame):
                 else: s1_aero = 0
             else: aero_data,s1_aero = {"phs":[["none",[0.,0.]]]},0
 
-            self.parent.save_max_file(".tmp.max") #now read all data and change s1 to match above
+            self.parent.save_max_file(".tmp.max",ship_1s=s1_ship,aero_1s=s1_aero) #now read all data and change s1 to match above
             comment,header,data = pymax.read_max_file(".tmp.max")
-            if len(data["phs"])==0: return
-            for i in range(len(data["phs"])):
-                if len(ship_data["phs"]) > 0 and data["phs"][i][1][1]==ship_data["phs"][0][1][1]:
-                    data["phs"][i][1][1] = s1_ship
-                elif len(aero_data["phs"]) > 0 and data["phs"][i][1][1]==aero_data["phs"][0][1][1]:
-                    data["phs"][i][1][1] = s1_aero
+            if len(data["phs"])==0: raise ValueError("Empty Max file read during pole calculation")
+#            for i in range(len(data["phs"])):
+#                if len(ship_data["phs"]) > 0 and data["phs"][i][1][1]==ship_data["phs"][0][1][1]:
+#                    data["phs"][i][1][1] = s1_ship
+#                elif len(aero_data["phs"]) > 0 and data["phs"][i][1][1]==aero_data["phs"][0][1][1]:
+#                    data["phs"][i][1][1] = s1_aero
 
             if self.m_solve_askw.IsChecked(): (plat,plon,pmag,askw,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment, solve_anom_skew=self.m_solve_askw.IsChecked())
             else: (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment, solve_anom_skew=self.m_solve_askw.IsChecked())
             if self.m_add_strike_unc.IsChecked(): #If strike unc is to be included calculate it!!!
-                (maj_se,min_se,phi) = cs.calc_strikes_and_add_err(self.parent.deskew_path,mlat=plat,mlon=plon,ma=maj_se,mb=min_se,mphi=phi,geoid=self.geoid,outfile=".tmp_dsk_cs",filter_by_quality=False,visualize=False,convergence_level=1e-5)
+                (maj_se,min_se,phi) = cs.calc_strikes_and_add_err(self.parent.deskew_path,max_file=".tmp.max",geoid=self.geoid,outfile=".tmp_dsk_cs",filter_by_quality=False,visualize=False,convergence_level=1e-5,solve_anom_skew=self.m_solve_askw.IsChecked())
                 os.remove(".tmp_dsk_cs")
 
             #write pole coordinates and 1sigmas to plot for user

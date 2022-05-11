@@ -235,7 +235,7 @@ def create_maxtab_file(deskew_path,anomoly_name,outfile=None):
     out_file.write(out_str)
     out_file.close()
 
-def create_max_file(deskew_df,srf,asf,outfile="deskew.max"):
+def create_max_file(deskew_df,srf,asf,outfile="deskew.max",aero_1s=10.,ship_1s=10.):
     #Open Out File
     with open(outfile,'w+') as fout:
         #Write Max Header
@@ -250,9 +250,9 @@ def create_max_file(deskew_df,srf,asf,outfile="deskew.max"):
                 lon = row["inter_lon"]
                 strike = row["strike"]
                 aei = row["aei"]
-                s1aei = 30./(row["age_max"]-row["age_min"])
+                s1aei = ship_1s
             else:
-                s1aei = 15./(row["age_max"]-row["age_min"])
+                s1aei = aero_1s
                 if "Ed" in row["comp_name"]:
                     other_comp = row["comp_name"].replace(".Ed.lp",".Vd.lp")
                     oth_row = deskew_df[deskew_df["comp_name"]==other_comp]

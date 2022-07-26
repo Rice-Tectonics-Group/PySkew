@@ -52,6 +52,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+from matplotlib.ticker import StrMethodFormatter
 import pyskew.plot_gravity as pg
 from time import time
 from rasterio.enums import Resampling
@@ -107,6 +108,7 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
     ValueError
     """
     #First deal with determining the paleomagnetic result if we're updating it's uncertainties
+    pdata = []
     if max_file!=None:
         comment,header,pdata = pymax.read_max_file(".tmp.max")
         if len(pdata["phs"])==0: raise ValueError("Empty Max file read during correction for strike uncertainty")
@@ -124,14 +126,15 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
     if filter_by_quality: #If removing commented data, remove it
         bad_dsk_data = dsk_df[dsk_df["quality"]!="g"]
         dsk_df = dsk_df[dsk_df["quality"]=="g"]
-    strike_diffs,tcov = [],np.zeros((3,3))
-    szs_to_calc = dsk_df["sz_name"].drop_duplicates()#.drop(24) #removes MahiMahi
+    szs_to_calc = dsk_df["sz_name"].drop_duplicates()
 
     #Deal with Euler poles if any have been provided
     if isinstance(euler_pole,type(None)) or len(euler_pole)==0: euler_poles = [None]
     elif len(euler_pole)==2 and (isinstance(euler_pole[0],float) or isinstance(euler_pole[0],int)): euler_poles = [euler_pole]
     elif len(euler_pole)>0 and (isinstance(euler_pole[0],list) or isinstance(euler_pole[0],tuple)): euler_poles = euler_pole
     else: raise ValueError("Euler pole must be None or either a list of euler poles which are length=2 or a single euler pole with lat and lon entries. (i.e. [90,0] or [[90,0],[0,0]])")
+
+    strike_diffs,all_epstrikes,all_pstrikes,strike_poles,sz_used,tcov = [],[[] for i in range(len(euler_poles))],[],[],[],np.zeros((3,3))
 
     n = 0 #record the number of szs strikes are estimated from just in case
     for sz in szs_to_calc: #Iterate over spreading zones
@@ -143,9 +146,9 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
             fig = plt.figure(dpi=100)
             proj = ccrs.Mercator(central_longitude=sz_df["inter_lon"].mean())
             ax = fig.add_subplot(111,projection=proj)
-            ax.set_xticks(np.arange(0, 370, 10.), crs=ccrs.PlateCarree())
-            ax.set_yticks(np.arange(-80, 90, 10.), crs=ccrs.PlateCarree())
-            ax.tick_params(grid_linewidth=.5,grid_linestyle=":",color="k",labelsize=8)
+            ax.set_xticks(np.arange(0, 362, 2.), crs=ccrs.PlateCarree())
+            ax.set_yticks(np.arange(-80, 82, 2.), crs=ccrs.PlateCarree())
+            ax.tick_params(labelsize=14)
             lon_formatter = LongitudeFormatter(zero_direction_label=True)
             lat_formatter = LatitudeFormatter()
             ax.xaxis.set_major_formatter(lon_formatter)
@@ -159,6 +162,7 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
             data = {"dec":[],"inc":[],"phs":[],"ell":[],"ccl":[],"azi":[],"amp":[]}
             #Make empty preturbed data dictionaries
             pdata_splus,pdata_sminus = deepcopy(pdata),deepcopy(pdata)
+            sz_used.append(sz)
 
             #Construct Max file for Strike Estimation
             for i,row in sz_df.iterrows():
@@ -182,6 +186,7 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
             for i in range(len(data["ccl"])):
                 data["ccl"][i][1][1] *= np.sqrt(chisq)
             (plat,plon,_,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data,convergence_level=convergence_level)
+            strike_poles.append((plat,plon,maj_se,min_se,phi))
             print("\t",(plat,plon,maj_se,min_se,phi),chisq,dof)
 
             if max_file!=None: #Create Preturbed Max data for Strike Uncertainty
@@ -210,15 +215,16 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
                 print("Deviation of Azimuths from Anti-parallel: ", 180+(pos_geodict["azi1"]-neg_geodict["azi1"]))
                 print("Strike Ellipse: ", sa, sb, sphi)
 #            (_,_,_),scov = latlon2cart(plat,plon,ellipse_to_cov(plat,plon,maj_se,min_se,phi))
-            tcov += scov
+                tcov += scov
             n += 1
 
             #If Estimating from Euler poles instead
+            pstrikes,epstrikes_2 = [],[]
             for ep_idx,euler_pole in enumerate(euler_poles):
                 if not isinstance(euler_pole,type(None)):
                     print("--------------------------------------------------------------------------------")
                     print("Euler Pole: %.1f, %.1f"%(euler_pole[0],euler_pole[1]))
-                estrikes,dists = [],[]
+                estrikes,dists,epstrikes,pstrikes = [],[],[],[]
                 for i,row in sz_df.iterrows():
                     if not isinstance(euler_pole,type(None)):
                         geodict = geoid.Inverse(*euler_pole,row["inter_lat"],row["inter_lon"])
@@ -227,6 +233,7 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
                         pstrike = pgeodict["azi2"]+90
                         if pstrike < 0: pstrike += 180
                         strike_diff = abs(strike-pstrike)
+                        pstrikes.append(pstrike)
                         if strike_diff>90: strike_diff = abs(180-strike_diff)
                         if len(strike_diffs)<ep_idx+1: strike_diffs.append([])
                         strike_diffs[ep_idx].append(strike_diff); estrikes.append(geodict["azi1"]+180)
@@ -236,9 +243,12 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
                     dists.append(pgeodict["a12"])
                     if strike < 0: strike += 360
                     if strike < 180: strike += 180
+                    strike -= 180
                     dsk_df.at[i,"strike"] = strike
+                    epstrikes.append(strike)
                     if not isinstance(euler_pole,type(None)): print("\t\t",row["comp_name"],"\n","\t\t\tEuler Pole Strike: ", strike,"\n\t\t\tPredicted Strike: ",pstrike)
                     else: print("\t\t",row["comp_name"], strike)
+                epstrikes_2.append(epstrikes)
 
                 #Visualize these euler poles for comparision
                 if visualize:
@@ -250,6 +260,9 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
                         print("Average Azimuth of Sites Relative to EP: ", estrike)
                         ep_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][(ep_idx%9)+1]
                         ax = psk.plot_great_circle(euler_pole[1],euler_pole[0],estrike, m=ax, color=ep_color, geoid=Geodesic(6371.,0.), transform=ccrs.PlateCarree(), alpha=.7, linewidth=3, zorder=2)
+            all_pstrikes += pstrikes
+            for i in range(len(all_epstrikes)):
+                all_epstrikes[i] += epstrikes_2[i]
             if visualize: #Finish of the visuals
                 all_lons,all_lats,all_grav = pg.get_sandwell(window,down_sample_factor,resample_method=Resampling.average,sandwell_files_path=os.path.join(sandwell_files_path,"*.tiff"))
                 print("Plotting Gravity")
@@ -258,9 +271,10 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
                 fcm = ax.contourf(all_lons, all_lats, all_grav, 60, cmap="Blues_r", alpha=.75, transform=ccrs.PlateCarree(), zorder=0, vmin=0, vmax=255)
                 print("Runtime: ",time()-start_time)
                 ax.set_extent(window,ccrs.PlateCarree())
+                ax.set_title(sz)
                 vis_outpath = os.path.join(os.path.dirname(dsk_path),"strike_fit_%s"%sz)
                 print("Saving: %s"%vis_outpath)
-                fig.savefig(vis_outpath)
+                fig.savefig(vis_outpath,bbox_inches='tight',facecolor='white')
 
         elif num_sites==2: #equal determined case
             strike = geoid.Inverse(sz_df.iloc[0]["inter_lat"],sz_df.iloc[0]["inter_lon"],sz_df.iloc[1]["inter_lat"],sz_df.iloc[1]["inter_lon"])["azi1"]
@@ -284,6 +298,7 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
         full_unc = cov_to_ellipse(mlat,mlon,totcov)
         print("Strike Covariance Matrix:\n",tcov)
         print("Full Uncertainty: ",full_unc)
+    else: full_unc = np.zeros([3,3])
 
     #More Plotting stuff for comparision with Euler poles
     if not isinstance(euler_pole,type(None)):
@@ -291,6 +306,7 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
             all_strike_diffs = []
             fig_all = plt.figure(dpi=100)
             ax_all = fig_all.add_subplot(111)
+            studies = ["Engebretson et al. (1985)", "Rosa and Molnar (1988)", "Rowan and Rowley (2014)", "Wright et al. (2016)"]
             for ep_idx in range(len(strike_diffs)):
                 ep_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][(ep_idx%9)+1]
                 #Do histogram for each individual euler pole
@@ -298,23 +314,55 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
                 fig = plt.figure(dpi=100)
                 ax = fig.add_subplot(111)
                 ax.hist(strike_diffs[ep_idx],bins=np.arange(0.,4.2,0.2),color=ep_color)
-                ax.axvline(sum(strike_diffs[ep_idx])/len(strike_diffs[ep_idx]),color="tab:blue",linestyle="--")
-                ax.axvline(np.median(strike_diffs[ep_idx]),color="cyan")
+                ax.axvline(sum(strike_diffs[ep_idx])/len(strike_diffs[ep_idx]),color="k",linestyle="--")
+                ax.axvline(np.median(strike_diffs[ep_idx]),color="k")
                 vis_outpath = os.path.join(os.path.dirname(dsk_path),"strike_fit_epstats_%d.png"%ep_idx)
                 print("Saving: %s"%vis_outpath)
-                fig.savefig(vis_outpath)
+                fig.savefig(vis_outpath,bbox_inches='tight',facecolor='white')
                 #Do stacked histogram for all euler poles
                 all_strike_diffs += list(strike_diffs[ep_idx])
-                ax_all.hist(all_strike_diffs,bins=np.arange(0.,4.2,0.2),color=ep_color,zorder=len(strike_diffs)-ep_idx)
+                ax_all.hist(all_strike_diffs,bins=np.arange(0.,4.2,0.2),color=ep_color,zorder=len(strike_diffs)-ep_idx, label=studies[ep_idx])
 #            all_strike_diffs = reduce(lambda x,y=[]: x+y, strike_diffs)
             print("For All EP -> Mean, Median, Min, Max Strike Differences: ",sum(all_strike_diffs)/len(all_strike_diffs),np.median(all_strike_diffs),min(all_strike_diffs),max(all_strike_diffs))
-            ax_all.axvline(sum(all_strike_diffs)/len(all_strike_diffs),color="tab:red",linestyle="--")
-            ax_all.axvline(np.median(all_strike_diffs),color="tab:orange")
+            ax_all.tick_params(labelsize=14)
+            ax_all.axvline(sum(all_strike_diffs)/len(all_strike_diffs),color="k",linestyle="--",label="Mean")
+            ax_all.axvline(np.median(all_strike_diffs),color="k",label="Median")
+            ax_all.set_xlabel("Strike Difference ($^\circ$)",fontsize=16)
+            ax_all.set_ylabel("Count (# of data)",fontsize=16)
+            ax_all.set_title("C27r Difference in Euler pole and Calculated Strike",fontsize=24)
+            ax_all.legend(fontsize=16)
             vis_outpath = os.path.join(os.path.dirname(dsk_path),"strike_fit_all_epstats.png")
             print("Saving: %s"%vis_outpath)
-            fig_all.savefig(vis_outpath)
+            fig_all.savefig(vis_outpath,bbox_inches='tight',facecolor='white')
             all_strike_diffs = reduce(lambda x,y=[]: x+y, strike_diffs)
             print("For All EP (Check) -> Mean, Median, Min, Max Strike Differences: ",sum(all_strike_diffs)/len(all_strike_diffs),np.median(all_strike_diffs),min(all_strike_diffs),max(all_strike_diffs))
+            fig_scatter = plt.figure(dpi=100)
+            ax_scatter = fig_scatter.add_subplot(111)
+            dsk_df = dsk_df[dsk_df["sz_name"].isin(sz_used)]
+            ax_scatter.scatter(all_pstrikes,dsk_df["inter_lat"],label="Great-Circle Fit Strikes")
+            for i in range(len(euler_poles)):
+                ax_scatter.scatter(all_epstrikes[i],dsk_df["inter_lat"],label=studies[i])
+            prev_len = 0
+            for i,sz in enumerate(sz_used): #Iterate over spreading zones
+                sz_df = dsk_df[dsk_df["sz_name"]==sz]
+                num_data = len(sz_df)
+                geodict = geoid.Inverse(sz_df.iloc[0]["inter_lat"],sz_df.iloc[0]["inter_lon"],sz_df.iloc[-1]["inter_lat"],sz_df.iloc[-1]["inter_lon"])
+                midpoint = geoid.ArcDirect(sz_df.iloc[0]["inter_lat"],sz_df.iloc[0]["inter_lon"],geodict["azi1"],geodict["a12"]/2)
+                sz_strikes = all_pstrikes[prev_len:prev_len+num_data]
+                (plat,plon,maj_se,min_se,phi) = strike_poles[i]
+                ax_scatter.errorbar([np.mean(sz_strikes)],[midpoint["lat2"]],xerr=[2*maj_se],color="k", marker="o", markersize=10, elinewidth=2, capsize=4, capthick=2)
+                prev_len += num_data
+            ax_scatter.errorbar([np.mean(sz_strikes)],[midpoint["lat2"]],xerr=[2*maj_se],color="k", marker="o", markersize=10, elinewidth=2, capsize=4, capthick=2, label="Mean GC Strike (2$\sigma$)")
+#            ax_scatter.set_xlim([min(dsk_df["inter_lat"])
+            ax_scatter.set_ylabel("Present Latitude")
+            ax_scatter.yaxis.set_major_formatter(StrMethodFormatter(r"{x}$^\circ$N"))
+            ax_scatter.set_xlabel("Strike")
+            ax_scatter.xaxis.set_major_formatter(StrMethodFormatter(r"N{x}$^\circ$E"))
+            ax_scatter.set_title("C27r Crossing Strikes")
+            ax_scatter.legend()
+            vis_outpath = os.path.join(os.path.dirname(dsk_path),"strike_scatter.png")
+            print("Saving: %s"%vis_outpath)
+            fig_scatter.savefig(vis_outpath,bbox_inches='tight',facecolor='white')
 
     #Write out final answer in deskew file
     if isinstance(outfile,type(None)): outfile = os.path.join(os.path.dirname(dsk_path),"strike_cor_"+os.path.basename(dsk_path))

@@ -14,6 +14,7 @@ import wx.lib.buttons as buttons
 import wx.lib.mixins.listctrl as listmix
 import matplotlib as mpl
 import matplotlib.path as mpath
+import matplotlib.ticker as mticker
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
@@ -505,8 +506,10 @@ class RTPWindow(wx.Frame):
 #        lat_formatter = LatitudeFormatter()
 #        self.ax.xaxis.set_major_formatter(lon_formatter)
 #        self.ax.yaxis.set_major_formatter(lat_formatter)
-        self.ax.gridlines(color='grey', alpha=0.5, linestyle='--',linewidth=.5)
-        land = cfeature.NaturalEarthFeature('physical', 'land', self.resolution, edgecolor="black", facecolor="grey", linewidth=2)
+        self.gl = self.ax.gridlines(color='black', alpha=1., linestyle=':',linewidth=.5, zorder=1)
+        self.gl.xlocator = mticker.FixedLocator(np.arange(-180,180,20))
+        self.gl.ylocator = mticker.FixedLocator(np.arange(-80,90,5))
+        land = cfeature.NaturalEarthFeature('physical', 'land', self.resolution, edgecolor="black", facecolor="grey", linewidth=2,zorder=0)
         self.ax.add_feature(land)
 
 

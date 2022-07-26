@@ -218,8 +218,8 @@ def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,pole_text=None,pole_te
     if "alpha" in kwargs.keys(): alpha = kwargs.pop("alpha")
     else: alpha = None
 
-    if alpha_all: m.scatter(lon, lat,  zorder=zorder,transform=transform, alpha=alpha, **kwargs)
-    else: m.scatter(lon, lat,  zorder=zorder,transform=transform, **kwargs)
+    if alpha_all: m.scatter(lon, lat,  zorder=np.inf,transform=transform, alpha=alpha, **kwargs)
+    else: m.scatter(lon, lat,  zorder=np.inf,transform=transform, **kwargs)
     if pole_text!=None:
         if pole_text_pos!=None: plt.text(*m(*pole_text_pos),pole_text,zorder=500,transform=transform)
         else:
@@ -231,7 +231,7 @@ def plot_pole(lon,lat,az,a,b,m=None,color='cyan',zorder=3,pole_text=None,pole_te
     if "marker" in kwargs: kwargs.pop("marker")
     if "linewidths" in kwargs: kwargs.pop("linewidths")
     if "s" in kwargs: kwargs.pop("s")
-    if filled: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, facecolor=color, edgecolor='#00000088', zorder=zorder-1, alpha=alpha, **kwargs)
+    if filled: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, facecolor=color, edgecolor='#000000', zorder=zorder-1, alpha=alpha, **kwargs)
     else: ipmag.ellipse(m, lon, lat, (a*111.11), (b*111.11), az, n=360, filled=filled, color=color, zorder=zorder-1, alpha=alpha, **kwargs)
 
     return m
@@ -367,9 +367,9 @@ def plot_lunes(comps, gcm, idx_selected=None, average_vector_data=False, plot_le
                     aei = (row["aei"] + oth_row["aei"])/2
             elif average_vector_data: continue
             else: linestyle="--"
-            linewidth=1
+            linewidth=1.5
         if row["track_type"]=='ship':
-            linestyle,linewidth=":",1
+            linestyle,linewidth=":",2.
 
         if aei<90 and aei>-90: azi = (360+np.linspace(strike-180,strike,180))%360 #Possible Declinations
         else: azi = (360+np.linspace(strike,strike+180,180))%360 #Possible Declinations
@@ -385,10 +385,10 @@ def plot_lunes(comps, gcm, idx_selected=None, average_vector_data=False, plot_le
         gc_lat = [gcd["lat2"] for gcd in gc_points_and_azis]
 
         # Draw great semi-circle
-        gcm.scatter([gc_lon[0],gc_lon[-1]], [gc_lat[0],gc_lat[-1]], edgecolor='k', facecolor='none', zorder=10,transform=ccrs.PlateCarree())
         if (not isinstance(idx_selected,type(None))) and i==idx_selected: color = "#FF6C6C"
         else: color = (float(row["r"]),float(row["g"]),float(row["b"]))
-        gcm.plot(gc_lon, gc_lat, color=color, linestyle=linestyle, linewidth=linewidth,transform=transform,**kwargs)
+        gcm.scatter([gc_lon[0],gc_lon[-1]], [gc_lat[0],gc_lat[-1]], edgecolor='k', facecolor='none', zorder=10, transform=ccrs.PlateCarree(), s=50, linewidth=2.5)
+        gcm.plot(gc_lon, gc_lat, color=color, linestyle=linestyle, linewidth=linewidth, transform=transform,**kwargs)
 
     comps["inter_lat"] = comps["inter_lat"].apply(float)
     tmp_comps = comps.sort_values(by="inter_lat",ascending=False)
@@ -426,7 +426,7 @@ def plot_chron_span_on_axes(sz_name, axes, anom_age_span,spreading_rate_path="..
     for axis in axes:
         axis.axvspan(-anom_width/2, anom_width/2, ymin=0, ymax=1.0, zorder=0, alpha=.5,color='yellow',clip_on=False,lw=0)
 
-def plot_synthetic(sz_name, anom_age_span, ax=plt.gca(),timescale_path="../raw_data/timescale_gradstein2012.txt",spreading_rate_path="../raw_data/spreading_rate_model.txt",age_min=40.0,age_max=100.0,layer_depth=4.5,layer_thickness=0.5,layer_mag=1000.,azi=90.,rd=0.,ri=90.,ad=0.,ai=90.,fix_sta=False,fix_end=False,twf=0.,length=4096, xlims=[-500,500], clip_on=False, **kwargs):
+def plot_synthetic(sz_name, anom_age_span, ax=plt.gca(),timescale_path="../raw_data/timescale.txt",spreading_rate_path="../raw_data/spreading_rate_model.txt",age_min=40.0,age_max=100.0,layer_depth=4.5,layer_thickness=0.5,layer_mag=1000.,azi=90.,rd=0.,ri=90.,ad=0.,ai=90.,fix_sta=False,fix_end=False,twf=0.,length=4096, xlims=[-500,500], clip_on=False, **kwargs):
     mag_syn,dis_syn,samp_dis = make_synthetic(age_min,age_max,layer_depth,layer_thickness,layer_mag,azi,rd,ri,ad,ai,fix_sta,fix_end,twf,timescale_path,sz_name=sz_name,spreading_rate_path=spreading_rate_path,length=length)
 
     #Center Synthetic
@@ -916,7 +916,7 @@ def overlay_skewness_by_spreading_zone(deskew_path,deskew_path2,leave_plots_open
     try: os.remove(tmp_deskew_path); os.remove(tmp_deskew_path2); os.remove("%s.dt.csv"%os.path.basename(tmp_deskew_path).split('.')[0])
     except OSError: print("trouble removing temporary deskew and dt.csv files used for this function, check the code")
 
-def plot_skewness_by_spreading_zone(deskew_path,leave_plots_open=False,ridge_loc_path=None, fz_loc_path=None, synth_config_path=None, **kwargs):
+def plot_skewness_by_spreading_zone(deskew_path, leave_plots_open=False, ridge_loc_path=None, fz_loc_path=None, synth_config_path=None, **kwargs):
     deskew_df = filter_deskew_and_calc_aei(deskew_path)
 
     for sz in deskew_df['sz_name'].drop_duplicates():

@@ -152,15 +152,15 @@ def plot_transit_locations(chron_to_analyse, chrons_info, results_directory, dat
     legend = plt.legend(handles=handles,loc='best')
     frame = legend.get_frame()
     frame.set_alpha(.6)
-    fig.savefig(os.path.join(results_directory,"transited_spreading_zones.png"))
+    fig.savefig(os.path.join(results_directory,"transited_spreading_zones.png"),facecolor="white")
     plt.close(fig)
 
-def plot_tracks(chrons_info, results_directory, tracks=[], track_dir="all_tracks",lon_0=180,lat_0=0,cuts=False):
+def plot_tracks(chrons_info, results_directory, tracks=None, track_dir="all_tracks",lon_0=180,lat_0=0,cuts=False):
     """
     plots track files in tracks with chron info on a default ortho map centered on the pacific for rough estimation of intersept and places these plots in the results directory. If no tracks provided it plots them all
     """
 
-    if tracks==[]: tracks = glob.glob('../raw_data/hi_alt/**/*.DAT')+glob.glob('../raw_data/ship/**/*.lp')
+    if tracks==None: tracks = glob.glob('../raw_data/hi_alt/**/*.DAT')+glob.glob('../raw_data/ship/**/*.lp')
 
     all_tracks_dir=os.path.join(results_directory,track_dir)
     utl.check_dir(all_tracks_dir)
@@ -195,7 +195,7 @@ def plot_tracks(chrons_info, results_directory, tracks=[], track_dir="all_tracks
         add_chron_info_to_legend(chrons_info, handles)
         plt.legend(handles=handles,loc='best')
 
-        fig.savefig(os.path.join(all_tracks_dir,track_name+".png"))
+        fig.savefig(os.path.join(all_tracks_dir,track_name+".png"),facecolor="white")
         plt.close(fig)
 
 def plot_track_cuts(x,y,sx,sy,idx,chrons_info,track_name,results_directory):
@@ -225,7 +225,7 @@ def plot_track_cuts(x,y,sx,sy,idx,chrons_info,track_name,results_directory):
     plt.legend(handles=handles,loc='best')
 
     #Save the plot
-    fig.savefig(os.path.join(results_directory,"turning_points",track_name+".png"))
+    fig.savefig(os.path.join(results_directory,"turning_points",track_name+".png"),facecolor="white")
     plt.close(fig)
 
 def plot_az_strike(track,spreading_zone_file,idx,az,strike,chron_color,chron_name,results_directory,fout_name):
@@ -271,5 +271,5 @@ def plot_az_strike(track,spreading_zone_file,idx,az,strike,chron_color,chron_nam
     az_plots_dir = os.path.join(results_directory,"azimuth_strike_plots")
     utl.check_dir(az_plots_dir)
 
-    fig.savefig(os.path.join(az_plots_dir,os.path.basename(fout_name)[:-5]+"png"))
+    fig.savefig(os.path.join(az_plots_dir,os.path.basename(fout_name)[:-5]+"png"),facecolor="white")
     plt.close(fig)

@@ -12,31 +12,42 @@ import pmagpy.ipmag as ipmag
 try: from tqdm import tqdm
 except ImportError: tqdm = lambda x: x
 
-
 def intersect(a1,a2,e=1):
     tree = spatial.cKDTree(a1)
     return tree.query(a2, e)
 
 def intersect_bf(a1,a2,e=1):
-    cur_r = 1e9
+    cur_r = np.inf
     result = [None,None]
     for i1 in a1:
         for i2 in a2:
-            r = np.sqrt((float(i1[0])-float(i2[0]))**2 + (float(i1[1])-float(i2[1]))**2)
+#            r = np.sqrt((float(i1[0])-float(i2[0]))**2 + (float(i1[1])-float(i2[1]))**2)
+            r = gc_dis(float(i1[1]),float(i1[0]),float(i2[1]),float(i2[0]))
             if r <= e and r < cur_r:
                 cur_r=r
                 result[0] = (i1,i2)
                 result[1] = (a1.index(i1),a2.index(i2))
     return result
 
-def intersections_bf(a1,a2,e=1):
-    results = []
-    for i1 in a1:
-        for i2 in a2:
-            r = np.sqrt((float(i1[0])-float(i2[0]))**2 + (float(i1[1])-float(i2[1]))**2)
-            if r <= e:
-                results.append([(i1,i2),(a1.index(i1),a2.index(i2))])
-    return results
+#def intersections_bf(a1,a2,e=1):
+#    prev_r = np.inf
+#    results = []
+#    for i1 in a1:
+#        for i2 in a2:
+##            r = np.sqrt((float(i1[0])-float(i2[0]))**2 + (float(i1[1])-float(i2[1]))**2)
+#            r = gc_dis(float(i1[1]),float(i1[0]),float(i2[1]),float(i2[0]))
+#            if r <= e:
+#                results.append([(i1,i2),(a1.index(i1),a2.index(i2))])
+#                if r>prev_r: break
+#            prev_r = r
+#    return results
+
+def gc_dis(lat1,lon1,lat2,lon2):
+    rlat1,rlon1,rlat2,rlon2 = np.deg2rad((lat1,lon1,lat2,lon2))
+    dlon = abs(rlon1-rlon2)
+    num = np.sqrt((np.cos(rlat2)*np.sin(dlon))**2 + (np.cos(rlat1)*np.sin(rlat2) - np.sin(rlat1)*np.cos(rlat2)*np.cos(dlon))**2)
+    den = np.sin(rlat1)*np.sin(rlat2) + np.cos(rlat1)*np.cos(rlat2)*np.cos(dlon)
+    return np.rad2deg(np.arctan2(num,den))
 
 def shipmag_preprocess(shipmag_files):
     for shipmag_file in shipmag_files:
@@ -47,7 +58,7 @@ def shipmag_preprocess(shipmag_files):
         latlon_file = shipmag_file + ".latlon"
         latlon_df.to_csv(latlon_file, sep=' ', index=False, header=False)
 
-def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dates.aeromag'),geoid=Geodesic.WGS84):
+def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dates.aeromag'),geoid=Geodesic(6371.,0.)):
     for aeromag_file in aeromag_files: #iterate over all aeromag files
 
         track,extension = os.path.basename(aeromag_file).split('.') #segment the name into parts
@@ -96,15 +107,19 @@ def aeromag_preprocess(aeromag_files,date_file=os.path.join('..','raw_data','dat
 #        adf = adf[(adf['res_e_comp']<3000) & (adf['res_n_comp']<3000) & (adf['res_v_comp']<3000) & (adf['res_h_comp']<3000) & (adf['res_t_comp']<3000)]
 
         #remove a second order polynomial fromm the magnetic data I don't know why but this is something done
+        all_pols = []
         for col in ['res_e_comp','res_n_comp','res_h_comp','res_v_comp','res_t_comp']:
-#            pols = np.polyfit(adf['dis'].tolist(),adf[col].tolist(),3)
-#            mag_fit = np.polyval(pols,adf['dis'].tolist())
-#            adf['cor'+col.lstrip('res')] = adf[col].to_numpy() - mag_fit
-            adf['cor'+col.lstrip('res')] = adf[col].to_numpy()
+            pols = np.polyfit(adf['dis'].tolist(),adf[col].tolist(),1)
+            all_pols.append(pols)
+        avg_pols = np.array(all_pols).mean(axis=1)
+        mag_fit = np.polyval(avg_pols,adf['dis'].tolist())
+        for col in ['res_e_comp','res_n_comp','res_h_comp','res_v_comp','res_t_comp']:
+            adf['cor'+col.lstrip('res')] = adf[col].to_numpy() - mag_fit
+#            adf['cor'+col.lstrip('res')] = adf[col].to_numpy()
 
         #iterpolate and round data
         adf = adf.dropna()
-        idf['dis'] = np.arange(adf['dis'].iloc[0],adf['dis'].iloc[-1]+.1,.1) #spacing of 1 km, because I can
+        idf['dis'] = np.arange(adf['dis'].iloc[0],adf['dis'].iloc[-1]+.001,.001) #spacing of 1 km, because I can
         idf['lat'] = np.interp(idf['dis'],adf['dis'],adf['lat'])
         idf['lon'] = np.interp(idf['dis'],adf['dis'],adf['lon'])
         idf['alt'] = np.interp(idf['dis'],adf['dis'],.3048*adf['alt'])
@@ -207,7 +222,7 @@ def get_track_intersects(chron_to_analyse, tracks_or_cuts, spreading_zone_files,
     """ This function works in 0-360 longitude because otherwise there would be a discontinuty in the Pacific the region of interest """
     chron,chron_color = chron_to_analyse
     chron_name = "chron%s"%(str(chron))
-    bound_check_func = lambda x: bounding_lats[0]<float(x[1]) and bounding_lats[1]>float(x[1]) and bounding_lons[0]<float(x[0]) and bounding_lons[1]>float(x[0])
+    bound_check_func = lambda x: bounding_lats[0]<float(x[1]) and bounding_lats[1]>float(x[1]) and bounding_lons[0]<utl.convert_to_0_360(x[0]) and bounding_lons[1]>utl.convert_to_0_360(x[0])
     intersecting_tracks,out_string = [],""
     for track in tqdm(tracks_or_cuts):
         print(track)
@@ -217,7 +232,7 @@ def get_track_intersects(chron_to_analyse, tracks_or_cuts, spreading_zone_files,
         if not list(filter(bound_check_func,lt)): print("track out of bounds, skipping track"); continue
 
         for spreading_zone_file in spreading_zone_files:
-            lsz = [[line.split()[0],line.split()[1]] for line in open(spreading_zone_file).readlines() if len(line.split())>1]
+            lsz = [[utl.convert_to_0_360(line.split()[0]),line.split()[1]] for line in open(spreading_zone_file).readlines() if len(line.split())>1]
             if not list(filter(bound_check_func,lsz)): continue
             idx = intersect_bf(lt,lsz,e=e)
 
@@ -353,7 +368,7 @@ def generate_az_strike_files(track_sz_and_inters, chron_to_analyse, heading, res
 
         gcp_lon,gcp_lat = open(spreading_zone_file[:-3]+'gcp').readlines()[5].split()[0:2] #GMT has varriable ouutput to fitcircle so some of these files will have the N eigin value pole here and some the South this may need to be adapted
 
-        az = utl.convert_to_0_360(Geodesic.WGS84.Inverse(float(idx[0][1][1]),float(idx[0][1][0]),float(gcp_lat),float(gcp_lon))['azi1'])
+        az = utl.convert_to_0_360(Geodesic(6371.,0.).Inverse(float(idx[0][1][1]),float(idx[0][1][0]),float(gcp_lat),float(gcp_lon))['azi1'])
 
         if heading=='east' and az>=180: az -= 180
         elif heading=='west' and az<=180: az += 180

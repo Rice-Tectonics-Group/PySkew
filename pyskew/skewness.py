@@ -10,7 +10,7 @@ import pyskew.geographic_preprocessing as pg
 import pyskew.utilities as utl
 from scipy.signal import hilbert, butter, filtfilt
 
-def filter_deskew_and_calc_aei(deskew_path,spreading_rate_path=None,anomalous_skewness_model_path=None):
+def filter_deskew_and_calc_aei(deskew_path, spreading_rate_path=None, anomalous_skewness_model_path=None):
     """Creates Datatable"""
 
     deskew_df = utl.open_deskew_file(deskew_path)
@@ -37,15 +37,15 @@ def calc_aei(deskew_df,srf,asf):
 
 def row_calc_aei(row,srf,asf):
     if row["track_type"] == "aero":
-        row["ei"] = 90 if ".Vd." in row["comp_name"] else 0
-        row["aei"] = 180 - row['phase_shift'] - row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))
+        row["ei"] = 90. if ".Vd." in row["comp_name"] else 0.
+        row["aei"] = 180. - float(row['phase_shift']) - row["ei"] + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))
     else:
         decimal_year = get_shipmag_decimal_year(row)
         if decimal_year==None: raise ValueError("Intersection point could not be found in data file so IGRF could not be calculated and aei could not be found please check your data, skipping %s"%row['comp_name'])
         igrf = ipmag.igrf([decimal_year,0,float(row['inter_lat']),float(row['inter_lon'])])
         alpha = float(row['strike']) - igrf[0]
         e = np.rad2deg(np.arctan2(np.tan(np.deg2rad(igrf[1])),np.sin(np.deg2rad(alpha))))
-        aei = 180 - e - float(row['phase_shift']) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))
+        aei = 180. - e - float(row['phase_shift']) + asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))
         row['ei'] = e
         row['aei'] = aei
     return row
@@ -74,8 +74,15 @@ def phase_shift_data(mag_data,phase_shift):
 
     #   Add a head and a tail for the data
     #   so the magnetic anamaly profile will have two smooth ends
-    magpre=np.arange(0,1,0.001)*mag[0]
-    magpost=np.arange(.99,-.01,-.001)*mag[-1]
+
+    # Linear Tappers
+#    magpre=np.arange(0,1,0.001)*mag[0]
+#    magpost=np.arange(.999,-.001,-.001)*mag[-1]
+
+    #Cosine Tappers
+    magpre=((np.cos(np.linspace(-np.pi,0,1000))+1)/2)*mag[0]
+    magpost=((np.cos(np.linspace(0,np.pi,1000))+1)/2)*mag[-1]
+
     magnew=np.concatenate([magpre,mag,magpost])
 
     #   Fourier transform
@@ -382,14 +389,15 @@ def reduce_dsk_df_to_pole(dsk_df, pole_lon, pole_lat, asf, srf):
     if "rel_amp" not in deskew_df.columns: deskew_df["rel_amp"] = 0.
 
     for i,row in deskew_df.sort_values("comp_name",ascending=False).iterrows():
-        reduced_skewness,rel_reduced_amplitude = reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf)
+        e_r,reduced_skewness,rel_reduced_amplitude = reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf)
 
         deskew_df.at[i,'phase_shift'] = round(reduced_skewness,3)
-        if "Ed.lp" in row["comp_name"]:
-            rel_reduced_amplitude = deskew_df[deskew_df["comp_name"]==row["comp_name"].replace("Ed.lp","Vd.lp")].iloc[0]["rel_amp"]
-        elif "Hd.lp" in row["comp_name"]:
-            rel_reduced_amplitude = deskew_df[deskew_df["comp_name"]==row["comp_name"].replace("Hd.lp","Vd.lp")].iloc[0]["rel_amp"]
-        deskew_df.at[i,'rel_amp'] = round(rel_reduced_amplitude,3)
+        deskew_df.at[i,'aei'] = round(e_r,3)
+#        if "Ed.lp" in row["comp_name"]:
+#            rel_reduced_amplitude = deskew_df[deskew_df["comp_name"]==row["comp_name"].replace("Ed.lp","Vd.lp")].iloc[0]["rel_amp"]
+#        elif "Hd.lp" in row["comp_name"]:
+#            rel_reduced_amplitude = deskew_df[deskew_df["comp_name"]==row["comp_name"].replace("Hd.lp","Vd.lp")].iloc[0]["rel_amp"]
+#        deskew_df.at[i,'rel_amp'] = round(rel_reduced_amplitude,3)
 
     return deskew_df
 
@@ -418,10 +426,10 @@ def reduce_dsk_row_to_pole(row, pole_lon, pole_lat, asf, srf):
 
         anom_skew = asf(srf(row['sz_name'],(float(row['age_max'])+float(row['age_min']))/2))
 
-        reduced_skewness = utl.wrap_0_360(180 - float(row['ei']) - e_r + anom_skew)
+        reduced_skewness = utl.wrap_0_360(180. - float(row['ei']) - e_r + anom_skew)
         rel_reduced_amplitude = (np.sin(np.deg2rad(float(e_r)))/np.sin(np.deg2rad(row['ei'])))*np.sqrt(1+3*(np.cos(np.deg2rad(90-row["inter_lat"])))**2)
 
-        return reduced_skewness,rel_reduced_amplitude
+        return e_r,reduced_skewness,rel_reduced_amplitude
 
 def create_deskew_file(chron_name,results_directory,age_min,age_max,data_directory='.',phase_shift=180,step=60):
     cut_tracks_path=os.path.join(data_directory,"usable_tracks_and_intersects_for_%s.txt"%str(chron_name))
@@ -977,7 +985,7 @@ def auto_dsk(dsk_row,synth,bounds,conv_limit=0,conv_bounds=[None,None],phase_arg
         else: fitshifted_mag = itshifted_mag
 
         al1 = np.angle(hilbert(fitshifted_mag,N),deg=False)
-        phase_asynchrony = np.sin((al1-al2)/2) #shouldn't go negative but...just in case
+        phase_asynchrony = np.sin(np.abs(al1-al2)/2) #shouldn't go negative but...just in case
         best_shifts.append(best_shift)
         phase_async_func.append(phase_asynchrony.sum())
 

@@ -140,7 +140,7 @@ class EAIWindow(wx.Frame):
         menu_view = wx.Menu()
 
         self.m_plot_legend = menu_view.AppendCheckItem(-1, "&Plot Legend\tCtrl-L", "PlotLeg")
-        self.m_plot_legend.Check()
+#        self.m_plot_legend.Check()
         self.Bind(wx.EVT_MENU, self.on_plot_legend, self.m_plot_legend)
 
         self.m_show_selected = menu_view.AppendCheckItem(-1, "&Show Selected\tCtrl-R", "PlotSel")
@@ -152,6 +152,7 @@ class EAIWindow(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_show_bad, self.m_show_bad)
 
         self.m_show_both_aero = menu_view.AppendCheckItem(-1, "&Show Both Components\tCtrl-A", "ShowBothComp")
+        self.m_show_both_aero.Check()
         self.Bind(wx.EVT_MENU, self.on_show_both_components, self.m_show_both_aero)
 
         self.m_show_paleo_eq = menu_view.AppendCheckItem(-1, "&Show Paleo-Equator\tCtrl-E", "ShowPE")

@@ -47,6 +47,7 @@ class RTPWindow(wx.Frame):
         self.fontsize = fontsize
         self.verbose = verbose
         self.poles_to_plot = []
+        self.fixed_strike_se = None
 
         self.panel = wx.Panel(self,-1,size=(400*2,300*2))
 
@@ -175,6 +176,9 @@ class RTPWindow(wx.Frame):
         self.m_add_strike_unc = menu_edit.AppendCheckItem(-1, "&Add Strike Uncertainty\tCtrl-R", "CalcStrikes")
         self.Bind(wx.EVT_MENU, self.on_add_strike_unc, self.m_add_strike_unc)
 
+        self.m_fix_strike_unc = menu_edit.AppendCheckItem(-1, "&Fix Strike Uncertainty\tCtrl-Shift-R", "FixStrikes")
+        self.Bind(wx.EVT_MENU, self.on_fix_strike_unc, self.m_fix_strike_unc)
+
         self.m_solve_askw = menu_edit.AppendCheckItem(-1, "&Solve for Anomalous Skewness\tCtrl-A-R", "SolveAskw")
         self.Bind(wx.EVT_MENU, self.on_solve_askw, self.m_solve_askw)
 
@@ -251,7 +255,7 @@ class RTPWindow(wx.Frame):
             if self.m_solve_askw.IsChecked(): (plat,plon,pmag,askw,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment, solve_anom_skew=self.m_solve_askw.IsChecked())
             else: (plat,plon,pmag,maj_se,min_se,phi),chisq,dof = pymax.max_likelihood_pole(data, trial_pole=header[:3], out_path="synth_mag_gui.maxout", save_full_data_kernel=self.verbose, step=header[-1], max_steps=100, comment=comment, solve_anom_skew=self.m_solve_askw.IsChecked())
             if self.m_add_strike_unc.IsChecked(): #If strike unc is to be included calculate it!!!
-                (maj_se,min_se,phi) = cs.calc_strikes_and_add_err(self.parent.deskew_path,max_file=".tmp.max",geoid=self.geoid,outfile=".tmp_dsk_cs",filter_by_quality=False,visualize=False,convergence_level=1e-5,solve_anom_skew=self.m_solve_askw.IsChecked())
+                (maj_se,min_se,phi) = cs.calc_strikes_and_add_err(self.parent.deskew_path,max_file=".tmp.max",geoid=self.geoid,outfile=".tmp_dsk_cs",filter_by_quality=False,visualize=False,convergence_level=1e-5,solve_anom_skew=self.m_solve_askw.IsChecked(),fixed_strike_se=self.fixed_strike_se)
                 os.remove(".tmp_dsk_cs")
 
             #write pole coordinates and 1sigmas to plot for user
@@ -348,6 +352,21 @@ class RTPWindow(wx.Frame):
         self.update()
 
     def on_add_strike_unc(self,event):
+        self.update()
+
+    def on_fix_strike_unc(self,event):
+        if self.m_fix_strike_unc.IsChecked():
+            dlg = wx.TextEntryDialog(self, "Enter fixed strike 1 sigma:", "Fixed Strike Perturbation")
+            if dlg.ShowModal() == wx.ID_OK:
+                try: self.fixed_strike_se = float(dlg.GetValue())
+                except ValueError:
+                    self.parent.user_warning("Non-numeric value read as fixed strike 1 sigam, please provide a number")
+                    dlg.Destroy()
+                    return
+            dlg.Destroy()
+        else:
+            self.parent.user_warning("Returning to calculated strike uncertainties")
+            self.fixed_strike_se = None
         self.update()
 
     def on_solve_askw(self,event):

@@ -59,7 +59,7 @@ from rasterio.enums import Resampling
 from functools import reduce
 from copy import deepcopy
 
-def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=Geodesic(6371,0.0),outfile=None,filter_by_quality=False,visualize=False,visual_padding=3.,down_sample_factor=5.,sandwell_files_path="../raw_data/gravity/Sandwell",convergence_level=0.01,euler_pole=None):
+def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=Geodesic(6371,0.0),outfile=None,filter_by_quality=False,visualize=False,visual_padding=3.,down_sample_factor=5.,sandwell_files_path="../raw_data/gravity/Sandwell",convergence_level=0.01,euler_pole=None,fixed_strike_se=None):
     """
     Function that does the heavy lifting calculating the great circles and associated strikes
     for anomaly crossings. Will also add average strike uncertainty to a paleomagnetic pole
@@ -193,15 +193,19 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
                 for i,row in sz_df.iterrows(): #Find all max data entries associated with this SZ
                     pdata_idx = find_pdata_idx(row["comp_name"], pdata)
                     if pdata_idx==None: continue #This is happening because of aeromag
-                    pdata_splus["phs"][pdata_idx][1][-1] += maj_se #Add strike SE
-                    pdata_sminus["phs"][pdata_idx][1][-1] -= maj_se #Subtract strike SE
+                    if fixed_strike_se!=None:
+                        pdata_splus["phs"][pdata_idx][1][-1] += fixed_strike_se #Add strike SE
+                        pdata_sminus["phs"][pdata_idx][1][-1] -= fixed_strike_se #Subtract strike SE
+                    else:
+                        pdata_splus["phs"][pdata_idx][1][-1] += maj_se #Add strike SE
+                        pdata_sminus["phs"][pdata_idx][1][-1] -= maj_se #Subtract strike SE
                 #Calculate the Preturbed Poles
                 if solve_anom_skew: (mplat,mplon,mpmag,askw,mpa,mpb,mpphi),mpchisq,mpdof = pymax.max_likelihood_pole(pdata_splus, trial_pole=header[:3], out_path="calc_strike_splus.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=askw)
                 else: (mplat,mplon,mpmag,mpa,mpb,mpphi),mpchisq,mpdof = pymax.max_likelihood_pole(pdata_splus, trial_pole=header[:3], out_path="calc_strike_splus.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=askw)
                 if solve_anom_skew: (mslat,mslon,msmag,askw,msa,msb,msphi),mschisq,msdof = pymax.max_likelihood_pole(pdata_sminus, trial_pole=header[:3], out_path="calc_strike_sminus.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=askw)
                 else: (mslat,mslon,msmag,msa,msb,msphi),mschisq,msdof = pymax.max_likelihood_pole(pdata_sminus, trial_pole=header[:3], out_path="calc_strike_sminus.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=askw)
-#                print("Pole with Strikes preturbed clockwise (positive): ", (mplat,mplon,mpmag,mpa,mpb,mpphi),mpchisq,mpdof)
-#                print("Pole with Strikes preturbed counter-clockwise (negative): ",(mslat,mslon,msmag,msa,msb,msphi),mschisq,msdof)
+                print("Pole with Strikes preturbed clockwise (positive): ", (mplat,mplon,mpmag,mpa,mpb,mpphi),mpchisq,mpdof)
+                print("Pole with Strikes preturbed counter-clockwise (negative): ",(mslat,mslon,msmag,msa,msb,msphi),mschisq,msdof)
                 #Get their covariance matrices
                 pos_geodict = geoid.Inverse(mlat,mlon,mplat,mplon)
                 neg_geodict = geoid.Inverse(mlat,mlon,mslat,mslon)

@@ -17,7 +17,7 @@ from functools import cmp_to_key
 from collections import OrderedDict
 import pmagpy.ipmag as ipmag
 import pandas as pd
-import pyrot.max as pymax
+# import pyrot.max as pymax
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
 from pyskew.rtp_window import PoleDialog

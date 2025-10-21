@@ -93,7 +93,7 @@ Flags:
 """
 
 import os,sys,glob
-try: from pyrot.max import max_likelihood_pole
+try: from pyskew.max import max_likelihood_pole
 except (ModuleNotFoundError,ImportError) as e: pass
 from pyskew.geographic_preprocessing import *
 from pyskew.plot_geographic import *

@@ -33,7 +33,7 @@ class SynthMagGUI(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.on_close_main)
 
         #Set Matplotlib fontsize to match WX
-        font = {'family' : 'normal',
+        font = {#'family' : '',
         #        'weight' : 'bold',
                 'size'   : fontsize}
         matplotlib.rc('font', **font)
@@ -73,67 +73,67 @@ class SynthMagGUI(wx.Frame):
         #----------------Build Directory and File Buttons-----------------
         # (176, 29) is the size of the largest button this way everything is nicely spaced
         wd_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.dir_path = wx.TextCtrl(self.panel, id=-1, size=(600,25), style=wx.TE_READONLY)
+        self.dir_path = wx.TextCtrl(self.panel, id=-1, size=(600,25), style=wx.TE_READONLY|wx.EXPAND)
         self.change_dir_button = buttons.GenButton(self.panel, id=-1, label="change directory",size=(176, 29))
 #        self.change_dir_button.SetBackgroundColour("#F8F8FF")
         self.change_dir_button.InitColours()
         self.Bind(wx.EVT_BUTTON, self.on_change_dir_button, self.change_dir_button)
         wd_sizer.Add(self.change_dir_button, wx.ALIGN_LEFT)
         wd_sizer.AddSpacer(20)
-        wd_sizer.Add(self.dir_path,wx.ALIGN_CENTER_VERTICAL|wx.EXPAND)
+        wd_sizer.Add(self.dir_path,wx.EXPAND)
 
         ts_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.ts_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY)
+        self.ts_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY|wx.EXPAND)
         self.change_ts_button = buttons.GenButton(self.panel, id=-1, label="change timescale",size=(176, 29))
 #        self.change_ts_button.SetBackgroundColour("#F8F8FF")
         self.change_ts_button.InitColours()
         self.Bind(wx.EVT_BUTTON, self.on_open_ts_button, self.change_ts_button)
         ts_sizer.Add(self.change_ts_button, wx.ALIGN_LEFT)
         ts_sizer.AddSpacer(20)
-        ts_sizer.Add(self.ts_path,wx.ALIGN_CENTER_VERTICAL|wx.EXPAND)
+        ts_sizer.Add(self.ts_path,wx.EXPAND)
 
         dsk_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.dsk_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY)
+        self.dsk_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY|wx.EXPAND)
         self.change_dsk_button = buttons.GenButton(self.panel, id=-1, label="change deskew file",size=(176, 29))
 #        self.change_dsk_button.SetBackgroundColour("#F8F8FF")
         self.change_dsk_button.InitColours()
         self.Bind(wx.EVT_BUTTON, self.on_open_dsk_button, self.change_dsk_button)
         dsk_sizer.Add(self.change_dsk_button, wx.ALIGN_LEFT)
         dsk_sizer.AddSpacer(20)
-        dsk_sizer.Add(self.dsk_path,wx.ALIGN_CENTER_VERTICAL|wx.EXPAND)
+        dsk_sizer.Add(self.dsk_path,wx.EXPAND)
 
         sr_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.sr_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY)
+        self.sr_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY|wx.EXPAND)
         self.change_sr_button = buttons.GenButton(self.panel, id=-1, label="change spreading rate",size=(176, 29))
 #        self.change_sr_button.SetBackgroundColour("#F8F8FF")
         self.change_sr_button.InitColours()
         self.Bind(wx.EVT_BUTTON, self.on_open_sr_file, self.change_sr_button)
         sr_sizer.Add(self.change_sr_button, wx.ALIGN_LEFT)
         sr_sizer.AddSpacer(20)
-        sr_sizer.Add(self.sr_path,wx.ALIGN_CENTER_VERTICAL|wx.EXPAND)
+        sr_sizer.Add(self.sr_path,wx.EXPAND)
 
         as_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.as_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY)
+        self.as_path = wx.TextCtrl(self.panel, id=-1, size=(300,25), style=wx.TE_READONLY|wx.EXPAND)
         self.change_as_button = buttons.GenButton(self.panel, id=-1, label="change anomalous skewness",size=(176, 29))
 #        self.change_as_button.SetBackgroundColour("#F8F8FF")
         self.change_as_button.InitColours()
         self.Bind(wx.EVT_BUTTON, self.on_open_as_file, self.change_as_button)
         as_sizer.Add(self.change_as_button, wx.ALIGN_LEFT)
         as_sizer.AddSpacer(20)
-        as_sizer.Add(self.as_path,wx.ALIGN_CENTER_VERTICAL|wx.EXPAND)
+        as_sizer.Add(self.as_path,wx.EXPAND)
 
         indir1_files_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        indir1_files_sizer.AddMany([(ts_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND|wx.RIGHT, v_bar_v_space),
-                                    (sr_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND)])
+        indir1_files_sizer.AddMany([(ts_sizer, 1, wx.EXPAND|wx.RIGHT, v_bar_v_space),
+                                    (sr_sizer, 1, wx.EXPAND)])
 
         indir2_files_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        indir2_files_sizer.AddMany([(dsk_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND|wx.RIGHT, v_bar_v_space),
-                                    (as_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND)])
+        indir2_files_sizer.AddMany([(dsk_sizer, 1, wx.EXPAND|wx.RIGHT, v_bar_v_space),
+                                    (as_sizer, 1, wx.EXPAND)])
 
         dir_files_sizer = wx.BoxSizer(wx.VERTICAL)
-        dir_files_sizer.AddMany([(wd_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT, v_bar_v_space),
-                          (indir1_files_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_CENTER|wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT, v_bar_v_space),
-                          (indir2_files_sizer, 1, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER|wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT, v_bar_v_space)])
+        dir_files_sizer.AddMany([(wd_sizer, 1, wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT, v_bar_v_space),
+                          (indir1_files_sizer, 1, wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT, v_bar_v_space),
+                          (indir2_files_sizer, 1, wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT, v_bar_v_space)])
 
         #----------------Track Selection Box-----------------
 
@@ -156,27 +156,27 @@ class SynthMagGUI(wx.Frame):
 #        self.show_adjacent_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Show Adjacent Components", size=(200,25))
 #        self.Bind(wx.EVT_TEXT_ENTER, self.on_show_adjacent, self.show_adjacent_button)
 
-        inner_sizer.AddMany([(self.track_box, 3, wx.ALIGN_CENTER|wx.EXPAND|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.TOP,side_bar_h_space),
-                             (self.phase_shift_box, 1, wx.ALIGN_LEFT|wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND|wx.TOP,side_bar_h_space)])
+        inner_sizer.AddMany([(self.track_box, 3, wx.ALIGN_CENTER|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.TOP,side_bar_h_space),
+                             (self.phase_shift_box, 1, wx.ALIGN_LEFT|wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.TOP,side_bar_h_space)])
         lower_sizer.AddMany([(self.show_component_button, 1, wx.ALIGN_CENTER|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.TOP,0),
-                             (self.show_alt_button, 1, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.TOP,side_bar_h_space)])
+                             (self.show_alt_button, 1, wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.TOP,side_bar_h_space)])
 
-        track_sizer.AddMany([(inner_sizer, 1, wx.ALIGN_CENTER|wx.EXPAND),
-                             (lower_sizer, 1, wx.ALIGN_LEFT|wx.ALIGN_BOTTOM|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND,side_bar_h_space)])
-#                             (self.show_adjacent_button, 1, wx.ALIGN_LEFT|wx.ALIGN_BOTTOM|wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND,side_bar_h_space)])
+        track_sizer.AddMany([(inner_sizer, 1, wx.ALIGN_CENTER),
+                             (lower_sizer, 1, wx.ALIGN_LEFT|wx.LEFT|wx.RIGHT|wx.BOTTOM,side_bar_h_space)])
+#                             (self.show_adjacent_button, 1, wx.ALIGN_LEFT|wx.ALIGN_BOTTOM|wx.LEFT|wx.RIGHT|wx.BOTTOM,side_bar_h_space)])
 
         #----------------Age bounds sand Spreading Rate Box-----------------
 
         age_sr_sizer = wx.StaticBoxSizer(wx.StaticBox(self.panel, wx.ID_ANY, "Choose Age Range and Spreading Rate"), wx.HORIZONTAL)
-        self.age_min_box = wx.ComboBox(self.panel, id=wx.ID_ANY,size=(50, 25),choices=[], style=wx.CB_DROPDOWN|wx.TE_PROCESS_ENTER)
+        self.age_min_box = wx.ComboBox(self.panel, id=wx.ID_ANY,size=(75, 25),choices=[], style=wx.CB_DROPDOWN|wx.TE_PROCESS_ENTER)
         self.Bind(wx.EVT_COMBOBOX, self.on_select_age_min,self.age_min_box)
         self.Bind(wx.EVT_TEXT_ENTER, self.on_enter_age_min, self.age_min_box)
 
-        self.age_max_box = wx.ComboBox(self.panel, id=wx.ID_ANY,size=(50, 25),choices=[], style=wx.CB_DROPDOWN|wx.TE_PROCESS_ENTER)
+        self.age_max_box = wx.ComboBox(self.panel, id=wx.ID_ANY,size=(75, 25),choices=[], style=wx.CB_DROPDOWN|wx.TE_PROCESS_ENTER)
         self.Bind(wx.EVT_COMBOBOX, self.on_select_age_max,self.age_max_box)
         self.Bind(wx.EVT_TEXT_ENTER, self.on_enter_age_max, self.age_max_box)
 
-        self.sr_box = wx.TextCtrl(self.panel, id=wx.ID_ANY, size=(50,25), style=wx.TE_PROCESS_ENTER)
+        self.sr_box = wx.TextCtrl(self.panel, id=wx.ID_ANY, size=(75,25), style=wx.TE_PROCESS_ENTER)
         self.Bind(wx.EVT_TEXT_ENTER, self.on_enter_sr, self.sr_box)
 
         age_sr_sizer.AddMany([(self.sr_box, 1, wx.ALIGN_LEFT|wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT,side_bar_h_space),
@@ -225,20 +225,20 @@ class SynthMagGUI(wx.Frame):
 
         zero_btn_sizer = wx.BoxSizer(wx.VERTICAL)
         synth_options_sizer = wx.StaticBoxSizer(wx.StaticBox(self.panel, wx.ID_ANY, "Shift Synthetic"), wx.HORIZONTAL)
-        self.zero_start_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Zero Start Points", size=(200,25))
+        self.zero_start_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Zero Start Points", size=(100,25))
         self.Bind(wx.EVT_TEXT_ENTER, self.on_zero_start, self.zero_start_button)
 
-        self.zero_end_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Zero End Points", size=(200,25))
+        self.zero_end_button = wx.CheckBox(self.panel, id=wx.ID_ANY, label="Zero End Points", size=(100,25))
         self.Bind(wx.EVT_TEXT_ENTER, self.on_zero_end, self.zero_end_button)
 
         self.shift_synth_box = wx.TextCtrl(self.panel, id=wx.ID_ANY, size=(50,25), style=wx.TE_PROCESS_ENTER)
         self.Bind(wx.EVT_TEXT_ENTER, self.on_shift_synth_box, self.shift_synth_box)
 
         zero_btn_sizer.AddMany([(self.zero_start_button, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.LEFT|wx.RIGHT,side_bar_h_space),
-                                (self.zero_end_button, 1, wx.ALIGN_BOTTOM|wx.ALIGN_LEFT|wx.LEFT|wx.RIGHT,side_bar_h_space)])
+                                (self.zero_end_button, 1, wx.ALIGN_LEFT|wx.LEFT|wx.RIGHT,side_bar_h_space)])
 
-        synth_options_sizer.AddMany([(zero_btn_sizer, 2, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.LEFT|wx.RIGHT,side_bar_h_space),
-                                     (self.shift_synth_box, 1, wx.ALIGN_TOP|wx.ALIGN_RIGHT|wx.LEFT|wx.RIGHT,side_bar_h_space)])
+        synth_options_sizer.AddMany([(zero_btn_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.LEFT|wx.RIGHT,side_bar_h_space),
+                                     (self.shift_synth_box, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.LEFT,side_bar_h_space)])
 
         #----------------Transition Filter Length SynthBox-----------------
 
@@ -282,21 +282,21 @@ class SynthMagGUI(wx.Frame):
 
         #Finish Side Bar
         side_bar = wx.BoxSizer(wx.VERTICAL)
-        side_bar.AddMany([(track_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space),
-                          (age_sr_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space),
-                          (layer_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space),
-                          (mag_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space),
-                          (synth_options_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space),
-                          (filter_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space),
-                          (self.update_button, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT|wx.EXPAND,side_bar_v_space)])
+        side_bar.AddMany([(track_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT,side_bar_v_space),
+                          (age_sr_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT,side_bar_v_space),
+                          (layer_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT,side_bar_v_space),
+                          (mag_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT,side_bar_v_space),
+                          (synth_options_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT,side_bar_v_space),
+                          (filter_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.TOP|wx.LEFT|wx.RIGHT,side_bar_v_space),
+                          (self.update_button, 1, wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,side_bar_v_space)])
 
         fig_and_bar_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        fig_and_bar_sizer.AddMany([(side_bar, 0, wx.ALIGN_TOP|wx.ALIGN_LEFT),
-                                   (self.canvas, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.EXPAND)])
+        fig_and_bar_sizer.AddMany([(side_bar, 1, wx.EXPAND),
+                                   (self.canvas, 20, wx.EXPAND)])
 
         outer_sizer = wx.BoxSizer(wx.VERTICAL)
-        outer_sizer.AddMany([(dir_files_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.EXPAND),
-                             (fig_and_bar_sizer, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT|wx.EXPAND|wx.TOP,v_bar_v_space)])
+        outer_sizer.AddMany([(dir_files_sizer, 1, wx.EXPAND|wx.TOP),
+                             (fig_and_bar_sizer, 20, wx.EXPAND|wx.BOTTOM,v_bar_v_space)])
 
         self.panel.SetSizerAndFit(outer_sizer)
 

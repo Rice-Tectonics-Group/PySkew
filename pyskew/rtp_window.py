@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import f
 pymax_found = True
-try: import pyrot.max as pymax
+try: import pyskew.max as pymax
 except ImportError: pymax_found = False
 import pyskew.skewness as sk
 import pyskew.plot_skewness as psk

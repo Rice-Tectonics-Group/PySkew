@@ -326,5 +326,80 @@ def odrfit(x,y,sx,sy,func,start_vector):
 def format_polyfit(pols,sds,r2,yname='y',xname='x'):
     return yname + ' = ' + reduce(lambda x,y: x+'+'+y,["(%.2f+-%.2f)*%s^%d"%(pol,sd,xname,len(pols)-n-1) for n,(pol,sd) in enumerate(zip(pols,sds))]) + '; R2 = %.2f'%r2
 
+##############################PyRot Transplant to remove dependency
+def latlon2cart(lat,lon,cov,w=1):
+    radlat = np.deg2rad(lat)
+    radlon = np.deg2rad(lon)
 
+    wx = np.cos(radlat)*np.cos(radlon)
+    wy = np.cos(radlat)*np.sin(radlon)
+    wz = np.sin(radlat)
+
+    if len(cov)==3:
+        J = array([[-np.sin(radlat)*np.cos(radlon),-np.sin(radlon)*np.cos(radlat),np.deg2rad(w)*np.cos(radlat)*np.cos(radlon)],
+                   [-np.sin(radlat)*np.sin(radlon),np.cos(radlon)*np.cos(radlat),np.deg2rad(w)*np.cos(radlat)*np.sin(radlon)],
+                   [np.cos(radlat),0,np.deg2rad(w)*np.sin(radlat)],
+                   [0,0,np.deg2rad(w)]])
+    else:
+        J = array([[-np.sin(radlat)*np.cos(radlon),-np.sin(radlon)*np.cos(radlat)],
+                   [-np.sin(radlat)*np.sin(radlon),np.cos(radlon)*np.cos(radlat)],
+                   [np.cos(radlat),0]])
+
+    cart_cov = J @ (((np.pi/180)**2)*cov) @ J.T
+
+    return [wx,wy,wz],cart_cov
+
+def cart2latlon(wx,wy,wz,cart_cov):
+    lon = np.rad2deg(np.arctan2(wy,wx))
+    lat = np.rad2deg(np.np.arctan2(wz,np.sqrt(wx**2 + wy**2)))
+
+    J = array([[(-wx*wz)/(np.sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
+               (-wy*wz)/(np.sqrt(wx**2+wy**2)*(wx**2+wy**2+wz**2)),
+               np.sqrt(wx**2 + wy**2)/(wx**2 + wy**2 + wz**2)],
+               [-wy/(wx**2+wy**2),(wx)/(wx**2+wy**2),0]])
+
+    latlon_cov = (((180/np.pi)**2)*(J @ cart_cov @ J.T))
+
+    return [lat,lon],latlon_cov
+
+def change_lon_to_GCD_metric(lat,lon,cov):
+    cov = np.array(list(cov)) #prevent mutation of rotation cov
+    C = np.cos(np.deg2rad(lat))
+    #you can prove that if gcd_lon=C*lon than you can convert both variance and covariance this way from Bevington 3.14
+    cov[1,1] = C*C*cov[1,1]
+    cov[1,0] = C*cov[1,0]
+    cov[0,1] = C*cov[0,1]
+    if len(cov[:,0])>2: cov[2,1] = C*cov[2,1]; cov[1,2] = C*cov[1,2]
+    return cov
+
+def change_GCD_to_lon_metric(lat,lon,cov):
+    cov = np.array(list(cov)) #prevent mutation of rotation cov
+    C = 1/np.cos(np.deg2rad(lat))
+    #you can prove that if gcd_lon=C*lon than you can convert both variance and covariance this way from Bevington 3.14
+    #Also as Chengzu showed me this is in apendix B of Gordon and Cox 1980
+    cov[1,1] = C*C*cov[1,1]
+    cov[1,0] = C*cov[1,0]
+    cov[0,1] = C*cov[0,1]
+    if len(cov[:,0])>2: cov[2,1] = C*cov[2,1]; cov[1,2] = C*cov[1,2]
+    return cov
+
+def ellipse_to_cov(lat,lon,sa,sb,phi):
+    rphi = np.deg2rad(phi)
+    sa,sb = sa/np.sqrt(1.99),sb/np.sqrt(1.99)
+    var1 = sa**2 * np.cos(rphi)**2 + sb**2 * np.sin(rphi)**2 #vxx
+    var2 = sa**2 * np.sin(rphi)**2 + sb**2 * np.cos(rphi)**2 #vyy
+    covar12 = (sa**2 - sb**2) * np.sin(rphi) * np.cos(rphi)
+    return change_GCD_to_lon_metric(lat,lon,array([[var1,covar12],[covar12,var2]]))
+
+def cov_to_ellipse(lat,lon,cov,w=0):
+    if len(cov)==0: return
+    if len(cov[:,0])>2: cov=cov[:2,:]
+    if len(cov[0,:])>2: cov=cov[:,:2]
+    cov = change_lon_to_GCD_metric(lat,lon,cov)
+    e,v = np.linalg.eig(cov)
+    e = abs(e)
+    vmax = v[:,list(e).index(max(e))]
+    phi = np.rad2deg(np.arctan2(real(vmax[1]),real(vmax[0])))
+    ax = np.sqrt(1.99*e)#rad2deg(arctan2(sqrt(1.99*deg2rad(e)),deg2rad(w)))
+    return tuple((*sorted(ax,reverse=True),phi))
 

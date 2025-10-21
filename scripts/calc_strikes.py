@@ -43,8 +43,7 @@ ValueError
 """
 import os,sys
 import numpy as np
-import pyrot.max as pymax
-from pyrot.rot import cov_to_ellipse,ellipse_to_cov,latlon2cart,cart2latlon
+import pyskew.max as pymax
 import pyskew.utilities as utl
 from geographiclib.geodesic import Geodesic
 import pyskew.plot_skewness as psk
@@ -116,7 +115,7 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
         else:
             (mlat,mlon,mmag,ma,mb,mphi),chisq,dof = pymax.max_likelihood_pole(pdata, trial_pole=header[:3], out_path="calc_strike_before.maxout", step=header[-1], max_steps=100, comment=comment, solve_anom_skew=solve_anom_skew)
             askw = False
-        (mx,my,mz),mcov = latlon2cart(mlat,mlon,ellipse_to_cov(mlat,mlon,ma,mb,mphi))
+        (mx,my,mz),mcov = utl.latlon2cart(mlat,mlon,utl.ellipse_to_cov(mlat,mlon,ma,mb,mphi))
         print("Original Pole: ", mlat,mlon,ma,mb,mphi,chisq,dof)
         print("Original Covariance Matrix:\n", mcov)
 
@@ -214,11 +213,11 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
                 else: max_geodict,min_geodict = neg_geodict,pos_geodict
                 sphi = max_geodict["azi1"]
                 sb = min_geodict["a12"]*abs(np.sin(np.deg2rad(sphi-min_geodict["azi1"])))
-                (sx,sy,sz),scov = latlon2cart(mlat,mlon,ellipse_to_cov(mlat,mlon,sa,sb,sphi))
+                (sx,sy,sz),scov = utl.latlon2cart(mlat,mlon,utl.ellipse_to_cov(mlat,mlon,sa,sb,sphi))
                 print("Preturbed Distances and Azimuths: ", pos_geodict["a12"],pos_geodict["azi1"],neg_geodict["a12"],neg_geodict["azi1"])
                 print("Deviation of Azimuths from Anti-parallel: ", 180+(pos_geodict["azi1"]-neg_geodict["azi1"]))
                 print("Strike Ellipse: ", sa, sb, sphi)
-#            (_,_,_),scov = latlon2cart(plat,plon,ellipse_to_cov(plat,plon,maj_se,min_se,phi))
+#            (_,_,_),scov = utl.latlon2cart(plat,plon,ellipse_to_cov(plat,plon,maj_se,min_se,phi))
                 tcov += scov
             n += 1
 
@@ -298,8 +297,8 @@ def calc_strikes_and_add_err(dsk_path,max_file=None,solve_anom_skew=False,geoid=
     print("--------------------------------------")
     if max_file!=None:
         #Add and then convert back to an ellipse
-        (mlat,mlon),totcov = cart2latlon(mx,my,mz,mcov+tcov)
-        full_unc = cov_to_ellipse(mlat,mlon,totcov)
+        (mlat,mlon),totcov = utl.cart2latlon(mx,my,mz,mcov+tcov)
+        full_unc = utl.cov_to_ellipse(mlat,mlon,totcov)
         print("Strike Covariance Matrix:\n",tcov)
         print("Full Uncertainty: ",full_unc)
     else: full_unc = np.zeros([3,3])

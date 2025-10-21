@@ -19,7 +19,7 @@ def find_corners(lat_lon_file,tolerance=1,min_angle=np.pi*0.22,geoid=Geodesic(63
     lat_lon_file - file containing lattitude and longitude in that order in columns seperated by whitespace
     tolerance - the tolerance of the RDP algorithm more tolerance=less points kept (default=1)
     min_angle - angle in radians that should constitute a "significant" change in heading
-    
+
     Returns
     -------
     Tuple - (numpy array number_of_points_in_origionalx2 containing the origional data, 
